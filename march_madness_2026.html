@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GAER MADNESS 2026 - Bracket Prediction Engine</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --panel: #111318;
+    --border: #1e2330;
+    --border-bright: #2d3450;
+    --accent: #ff4b1f;
+    --accent2: #00e5a0;
+    --accent3: #ffd600;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --elite: #ff4b1f;
+    --good: #ffa64b;
+    --avg: #ffd600;
+    --bubble: #00e5a0;
+    --cinderella: #4b8eff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ---- HEADER ---- */
+  header {
+    border-bottom: 2px solid var(--accent);
+    padding: 18px 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky; top: 0; z-index: 100;
+    background: var(--bg);
+  }
+  .logo {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 28px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .logo span { color: var(--accent); }
+  .logo sub { font-size: 11px; color: var(--muted); font-weight: 400; margin-left: 8px; letter-spacing: 1px; }
+  .header-meta {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: right;
+    line-height: 1.6;
+  }
+  .live-dot {
+    display: inline-block; width: 7px; height: 7px;
+    background: var(--accent2); border-radius: 50%;
+    animation: pulse 1.4s ease-in-out infinite;
+    margin-right: 5px; vertical-align: middle;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+  /* ---- TABS ---- */
+  .tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    background: var(--panel);
+  }
+  .tab {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 14px 20px;
+    cursor: pointer;
+    color: var(--muted);
+    border-bottom: 3px solid transparent;
+    transition: all .2s;
+    border-top: 3px solid transparent;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  /* ---- MAIN ---- */
+  .main { padding: 28px 32px; max-width: 1400px; margin: 0 auto; }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* ---- GRID ---- */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
+
+  /* ---- CARDS ---- */
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px 22px;
+  }
+  .card-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-title-accent { color: var(--accent); }
+
+  /* ---- STAT BOXES ---- */
+  .stat-box {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 18px 20px;
+    text-align: center;
+  }
+  .stat-box .val {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 38px;
+    line-height: 1;
+    color: var(--accent);
+  }
+  .stat-box .lbl {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    margin-top: 6px;
+    text-transform: uppercase;
+  }
+
+  /* ---- TEAM TABLE ---- */
+  .team-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .team-table th {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    text-align: right;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .team-table th:first-child { text-align: left; }
+  .team-table th:hover { color: var(--text); }
+  .team-table td {
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--border);
+    text-align: right;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+  }
+  .team-table td:first-child { text-align: left; }
+  .team-table tr:hover td { background: #161b28; }
+  .team-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: .5px;
+  }
+  .seed-badge {
+    display: inline-block;
+    background: #1e2330;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 3px;
+    margin-right: 7px;
+    min-width: 24px;
+    text-align: center;
+  }
+  .seed-1 { background: var(--accent); color: white; }
+  .seed-2 { background: #c43500; color: white; }
+  .seed-3 { background: var(--good); color: #111; }
+  .seed-4 { background: var(--avg); color: #111; }
+  .seed-low { background: #1e2330; color: var(--muted); }
+
+  /* ---- BARS ---- */
+  .bar-wrap { width: 100%; background: #1a1f2e; border-radius: 2px; height: 6px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 2px; transition: width .6s ease; }
+  .bar-elite { background: var(--accent); }
+  .bar-good { background: var(--good); }
+  .bar-avg { background: var(--avg); }
+  .bar-bubble { background: var(--bubble); }
+  .bar-blue { background: var(--cinderella); }
+
+  /* ---- TIER BADGE ---- */
+  .tier {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 10px;
+    letter-spacing: 1px;
+    padding: 3px 7px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .tier-title { background: rgba(255,75,31,.15); color: var(--accent); border: 1px solid rgba(255,75,31,.3); }
+  .tier-elite { background: rgba(255,166,75,.12); color: var(--good); border: 1px solid rgba(255,166,75,.3); }
+  .tier-sleeper { background: rgba(75,142,255,.12); color: var(--cinderella); border: 1px solid rgba(75,142,255,.3); }
+  .tier-cinderella { background: rgba(0,229,160,.1); color: var(--bubble); border: 1px solid rgba(0,229,160,.3); }
+
+  /* ---- COACH TAG ---- */
+  .coach-bonus {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--accent2);
+  }
+
+  /* ---- MONTE CARLO ---- */
+  .sim-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 16px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 14px 36px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .sim-btn:hover { background: #ff6b3d; transform: translateY(-1px); }
+  .sim-btn:active { transform: translateY(0); }
+  .sim-btn:disabled { background: #333; color: var(--muted); cursor: not-allowed; transform: none; }
+
+  .progress-wrap {
+    width: 100%;
+    background: #1a1f2e;
+    border-radius: 3px;
+    height: 8px;
+    overflow: hidden;
+    margin: 16px 0;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+    border-radius: 3px;
+    transition: width .1s linear;
+    width: 0%;
+  }
+
+  .prob-row {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
+  }
+  .prob-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    width: 140px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .prob-pct {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    width: 44px;
+    text-align: right;
+  }
+  .prob-bar-wrap {
+    flex: 1;
+    background: #1a1f2e;
+    border-radius: 2px;
+    height: 18px;
+    overflow: hidden;
+    position: relative;
+  }
+  .prob-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width .8s ease;
+    display: flex; align-items: center; padding-left: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    color: rgba(255,255,255,.7);
+    white-space: nowrap;
+  }
+
+  /* ---- UPSET PANEL ---- */
+  .upset-card {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    background: var(--panel);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+  .upset-seeds {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 22px;
+    color: var(--accent3);
+  }
+  .upset-vs { color: var(--muted); font-size: 14px; }
+  .upset-pct {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent2);
+  }
+  .upset-note {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* ---- BETTING ---- */
+  .edge-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .edge-val {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--accent2);
+    font-weight: 700;
+  }
+  .edge-neg { color: var(--accent); }
+
+  /* ---- SEARCH ---- */
+  .search-wrap {
+    position: relative; margin-bottom: 16px;
+  }
+  .search-input {
+    width: 100%;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    padding: 10px 14px 10px 36px;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .search-input:focus { border-color: var(--accent); }
+  .search-icon {
+    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+    color: var(--muted); font-size: 14px;
+  }
+
+  /* ---- FILTER PILLS ---- */
+  .pills { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .pill {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .pill:hover { border-color: var(--text); color: var(--text); }
+  .pill.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+  /* ---- ALERT BOX ---- */
+  .alert {
+    background: rgba(255,75,31,.08);
+    border: 1px solid rgba(255,75,31,.25);
+    border-radius: 6px;
+    padding: 14px 18px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text);
+    margin-bottom: 20px;
+  }
+  .alert strong { color: var(--accent); }
+
+  /* ---- CHAMPION PROFILE ---- */
+  .champ-ring {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    border: 3px solid var(--accent);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    background: rgba(255,75,31,.08);
+    flex-shrink: 0;
+  }
+  .champ-ring .pct { font-size: 22px; color: var(--accent); line-height: 1; }
+  .champ-ring .lbl { font-size: 8px; color: var(--muted); letter-spacing: 1px; }
+
+  /* ---- SECTION HEADER ---- */
+  .section-header {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-bottom: 20px;
+  }
+  .section-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 28px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .section-sub {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* ---- SCROLLABLE ---- */
+  .scrollable { overflow-y: auto; max-height: 480px; }
+  .scrollable::-webkit-scrollbar { width: 4px; }
+  .scrollable::-webkit-scrollbar-track { background: transparent; }
+  .scrollable::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 2px; }
+
+  /* ---- SORT INDICATOR ---- */
+  .sort-active { color: var(--accent) !important; }
+
+  /* ---- FINAL FOUR BRACKET ---- */
+  .ff-bracket {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 16px;
+    align-items: center;
+    margin-top: 16px;
+  }
+  .ff-col { display: flex; flex-direction: column; gap: 12px; }
+  .ff-game {
+    background: #161b28;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 10px 14px;
+  }
+  .ff-team {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    display: flex; justify-content: space-between;
+    padding: 4px 0;
+  }
+  .ff-team span { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--accent2); }
+  .ff-team.winner { color: var(--accent); }
+  .ff-center {
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+  }
+  .ff-trophy {
+    font-size: 32px;
+    filter: drop-shadow(0 0 12px var(--accent3));
+  }
+  .ff-champ-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 18px;
+    color: var(--accent3);
+    text-align: center;
+  }
+
+  /* ---- responsive ---- */
+  @media(max-width:900px) {
+    .grid-2,.grid-3,.grid-4 { grid-template-columns: 1fr; }
+    .main { padding: 20px 16px; }
+    header { padding: 14px 16px; }
+    .tabs { padding: 0 16px; overflow-x: auto; }
+  }
+
+  /* ---- TOOLTIP ---- */
+  [title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    background: #1e2330;
+    border: 1px solid var(--border-bright);
+    color: var(--text);
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    z-index: 999;
+    pointer-events: none;
+    margin-top: 4px;
+  }
+
+  .highlight-row td { background: rgba(255,214,0,.04) !important; }
+  .mono { font-family: 'IBM Plex Mono', monospace; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">GAER <span>MADNESS</span> <sub>2026 ENGINE v2.0</sub></div>
+  <div class="header-meta">
+    <div><span class="live-dot"></span>SELECTION SUNDAY — MARCH 15, 6PM ET (CBS)</div>
+    <div>MODEL: GAER + KenPom + NET + Matchup Layer + Monte Carlo</div>
+    <div>BRACKET DROPS TONIGHT → RUN SIMULATION IMMEDIATELY</div>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" data-tab="rankings">Power Rankings</div>
+  <div class="tab" data-tab="simulator">Monte Carlo Sim</div>
+  <div class="tab" data-tab="upsets">Upset Engine</div>
+  <div class="tab" data-tab="champion">Champion Profile</div>
+  <div class="tab" data-tab="betting">Betting Edge</div>
+  <div class="tab" data-tab="model">Model Builder</div>
+</div>
+
+<div class="main">
+
+<!-- =================== TAB: RANKINGS =================== -->
+<div id="tab-rankings" class="section active">
+  <div class="section-header">
+    <div>
+      <div class="section-title">2026 Tournament Power Rankings</div>
+      <div class="section-sub">GAER composite · pre-Selection Sunday · projected field of 68</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button class="sim-btn" style="font-size:12px;padding:8px 18px;" onclick="runQuickSort()">↕ RESORT</button>
+    </div>
+  </div>
+
+  <div class="alert">
+    <strong>⚡ BRACKET ALERT:</strong> Projected 1-seeds: Duke · Michigan · Arizona · Florida. UConn slipped after Marquette loss — now fighting for 2-seed. Big East final tonight (St. John's vs UConn) will affect seeding. <strong>Bracket drops 6pm ET tomorrow.</strong> Run the Monte Carlo immediately after.
+  </div>
+
+  <div style="display:flex;gap:12px;align-items:center;margin-bottom:14px;flex-wrap:wrap;">
+    <div class="search-wrap" style="width:280px;margin:0;">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" id="teamSearch" placeholder="Search team..." oninput="filterTeams()">
+    </div>
+    <div class="pills" style="margin:0;">
+      <div class="pill active" onclick="filterByTier(this,'all')">All</div>
+      <div class="pill" onclick="filterByTier(this,'title')">🔴 Title Contender</div>
+      <div class="pill" onclick="filterByTier(this,'elite')">🟠 Elite</div>
+      <div class="pill" onclick="filterByTier(this,'sleeper')">🔵 Sleeper</div>
+      <div class="pill" onclick="filterByTier(this,'cinderella')">🟢 Cinderella</div>
+    </div>
+  </div>
+
+  <div class="card" style="padding:0;">
+    <div class="scrollable">
+      <table class="team-table" id="rankingsTable">
+        <thead>
+          <tr>
+            <th onclick="sortTable('name')">Team</th>
+            <th onclick="sortTable('seed')" class="sort-active">SEED ▲</th>
+            <th onclick="sortTable('gaer')">GAER</th>
+            <th onclick="sortTable('power')">POWER RTG</th>
+            <th onclick="sortTable('kenpom')">KenPom</th>
+            <th onclick="sortTable('net')">NET</th>
+            <th onclick="sortTable('sos')">SOS</th>
+            <th onclick="sortTable('q1')">Q1%</th>
+            <th onclick="sortTable('champ_prob')">CHAMP %</th>
+            <th onclick="sortTable('ff_prob')">FINAL 4 %</th>
+            <th>TIER</th>
+            <th>COACH EDGE</th>
+          </tr>
+        </thead>
+        <tbody id="rankingsBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- =================== TAB: MONTE CARLO =================== -->
+<div id="tab-simulator" class="section">
+  <div class="section-header">
+    <div>
+      <div class="section-title">Monte Carlo Tournament Simulator</div>
+      <div class="section-sub">25,000 tournament simulations · probability engine · bracket optimization</div>
+    </div>
+  </div>
+
+  <div class="alert">
+    <strong>💡 HOW TO USE:</strong> Click <strong>RUN 25,000 SIMS</strong> to simulate the entire tournament. Each simulation plays out all 63 games using matchup-adjusted win probabilities. Results show true championship odds, Final Four frequency, and optimal bracket picks.
+  </div>
+
+  <div class="grid-2" style="margin-bottom:20px;">
+    <div class="card">
+      <div class="card-title">Simulation Controls</div>
+      <div style="margin-bottom:16px;">
+        <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px;font-family:'IBM Plex Mono',monospace;">SIMULATIONS</label>
+        <select id="simCount" style="background:var(--bg);color:var(--text);border:1px solid var(--border);padding:8px 12px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:13px;width:100%;">
+          <option value="5000">5,000 (Fast)</option>
+          <option value="25000" selected>25,000 (Recommended)</option>
+          <option value="50000">50,000 (Deep)</option>
+        </select>
+      </div>
+      <div style="margin-bottom:16px;">
+        <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px;font-family:'IBM Plex Mono',monospace;">UPSET WEIGHT</label>
+        <input type="range" id="upsetWeight" min="0.5" max="1.5" step="0.1" value="1.0" style="width:100%;accent-color:var(--accent);">
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-top:4px;">
+          <span>CONSERVATIVE</span><span id="upsetVal">1.0x</span><span>UPSET-HEAVY</span>
+        </div>
+      </div>
+      <button class="sim-btn" id="simBtn" onclick="runSimulation()" style="width:100%;">▶ RUN 25,000 SIMS</button>
+      <div class="progress-wrap" id="progressWrap" style="display:none;">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div id="simStatus" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-top:8px;"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Last Run Summary</div>
+      <div class="grid-2" id="simSummary">
+        <div class="stat-box"><div class="val" id="sumSims">—</div><div class="lbl">Simulations</div></div>
+        <div class="stat-box"><div class="val" id="sumUpsets">—</div><div class="lbl">Avg 1st Rd Upsets</div></div>
+        <div class="stat-box"><div class="val" id="sumTopChamp">—</div><div class="lbl">Top Champ Prob</div></div>
+        <div class="stat-box"><div class="val" id="sumSurprise">—</div><div class="lbl">Surprise Champ %</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title card-title-accent">▮ Championship Probability</div>
+      <div id="champProbs" style="padding-top:8px;">
+        <div style="color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:12px;text-align:center;padding:30px;">Run simulation to generate results</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title card-title-accent">▮ Final Four Probability</div>
+      <div id="ff4Probs" style="padding-top:8px;">
+        <div style="color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:12px;text-align:center;padding:30px;">Run simulation to generate results</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <div class="card-title card-title-accent">▮ Projected Final Four Bracket (Most Likely Outcome)</div>
+    <div id="ff4Bracket">
+      <div style="color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:12px;text-align:center;padding:30px;">Run simulation to generate bracket projection</div>
+    </div>
+  </div>
+</div>
+
+<!-- =================== TAB: UPSETS =================== -->
+<div id="tab-upsets" class="section">
+  <div class="section-header">
+    <div>
+      <div class="section-title">Upset Engine</div>
+      <div class="section-sub">historical rates · matchup signals · bracket pool EV maximization</div>
+    </div>
+  </div>
+
+  <div class="grid-4" style="margin-bottom:20px;">
+    <div class="upset-card">
+      <div>
+        <div class="upset-seeds">12 <span class="upset-vs">vs</span> 5</div>
+        <div class="upset-note">GAER target: top 50 KenPom offense + senior guards + 3pt volume</div>
+      </div>
+      <div class="upset-pct">35%</div>
+    </div>
+    <div class="upset-card">
+      <div>
+        <div class="upset-seeds">11 <span class="upset-vs">vs</span> 6</div>
+        <div class="upset-note">Highest historical variance. Often an NIT-quality team vs bubble team.</div>
+      </div>
+      <div class="upset-pct">37%</div>
+    </div>
+    <div class="upset-card">
+      <div>
+        <div class="upset-seeds">10 <span class="upset-vs">vs</span> 7</div>
+        <div class="upset-note">Essentially a coin flip. Focus on turnover pressure + FT shooting.</div>
+      </div>
+      <div class="upset-pct">40%</div>
+    </div>
+    <div class="upset-card">
+      <div>
+        <div class="upset-seeds">13 <span class="upset-vs">vs</span> 4</div>
+        <div class="upset-note">Rare but brutal. Slow-tempo elite defense profile. Avoid top-offense 4s.</div>
+      </div>
+      <div class="upset-pct">21%</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title card-title-accent">▮ 8 Hidden Upset Factors</div>
+      <div id="upsetFactors">
+        <!-- rendered by JS -->
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title card-title-accent">▮ 2026 Upset Watchlist</div>
+      <div id="upsetWatchlist"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <div class="card-title card-title-accent">▮ Pool EV Strategy — Why You Pick Underdogs</div>
+    <div style="overflow-x:auto;">
+      <table class="team-table" style="min-width:500px;">
+        <thead><tr>
+          <th style="text-align:left">Scenario</th>
+          <th>Win Prob</th>
+          <th>Pool Pick %</th>
+          <th>EV Factor</th>
+          <th>Verdict</th>
+        </tr></thead>
+        <tbody id="evTable"></tbody>
+      </table>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-top:12px;font-family:'IBM Plex Mono',monospace;line-height:1.7;">
+      In a 100-person pool, picking the favorite wins you ~zero differentiation. The path to winning pools is <span style="color:var(--accent2)">identifying 2-3 high-EV upsets</span> where your model sees higher win probability than the crowd assigns. Champion pick alone often accounts for 40-50% of final score.
+    </div>
+  </div>
+</div>
+
+<!-- =================== TAB: CHAMPION =================== -->
+<div id="tab-champion" class="section">
+  <div class="section-header">
+    <div>
+      <div class="section-title">Champion Profile Analyzer</div>
+      <div class="section-sub">historical champion DNA · 2026 title contender shortlist</div>
+    </div>
+  </div>
+
+  <div class="grid-3" style="margin-bottom:20px;">
+    <div class="card">
+      <div class="card-title">Historical Champion DNA</div>
+      <div style="font-size:13px;line-height:2;color:var(--text);">
+        <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:4px 0;"><span style="color:var(--muted)">KenPom Rank</span><span style="color:var(--accent);font-family:'IBM Plex Mono',monospace;">≤ 10</span></div>
+        <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:4px 0;"><span style="color:var(--muted)">AdjO Rank</span><span style="color:var(--accent);font-family:'IBM Plex Mono',monospace;">≤ 20</span></div>
+        <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:4px 0;"><span style="color:var(--muted)">AdjD Rank</span><span style="color:var(--accent);font-family:'IBM Plex Mono',monospace;">≤ 20</span></div>
+        <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:4px 0;"><span style="color:var(--muted)">Seed</span><span style="color:var(--accent);font-family:'IBM Plex Mono',monospace;">1–3</span></div>
+        <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:4px 0;"><span style="color:var(--muted)">Net Efficiency</span><span style="color:var(--accent);font-family:'IBM Plex Mono',monospace;">> +28</span></div>
+        <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:4px 0;"><span style="color:var(--muted)">FT% (late game)</span><span style="color:var(--accent);font-family:'IBM Plex Mono',monospace;">> 74%</span></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;"><span style="color:var(--muted)">Champs matching (2002–24)</span><span style="color:var(--accent2);font-family:'IBM Plex Mono',monospace;">~85%</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Teams Most Models Overrate</div>
+      <div style="font-size:13px;line-height:1.9;color:var(--muted);">
+        <div>🔴 <span style="color:var(--text)">High offense / weak defense</span> — melts under tournament pressure</div>
+        <div>🔴 <span style="color:var(--text)">Extreme tempo teams</span> — variance too high late in tournament</div>
+        <div>🔴 <span style="color:var(--text)">Freshman-heavy rosters</span> — Sweet 16 rate 17% vs 28% for veterans</div>
+        <div>🔴 <span style="color:var(--text)">Teams with 40%+ 3PA rate</span> — cold nights collapse brackets</div>
+        <div style="margin-top:10px;color:var(--text);">Teams most <em>underrated</em>:</div>
+        <div>🟢 Elite defense + physical boards</div>
+        <div>🟢 Senior guard-led offenses</div>
+        <div>🟢 High FTA rate + FT% > 74%</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Key Predictive Stats (Often Missing)</div>
+      <div style="font-size:13px;line-height:1.9;color:var(--muted);">
+        <div>📊 <span style="color:var(--accent2)">Rim FG%</span> — best deep-run predictor</div>
+        <div>📊 <span style="color:var(--accent2)">Opp Rim FG%</span> — defensive rim control</div>
+        <div>📊 <span style="color:var(--accent2)">Close game record (≤5pt)</span> — luck regression</div>
+        <div>📊 <span style="color:var(--accent2)">Turnover % forced</span> — pressure environment</div>
+        <div>📊 <span style="color:var(--accent2)">Offensive rebound %</span> — extra possessions</div>
+        <div>📊 <span style="color:var(--accent2)">Tempo diff vs opponent</span> — game control</div>
+        <div>📊 <span style="color:var(--accent2)">Roster avg age / minutes continuity</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title card-title-accent">▮ 2026 Title Contender Shortlist — Profile Match Score</div>
+    <div id="champProfiles"></div>
+  </div>
+</div>
+
+<!-- =================== TAB: BETTING =================== -->
+<div id="tab-betting" class="section">
+  <div class="section-header">
+    <div>
+      <div class="section-title">Betting Edge Calculator</div>
+      <div class="section-sub">model spread vs vegas · total projections · edge identification</div>
+    </div>
+  </div>
+
+  <div class="alert">
+    <strong>📈 EDGE WINDOW:</strong> First-round sportsbooks price 32 games rapidly. Model edges of ≥2.5 points vs Vegas spread appear frequently. This is when your model has maximum value. Total edges appear when tempo mismatch is extreme.
+  </div>
+
+  <div class="grid-2" style="margin-bottom:20px;">
+    <div class="card">
+      <div class="card-title card-title-accent">▮ Spread Calculator</div>
+      <div style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-bottom:14px;">
+        Model Spread ≈ Power Rating Difference × 0.85<br>
+        If Model Spread vs Vegas ≥ 2.5pts → edge
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:140px;">
+          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">TEAM A POWER RTG</label>
+          <input type="number" id="teamARtg" value="93" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;">
+        </div>
+        <div style="flex:1;min-width:140px;">
+          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">TEAM B POWER RTG</label>
+          <input type="number" id="teamBRtg" value="86" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;">
+        </div>
+        <div style="flex:1;min-width:140px;">
+          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">VEGAS SPREAD (A)</label>
+          <input type="number" id="vegasSpread" value="-4.5" step="0.5" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;">
+        </div>
+      </div>
+      <button class="sim-btn" onclick="calcSpread()" style="font-size:13px;padding:10px 20px;">CALCULATE EDGE</button>
+      <div id="spreadResult" style="margin-top:14px;"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title card-title-accent">▮ Total Calculator</div>
+      <div style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-bottom:14px;">
+        Projected Total = (TempoA + TempoB)/2 × efficiency matchup<br>
+        If Model vs Vegas ≥ 4pts → edge
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:120px;">
+          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">TEAM A TEMPO</label>
+          <input type="number" id="tempoA" value="70" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;">
+        </div>
+        <div style="flex:1;min-width:120px;">
+          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">TEAM B TEMPO</label>
+          <input type="number" id="tempoB" value="68" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;">
+        </div>
+        <div style="flex:1;min-width:120px;">
+          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">A OFF EFF</label>
+          <input type="number" id="offEffA" value="118" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;">
+        </div>
+        <div style="flex:1;min-width:120px;">
+          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">VEGAS O/U</label>
+          <input type="number" id="vegasTotal" value="142" step="0.5" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;">
+        </div>
+      </div>
+      <button class="sim-btn" onclick="calcTotal()" style="font-size:13px;padding:10px 20px;">CALCULATE EDGE</button>
+      <div id="totalResult" style="margin-top:14px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- =================== TAB: MODEL BUILDER =================== -->
+<div id="tab-model" class="section">
+  <div class="section-header">
+    <div>
+      <div class="section-title">GAER Model Builder</div>
+      <div class="section-sub">adjust weights · recalculate power ratings · export rankings</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title card-title-accent">▮ Power Rating Formula Weights</div>
+      <div style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-bottom:16px;">Weights auto-normalize to 100%. Adjust to see impact on rankings.</div>
+      <div id="weightSliders"></div>
+      <div style="margin-top:14px;padding:10px;background:var(--bg);border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);" id="weightTotal"></div>
+      <button class="sim-btn" onclick="recalcModel()" style="width:100%;margin-top:14px;font-size:14px;padding:11px;">RECALCULATE MODEL</button>
+    </div>
+    <div class="card">
+      <div class="card-title card-title-accent">▮ Step-by-Step Model Structure</div>
+      <div style="font-size:13px;line-height:2;color:var(--muted);">
+        <div style="color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;">STEP 1 — Team Strength</div>
+        <div>KenPom Net Rating · NET · Quad-1 Win % · SOS · Seed Adj</div>
+        <div style="color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;margin-top:8px;">STEP 2 — Matchup Adjustments</div>
+        <div>3pt matchup · Turnover pressure · Rebounding · Tempo conflict · FT rate</div>
+        <div style="color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;margin-top:8px;">STEP 3 — Volatility Layer</div>
+        <div>High 3PA → +variance · Slow tempo → –variance · Experience multiplier</div>
+        <div style="color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;margin-top:8px;">STEP 4 — Coach Adjustment</div>
+        <div>Tournament wins above expectation (Izzo +12%, Self +10%, Hurley rising)</div>
+        <div style="color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;margin-top:8px;">STEP 5 — Monte Carlo</div>
+        <div>25,000 simulations → advancement probabilities → bracket optimization</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <div class="card-title card-title-accent">▮ Variables to Add Before Bracket Locks (Tomorrow)</div>
+    <div class="grid-3" style="margin-top:8px;">
+      <div>
+        <div style="color:var(--accent2);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;margin-bottom:8px;">SHOOTING PROFILE</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.9;">3PA / FGA ratio<br>Opponent 3PT defense<br>FG% at rim<br>Defensive rim FG%</div>
+      </div>
+      <div>
+        <div style="color:var(--accent2);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;margin-bottom:8px;">POSSESSION CONTROL</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.9;">Turnover % forced<br>Opp turnover %<br>ORB %<br>Opponent DRB%</div>
+      </div>
+      <div>
+        <div style="color:var(--accent2);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;margin-bottom:8px;">PROFILE FACTORS</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.9;">Roster avg age<br>Minutes continuity<br>FTA / FGA rate<br>Team FT%</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end main -->
+
+<script>
+// ============================================================
+//  DATA — 2026 projected field (pre-Selection Sunday)
+// ============================================================
+const TEAMS = [
+  // seed, name, gaer, kenpom, net, sos, q1w, q1l, tempo, orb, tov, threeRate, ftRate, exp, coachBonus, coachName
+  {seed:1,  name:"Duke",          conf:"ACC",   gaer:53.68, kenpom:1,  net:1,  sos:8,  q1w:14,q1l:4,  tempo:71, orb:31, tov:18, threeRate:.38, ftRate:.36, exp:"High",   coachBonus:0,    coachName:"Scheyer"},
+  {seed:1,  name:"Michigan",      conf:"B10",   gaer:52.44, kenpom:2,  net:2,  sos:6,  q1w:13,q1l:4,  tempo:68, orb:32, tov:16, threeRate:.35, ftRate:.38, exp:"High",   coachBonus:0.08, coachName:"Juwan Howard"},
+  {seed:1,  name:"Arizona",       conf:"B12",   gaer:50.27, kenpom:3,  net:3,  sos:4,  q1w:12,q1l:5,  tempo:73, orb:33, tov:17, threeRate:.37, ftRate:.34, exp:"Med",    coachBonus:0,    coachName:"Lloyd"},
+  {seed:1,  name:"Florida",       conf:"SEC",   gaer:47.92, kenpom:5,  net:5,  sos:5,  q1w:11,q1l:5,  tempo:66, orb:35, tov:14, threeRate:.31, ftRate:.42, exp:"High",   coachBonus:0,    coachName:"Golden"},
+  {seed:2,  name:"Houston",       conf:"B12",   gaer:44.10, kenpom:6,  net:6,  sos:7,  q1w:10,q1l:5,  tempo:63, orb:34, tov:22, threeRate:.32, ftRate:.41, exp:"Med",    coachBonus:0,    coachName:"Sampson"},
+  {seed:2,  name:"UConn",         conf:"BigE",  gaer:41.56, kenpom:4,  net:4,  sos:9,  q1w:12,q1l:6,  tempo:70, orb:30, tov:15, threeRate:.36, ftRate:.35, exp:"High",   coachBonus:0.09, coachName:"Hurley"},
+  {seed:2,  name:"Illinois",      conf:"B10",   gaer:40.80, kenpom:8,  net:8,  sos:10, q1w:10,q1l:6,  tempo:67, orb:29, tov:16, threeRate:.34, ftRate:.37, exp:"Med",    coachBonus:0,    coachName:"Underwood"},
+  {seed:2,  name:"Michigan St",   conf:"B10",   gaer:39.20, kenpom:9,  net:9,  sos:11, q1w:9, q1l:6,  tempo:65, orb:31, tov:17, threeRate:.33, ftRate:.40, exp:"High",   coachBonus:0.12, coachName:"Izzo ⭐"},
+  {seed:3,  name:"Kansas",        conf:"B12",   gaer:37.50, kenpom:10, net:11, sos:3,  q1w:9, q1l:7,  tempo:71, orb:28, tov:16, threeRate:.36, ftRate:.35, exp:"Med",    coachBonus:0.10, coachName:"Self ⭐"},
+  {seed:3,  name:"Purdue",        conf:"B10",   gaer:36.80, kenpom:11, net:10, sos:12, q1w:8, q1l:7,  tempo:64, orb:35, tov:15, threeRate:.33, ftRate:.38, exp:"High",   coachBonus:0.07, coachName:"Painter"},
+  {seed:3,  name:"Iowa State",    conf:"B12",   gaer:35.60, kenpom:7,  net:7,  sos:2,  q1w:11,q1l:6,  tempo:69, orb:27, tov:18, threeRate:.38, ftRate:.33, exp:"Med",    coachBonus:0,    coachName:"Otzelberger"},
+  {seed:3,  name:"Nebraska",      conf:"B10",   gaer:34.90, kenpom:14, net:14, sos:13, q1w:8, q1l:8,  tempo:68, orb:30, tov:16, threeRate:.36, ftRate:.36, exp:"High",   coachBonus:0,    coachName:"Hoiberg"},
+  {seed:4,  name:"Gonzaga",       conf:"WCC",   gaer:33.50, kenpom:12, net:12, sos:20, q1w:7, q1l:6,  tempo:74, orb:33, tov:14, threeRate:.37, ftRate:.37, exp:"High",   coachBonus:0.08, coachName:"Few"},
+  {seed:4,  name:"Texas Tech",    conf:"B12",   gaer:32.80, kenpom:15, net:15, sos:14, q1w:8, q1l:8,  tempo:63, orb:32, tov:20, threeRate:.34, ftRate:.40, exp:"Med",    coachBonus:0,    coachName:"Grant"},
+  {seed:4,  name:"N Carolina",    conf:"ACC",   gaer:32.10, kenpom:13, net:13, sos:15, q1w:7, q1l:8,  tempo:72, orb:31, tov:17, threeRate:.37, ftRate:.34, exp:"Med",    coachBonus:0.06, coachName:"Hubert Davis"},
+  {seed:4,  name:"Vanderbilt",    conf:"SEC",   gaer:31.40, kenpom:16, net:16, sos:16, q1w:7, q1l:7,  tempo:67, orb:29, tov:16, threeRate:.35, ftRate:.36, exp:"High",   coachBonus:0,    coachName:"Stackhouse"},
+  {seed:5,  name:"St. John's",    conf:"BigE",  gaer:30.20, kenpom:17, net:17, sos:18, q1w:7, q1l:8,  tempo:70, orb:28, tov:18, threeRate:.38, ftRate:.34, exp:"Med",    coachBonus:0.11, coachName:"Pitino ⭐"},
+  {seed:5,  name:"Louisville",    conf:"ACC",   gaer:29.80, kenpom:18, net:18, sos:19, q1w:6, q1l:8,  tempo:69, orb:30, tov:17, threeRate:.36, ftRate:.35, exp:"Med",    coachBonus:0,    coachName:"Kenny Payne"},
+  {seed:5,  name:"Tennessee",     conf:"SEC",   gaer:29.20, kenpom:19, net:19, sos:17, q1w:6, q1l:9,  tempo:65, orb:33, tov:21, threeRate:.31, ftRate:.43, exp:"Med",    coachBonus:0.07, coachName:"Barnes"},
+  {seed:5,  name:"Alabama",       conf:"SEC",   gaer:28.60, kenpom:20, net:20, sos:21, q1w:6, q1l:9,  tempo:75, orb:28, tov:19, threeRate:.42, ftRate:.31, exp:"Low",    coachBonus:0,    coachName:"Oats"},
+  {seed:6,  name:"Arkansas",      conf:"SEC",   gaer:27.40, kenpom:22, net:22, sos:22, q1w:5, q1l:9,  tempo:74, orb:35, tov:23, threeRate:.33, ftRate:.41, exp:"Low",    coachBonus:0,    coachName:"Calipari"},
+  {seed:6,  name:"Kentucky",      conf:"SEC",   gaer:26.80, kenpom:21, net:21, sos:23, q1w:5, q1l:10, tempo:72, orb:30, tov:18, threeRate:.36, ftRate:.36, exp:"Low",    coachBonus:0,    coachName:"Gillispie"},
+  {seed:6,  name:"Iowa",          conf:"B10",   gaer:26.20, kenpom:24, net:24, sos:24, q1w:5, q1l:10, tempo:68, orb:29, tov:17, threeRate:.37, ftRate:.34, exp:"High",   coachBonus:0,    coachName:"McCaffery"},
+  {seed:6,  name:"BYU",           conf:"B12",   gaer:25.60, kenpom:23, net:23, sos:25, q1w:5, q1l:10, tempo:66, orb:31, tov:15, threeRate:.35, ftRate:.38, exp:"High",   coachBonus:0,    coachName:"Pope"},
+  {seed:7,  name:"Clemson",       conf:"ACC",   gaer:24.80, kenpom:26, net:26, sos:26, q1w:4, q1l:10, tempo:67, orb:30, tov:17, threeRate:.36, ftRate:.35, exp:"Med",    coachBonus:0,    coachName:"Brownell"},
+  {seed:7,  name:"Villanova",     conf:"BigE",  gaer:24.20, kenpom:27, net:27, sos:27, q1w:4, q1l:11, tempo:65, orb:28, tov:15, threeRate:.42, ftRate:.33, exp:"High",   coachBonus:0,    coachName:"Wojciechowski"},
+  {seed:7,  name:"NC State",      conf:"ACC",   gaer:23.60, kenpom:28, net:28, sos:28, q1w:4, q1l:11, tempo:70, orb:27, tov:18, threeRate:.38, ftRate:.32, exp:"Med",    coachBonus:0,    coachName:"Keatts"},
+  {seed:7,  name:"Auburn",        conf:"SEC",   gaer:23.00, kenpom:25, net:25, sos:29, q1w:4, q1l:11, tempo:73, orb:29, tov:19, threeRate:.39, ftRate:.30, exp:"Low",    coachBonus:0,    coachName:"Pearl"},
+  {seed:8,  name:"Texas A&M",     conf:"SEC",   gaer:22.40, kenpom:30, net:30, sos:30, q1w:4, q1l:12, tempo:67, orb:30, tov:16, threeRate:.34, ftRate:.38, exp:"Med",    coachBonus:0,    coachName:"Buzz Williams"},
+  {seed:8,  name:"Indiana",       conf:"B10",   gaer:21.80, kenpom:31, net:31, sos:31, q1w:3, q1l:11, tempo:71, orb:28, tov:17, threeRate:.37, ftRate:.35, exp:"Med",    coachBonus:0,    coachName:"Woodson"},
+  {seed:8,  name:"Utah State",    conf:"MWC",   gaer:21.20, kenpom:29, net:29, sos:40, q1w:3, q1l:8,  tempo:64, orb:34, tov:14, threeRate:.33, ftRate:.40, exp:"High",   coachBonus:0,    coachName:"Odom"},
+  {seed:8,  name:"Wisconsin",     conf:"B10",   gaer:20.60, kenpom:32, net:32, sos:32, q1w:3, q1l:11, tempo:62, orb:31, tov:13, threeRate:.34, ftRate:.39, exp:"High",   coachBonus:0,    coachName:"Gard"},
+  {seed:9,  name:"UCF",           conf:"B12",   gaer:19.80, kenpom:35, net:35, sos:33, q1w:3, q1l:12, tempo:69, orb:27, tov:18, threeRate:.37, ftRate:.33, exp:"Med",    coachBonus:0,    coachName:"Dawkins"},
+  {seed:9,  name:"SMU",           conf:"ACC",   gaer:19.20, kenpom:36, net:36, sos:34, q1w:2, q1l:11, tempo:70, orb:26, tov:17, threeRate:.38, ftRate:.32, exp:"Low",    coachBonus:0,    coachName:"Jankovich"},
+  {seed:9,  name:"Georgia",       conf:"SEC",   gaer:18.60, kenpom:37, net:37, sos:35, q1w:2, q1l:12, tempo:68, orb:28, tov:18, threeRate:.36, ftRate:.34, exp:"Med",    coachBonus:0,    coachName:"White"},
+  {seed:10, name:"Saint Mary's",  conf:"WCC",   gaer:18.00, kenpom:33, net:33, sos:45, q1w:2, q1l:7,  tempo:61, orb:32, tov:12, threeRate:.32, ftRate:.38, exp:"High",   coachBonus:0.05, coachName:"Randy Bennett"},
+  {seed:10, name:"Texas",         conf:"SEC",   gaer:17.40, kenpom:38, net:38, sos:36, q1w:2, q1l:12, tempo:72, orb:27, tov:18, threeRate:.38, ftRate:.32, exp:"Med",    coachBonus:0,    coachName:"Turner"},
+  {seed:10, name:"UCLA",          conf:"B10",   gaer:16.80, kenpom:40, net:40, sos:37, q1w:2, q1l:13, tempo:70, orb:27, tov:17, threeRate:.37, ftRate:.33, exp:"Med",    coachBonus:0,    coachName:"Mick Cronin"},
+  {seed:11, name:"VCU",           conf:"A10",   gaer:15.60, kenpom:34, net:34, sos:50, q1w:1, q1l:8,  tempo:74, orb:36, tov:25, threeRate:.30, ftRate:.44, exp:"High",   coachBonus:0,    coachName:"Rhoades"},
+  {seed:11, name:"Ohio State",    conf:"B10",   gaer:15.00, kenpom:42, net:42, sos:38, q1w:2, q1l:13, tempo:69, orb:28, tov:17, threeRate:.37, ftRate:.33, exp:"Med",    coachBonus:0,    coachName:"Holtmann"},
+  {seed:12, name:"Akron",         conf:"MAC",   gaer:12.40, kenpom:55, net:55, sos:80, q1w:0, q1l:3,  tempo:68, orb:29, tov:16, threeRate:.40, ftRate:.33, exp:"High",   coachBonus:0,    coachName:"Barnes"},
+  {seed:12, name:"Belmont",       conf:"MVC",   gaer:11.80, kenpom:58, net:58, sos:85, q1w:0, q1l:2,  tempo:72, orb:27, tov:15, threeRate:.43, ftRate:.31, exp:"High",   coachBonus:0,    coachName:"Casey Alexander"},
+  {seed:13, name:"N Dakota St",   conf:"Sum",   gaer:8.60,  kenpom:80, net:82, sos:120,q1w:0, q1l:1,  tempo:66, orb:31, tov:14, threeRate:.35, ftRate:.36, exp:"High",   coachBonus:0,    coachName:"Richman"},
+  {seed:13, name:"Northern Iowa", conf:"MVC",   gaer:8.20,  kenpom:82, net:85, sos:115,q1w:0, q1l:1,  tempo:63, orb:33, tov:13, threeRate:.33, ftRate:.38, exp:"High",   coachBonus:0,    coachName:"Jacobson"},
+  {seed:14, name:"Wright State",  conf:"Hor",   gaer:5.40,  kenpom:105,net:110,sos:150,q1w:0, q1l:0,  tempo:67, orb:28, tov:15, threeRate:.38, ftRate:.34, exp:"Med",    coachBonus:0,    coachName:"Scott Nagy"},
+  {seed:14, name:"Sam Houston",   conf:"CUSA",  gaer:5.20,  kenpom:108,net:112,sos:155,q1w:0, q1l:0,  tempo:72, orb:30, tov:17, threeRate:.40, ftRate:.31, exp:"Med",    coachBonus:0,    coachName:"Lon Kruger"},
+  {seed:15, name:"Queens (ASUN)", conf:"ASUN",  gaer:3.80,  kenpom:130,net:135,sos:180,q1w:0, q1l:0,  tempo:70, orb:26, tov:18, threeRate:.41, ftRate:.30, exp:"Med",    coachBonus:0,    coachName:"Bret Burchard"},
+  {seed:15, name:"UMBC (AEC)",    conf:"AEC",   gaer:3.40,  kenpom:135,net:138,sos:185,q1w:0, q1l:0,  tempo:68, orb:27, tov:17, threeRate:.39, ftRate:.31, exp:"Med",    coachBonus:0,    coachName:"Odom"},
+  {seed:16, name:"LIU (NEC)",     conf:"NEC",   gaer:1.80,  kenpom:160,net:165,sos:210,q1w:0, q1l:0,  tempo:71, orb:25, tov:20, threeRate:.42, ftRate:.28, exp:"Low",    coachBonus:0,    coachName:""},
+  {seed:16, name:"Lehigh",        conf:"Pat",   gaer:1.60,  kenpom:165,net:168,sos:215,q1w:0, q1l:0,  tempo:67, orb:27, tov:16, threeRate:.38, ftRate:.30, exp:"Med",    coachBonus:0,    coachName:""},
+];
+
+// ---- compute power rating ----
+const WEIGHTS = { kenpom: 0.45, net: 0.20, q1: 0.15, sos: 0.10, seed: 0.10 };
+const modelWeights = { kenpom: 45, net: 20, q1: 15, sos: 10, seed: 10 };
+
+function computePower(t, w) {
+  const kpScore = Math.max(0, (200 - t.kenpom) / 2);
+  const netScore = Math.max(0, (200 - t.net) / 2);
+  const q1Score = t.q1w / (t.q1w + t.q1l + 0.01) * 100;
+  const sosScore = Math.max(0, (200 - t.sos) / 2);
+  const seedAdj = [0,3,2,1,0,-1,-2,-3,-4,-5,-5,-5,-7,-8,-9,-10,-12][Math.min(t.seed,16)] || -12;
+  const raw = (w.kenpom/100)*kpScore + (w.net/100)*netScore + (w.q1/100)*q1Score + (w.sos/100)*sosScore + (w.seed/100)*((seedAdj+12)/15*100);
+  return Math.min(100, Math.max(50, raw * 0.9 + t.coachBonus * 100 * 0.3));
+}
+
+function getTier(power, seed) {
+  if (power >= 88 && seed <= 2) return 'title';
+  if (power >= 80 && seed <= 5) return 'elite';
+  if (power >= 72 && seed <= 8) return 'sleeper';
+  return 'cinderella';
+}
+
+function seedWinProb(seedA, seedB, powerA, powerB) {
+  const diff = powerA - powerB;
+  // logistic
+  return 1 / (1 + Math.exp(-diff * 0.15));
+}
+
+// initialize power ratings
+TEAMS.forEach(t => { t.power = computePower(t, modelWeights); });
+
+// ---- WIN PROBABILITY (for matchup) ----
+function winProb(teamA, teamB) {
+  let pwr = seedWinProb(teamA.seed, teamB.seed, teamA.power, teamB.power);
+  // 3pt volatility adjustment
+  if (teamA.threeRate > 0.42) pwr = pwr * 0.95 + (Math.random() > 0.5 ? 0.05 : -0.05);
+  // upset weight from slider
+  const upsetW = parseFloat(document.getElementById('upsetWeight')?.value || 1);
+  if (upsetW !== 1.0 && teamA.seed > teamB.seed) {
+    pwr = pwr * (2 - upsetW);
+  }
+  return Math.max(0.05, Math.min(0.95, pwr));
+}
+
+// ---- SEED BADGE ----
+function seedBadge(s) {
+  const cls = s<=1?'seed-1':s<=2?'seed-2':s<=3?'seed-3':s<=4?'seed-4':'seed-low';
+  return `<span class="seed-badge ${cls}">${s}</span>`;
+}
+
+// ---- TIER BADGE ----
+function tierBadge(tier) {
+  const map = {title:'🔴 Title Contender',elite:'🟠 Elite',sleeper:'🔵 Sleeper',cinderella:'🟢 Cinderella'};
+  const cls = {title:'tier-title',elite:'tier-elite',sleeper:'tier-sleeper',cinderella:'tier-cinderella'};
+  return `<span class="tier ${cls[tier]}">${map[tier]}</span>`;
+}
+
+// ---- COLOR BAR ----
+function powerBar(val) {
+  const pct = ((val-50)/50*100).toFixed(0);
+  const cls = val>=88?'bar-elite':val>=80?'bar-good':val>=72?'bar-avg':'bar-bubble';
+  return `<div class="bar-wrap"><div class="bar-fill ${cls}" style="width:${pct}%"></div></div>`;
+}
+
+// ==== RANKINGS TABLE ====
+let sortKey = 'seed', sortDir = 1, tierFilter = 'all', searchFilter = '';
+let displayTeams = [...TEAMS];
+
+function renderRankings() {
+  const tbody = document.getElementById('rankingsBody');
+  let teams = [...TEAMS];
+
+  // filter
+  if (tierFilter !== 'all') teams = teams.filter(t => getTier(t.power, t.seed) === tierFilter);
+  if (searchFilter) teams = teams.filter(t => t.name.toLowerCase().includes(searchFilter.toLowerCase()));
+
+  // sort
+  teams.sort((a,b) => {
+    let va = a[sortKey], vb = b[sortKey];
+    if (sortKey === 'power') { va = a.power; vb = b.power; }
+    if (sortKey === 'champ_prob') { va = a.champProb||0; vb = b.champProb||0; }
+    if (sortKey === 'ff_prob') { va = a.ffProb||0; vb = b.ffProb||0; }
+    if (sortKey === 'q1') { va = a.q1w/(a.q1w+a.q1l+.01); vb = b.q1w/(b.q1w+b.q1l+.01); }
+    if (typeof va === 'string') return va.localeCompare(vb) * sortDir;
+    return (va - vb) * sortDir;
+  });
+
+  tbody.innerHTML = teams.map((t,i) => {
+    const tier = getTier(t.power, t.seed);
+    const q1pct = (t.q1w/(t.q1w+t.q1l+.01)*100).toFixed(0);
+    const champPct = t.champProb ? (t.champProb*100).toFixed(1)+'%' : '—';
+    const ffPct = t.ffProb ? (t.ffProb*100).toFixed(1)+'%' : '—';
+    return `<tr>
+      <td>${seedBadge(t.seed)}<span class="team-name">${t.name}</span><span style="font-size:10px;color:var(--muted);margin-left:6px;">${t.conf}</span></td>
+      <td>${t.seed}</td>
+      <td style="color:var(--accent2)">${t.gaer.toFixed(2)}</td>
+      <td>
+        <div style="min-width:120px;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:${t.power>=88?'var(--elite)':t.power>=80?'var(--good)':'var(--avg)'};">${t.power.toFixed(1)}</div>
+          ${powerBar(t.power)}
+        </div>
+      </td>
+      <td>${t.kenpom}</td>
+      <td>${t.net}</td>
+      <td>${t.sos}</td>
+      <td>${q1pct}%</td>
+      <td style="color:var(--accent);font-weight:700;">${champPct}</td>
+      <td style="color:var(--accent2);">${ffPct}</td>
+      <td>${tierBadge(tier)}</td>
+      <td><span class="coach-bonus">${t.coachBonus>0?`+${(t.coachBonus*100).toFixed(0)}% (${t.coachName})`:'—'}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function sortTable(key) {
+  if (sortKey === key) sortDir *= -1; else { sortKey = key; sortDir = key==='seed'||key==='kenpom'||key==='net'||key==='sos'?1:-1; }
+  renderRankings();
+}
+function filterByTier(el, tier) {
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  tierFilter = tier;
+  renderRankings();
+}
+function filterTeams() {
+  searchFilter = document.getElementById('teamSearch').value;
+  renderRankings();
+}
+function runQuickSort() { sortKey='power'; sortDir=-1; renderRankings(); }
+
+// ==== MONTE CARLO SIMULATION ====
+let simRunning = false;
+
+function runSimulation() {
+  if (simRunning) return;
+  simRunning = true;
+  const btn = document.getElementById('simBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ SIMULATING...';
+  document.getElementById('progressWrap').style.display = 'block';
+  document.getElementById('progressFill').style.width = '0%';
+  document.getElementById('simStatus').textContent = 'Initializing tournament brackets...';
+
+  const N = parseInt(document.getElementById('simCount').value);
+  const champCounts = {};
+  const ffCounts = {};
+  const elite8Counts = {};
+  const sweet16Counts = {};
+  TEAMS.forEach(t => { champCounts[t.name]=0; ffCounts[t.name]=0; elite8Counts[t.name]=0; sweet16Counts[t.name]=0; });
+
+  let totalFirstRoundUpsets = 0;
+
+  // split into 4 regions of 16
+  const sortedTeams = [...TEAMS].sort((a,b)=>a.seed-b.seed);
+  // Use top 16 per seed bracket logic (simplified: 4 regions, cycle teams)
+  const regions = [[],[],[],[]];
+  const seedOrder = [1,16,8,9,5,12,4,13,6,11,3,14,7,10,2,15];
+  const teamsByPow = [...TEAMS].sort((a,b) => b.power - a.power);
+
+  // assign to regions in order
+  for(let i=0;i<Math.min(64, TEAMS.length);i++) {
+    regions[i%4].push(teamsByPow[i]);
+  }
+
+  // ensure each region has 16 teams
+  while(regions.some(r=>r.length<16)) {
+    for(let r=0;r<4;r++) while(regions[r].length<16) regions[r].push({...TEAMS[TEAMS.length-1], name:'Placeholder '+r+regions[r].length});
+  }
+
+  function simGame(teamA, teamB) {
+    const pA = winProb(teamA, teamB);
+    return Math.random() < pA ? teamA : teamB;
+  }
+
+  function simRegion(regionTeams) {
+    // 8-game first round
+    let roundTeams = [...regionTeams.slice(0,16)];
+    // pair by seed: 1v16, 8v9, 5v12, 4v13, 6v11, 3v14, 7v10, 2v15
+    const pairs = [[0,15],[7,8],[4,11],[3,12],[5,10],[2,13],[6,9],[1,14]];
+    let round = pairs.map(([a,b]) => simGame(roundTeams[a], roundTeams[b]));
+    let firstRoundUpsets = 0;
+    pairs.forEach(([a,b]) => {
+      const winner = simGame(roundTeams[a], roundTeams[b]);
+      if(winner.seed > Math.min(roundTeams[a].seed, roundTeams[b].seed)) firstRoundUpsets++;
+    });
+    // R2
+    const r2 = [];
+    for(let i=0;i<8;i+=2) r2.push(simGame(round[i],round[i+1]));
+    // Sweet 16
+    const s16 = [simGame(r2[0],r2[1]), simGame(r2[2],r2[3])];
+    s16.forEach(t => { if(sweet16Counts[t.name]!==undefined) sweet16Counts[t.name]++; });
+    // Elite 8
+    const e8 = simGame(s16[0],s16[1]);
+    if(elite8Counts[e8.name]!==undefined) elite8Counts[e8.name]++;
+    return { winner: e8, upsets: firstRoundUpsets };
+  }
+
+  let sim = 0;
+  const chunk = Math.ceil(N/100);
+
+  function runChunk() {
+    const end = Math.min(sim + chunk, N);
+    for(let i=sim;i<end;i++) {
+      const regionWinners = regions.map(r => simRegion(r));
+      regionWinners.forEach(r => { if(ffCounts[r.winner.name]!==undefined) ffCounts[r.winner.name]++; });
+      totalFirstRoundUpsets += regionWinners.reduce((s,r)=>s+r.upsets,0);
+      // FF games
+      const ff1 = simGame(regionWinners[0].winner, regionWinners[1].winner);
+      const ff2 = simGame(regionWinners[2].winner, regionWinners[3].winner);
+      const champ = simGame(ff1, ff2);
+      if(champCounts[champ.name]!==undefined) champCounts[champ.name]++;
+    }
+    sim = end;
+    const pct = (sim/N*100).toFixed(0);
+    document.getElementById('progressFill').style.width = pct+'%';
+    document.getElementById('simStatus').textContent = `Running simulation ${sim.toLocaleString()} / ${N.toLocaleString()} ...`;
+
+    if(sim < N) {
+      requestAnimationFrame(runChunk);
+    } else {
+      finishSim(champCounts, ffCounts, elite8Counts, sweet16Counts, N, totalFirstRoundUpsets);
+    }
+  }
+  requestAnimationFrame(runChunk);
+}
+
+function finishSim(champCounts, ffCounts, elite8Counts, sweet16Counts, N, totalUpsets) {
+  // store probs on teams
+  TEAMS.forEach(t => {
+    t.champProb = (champCounts[t.name]||0)/N;
+    t.ffProb = (ffCounts[t.name]||0)/N;
+    t.e8Prob = (elite8Counts[t.name]||0)/N;
+    t.s16Prob = (sweet16Counts[t.name]||0)/N;
+  });
+
+  // sort by champ prob
+  const sortedChamp = [...TEAMS].sort((a,b) => b.champProb - a.champProb).slice(0,12);
+  const sortedFF = [...TEAMS].sort((a,b) => b.ffProb - a.ffProb).slice(0,12);
+
+  const maxChamp = sortedChamp[0].champProb;
+  const maxFF = sortedFF[0].ffProb;
+
+  // champion probs
+  document.getElementById('champProbs').innerHTML = sortedChamp.map(t => `
+    <div class="prob-row">
+      ${seedBadge(t.seed)}
+      <div class="prob-label">${t.name}</div>
+      <div class="prob-pct">${(t.champProb*100).toFixed(1)}%</div>
+      <div class="prob-bar-wrap">
+        <div class="prob-bar-fill" style="width:${(t.champProb/maxChamp*100).toFixed(0)}%;background:linear-gradient(90deg,var(--accent),var(--accent3));">${t.name}</div>
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('ff4Probs').innerHTML = sortedFF.map(t => `
+    <div class="prob-row">
+      ${seedBadge(t.seed)}
+      <div class="prob-label">${t.name}</div>
+      <div class="prob-pct">${(t.ffProb*100).toFixed(1)}%</div>
+      <div class="prob-bar-wrap">
+        <div class="prob-bar-fill" style="width:${(t.ffProb/maxFF*100).toFixed(0)}%;background:linear-gradient(90deg,var(--cinderella),var(--accent2));">${t.name}</div>
+      </div>
+    </div>
+  `).join('');
+
+  // summary stats
+  const topChamp = sortedChamp[0];
+  const surpriseTeams = [...TEAMS].filter(t=>t.seed>=8).sort((a,b)=>b.champProb-a.champProb);
+  const surprisePct = surpriseTeams.length > 0 ? (surpriseTeams[0].champProb*100).toFixed(1)+'%' : '0%';
+  document.getElementById('sumSims').textContent = N.toLocaleString();
+  document.getElementById('sumUpsets').textContent = (totalUpsets/N).toFixed(1);
+  document.getElementById('sumTopChamp').textContent = (topChamp.champProb*100).toFixed(1)+'%';
+  document.getElementById('sumSurprise').textContent = surprisePct;
+
+  // Final Four bracket
+  const ff4 = [...TEAMS].sort((a,b)=>b.ffProb-a.ffProb).slice(0,4);
+  const champTeam = [...TEAMS].sort((a,b)=>b.champProb-a.champProb)[0];
+  document.getElementById('ff4Bracket').innerHTML = `
+    <div class="ff-bracket">
+      <div class="ff-col">
+        <div class="ff-game">
+          <div class="ff-team winner">${seedBadge(ff4[0].seed)} ${ff4[0].name} <span>${(ff4[0].ffProb*100).toFixed(0)}%</span></div>
+          <div class="ff-team">${seedBadge(ff4[2].seed)} ${ff4[2].name} <span>${(ff4[2].ffProb*100).toFixed(0)}%</span></div>
+        </div>
+      </div>
+      <div class="ff-center">
+        <div class="ff-trophy">🏆</div>
+        <div class="ff-champ-name">${champTeam.name}</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">${(champTeam.champProb*100).toFixed(1)}% TITLE</div>
+      </div>
+      <div class="ff-col">
+        <div class="ff-game">
+          <div class="ff-team winner">${seedBadge(ff4[1].seed)} ${ff4[1].name} <span>${(ff4[1].ffProb*100).toFixed(0)}%</span></div>
+          <div class="ff-team">${seedBadge(ff4[3].seed)} ${ff4[3].name} <span>${(ff4[3].ffProb*100).toFixed(0)}%</span></div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // update rankings with probs
+  renderRankings();
+
+  // re-enable
+  simRunning = false;
+  const btn = document.getElementById('simBtn');
+  btn.disabled = false;
+  btn.textContent = '▶ RUN AGAIN';
+  document.getElementById('simStatus').textContent = `✅ Simulation complete — ${N.toLocaleString()} tournaments simulated.`;
+}
+
+// ==== UPSETS ====
+function renderUpsets() {
+  const factors = [
+    {label:"3-Point Dependency Volatility", desc:"Teams >45% 3PA rate + opponent top-20 3PT D → +12% upset probability. Hot shooting wins titles; cold shooting ends seasons.", icon:"🎯"},
+    {label:"Turnover Pressure", desc:"Teams top-25 in forcing turnovers overrepresented in Sweet 16. Tournament environments magnify ball-pressure defense.", icon:"💥"},
+    {label:"Free Throw Rate", desc:"FTA rate top-20 + FT% >74% = ~9% higher close-game win rate. Tournaments end in the bonus.", icon:"🎽"},
+    {label:"Experience / Age", desc:"Upperclass teams ~28% Sweet 16 rate vs ~17% for freshman-heavy rosters. Biggest coaching edge.", icon:"📚"},
+    {label:"Coach Tournament Skill", desc:"Izzo +12%, Self +10%, Pitino +11%, Hurley rising. Persistent, measurable, often ignored.", icon:"🏅"},
+    {label:"Tempo Conflict", desc:"Fast team vs very slow team becomes a coin flip. Virginia's 2018 run built on this principle.", icon:"⏱️"},
+    {label:"Rebounding Differential", desc:"ORB% dominance = extra possessions = variance reduction. Arizona historically elite here.", icon:"💪"},
+    {label:"Travel / Geographic Edge", desc:"Teams playing <400 miles from campus perform ~3% better in early rounds.", icon:"✈️"},
+  ];
+  document.getElementById('upsetFactors').innerHTML = factors.map(f => `
+    <div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">
+      <div style="font-size:20px;flex-shrink:0;">${f.icon}</div>
+      <div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;margin-bottom:3px;">${f.label}</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.5;">${f.desc}</div>
+      </div>
+    </div>
+  `).join('');
+
+  // watchlist: mid seeds with good upset profile
+  const watchlist = TEAMS.filter(t => t.seed >= 9 && t.seed <= 14).map(t => {
+    let score = 0;
+    if(t.threeRate < 0.38) score += 2;
+    if(t.tov >= 20) score += 2;
+    if(t.exp === 'High') score += 2;
+    if(t.orb >= 33) score += 2;
+    if(t.ftRate >= 0.38) score += 2;
+    if(t.coachBonus > 0) score += 3;
+    return { ...t, upsetScore: score };
+  }).sort((a,b) => b.upsetScore - a.upsetScore).slice(0,8);
+
+  document.getElementById('upsetWatchlist').innerHTML = watchlist.map(t => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+      <div>${seedBadge(t.seed)}<span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;">${t.name}</span></div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <div style="font-size:11px;color:var(--muted);">${t.exp} exp · ${(t.orb)}% ORB</div>
+        <div style="background:rgba(0,229,160,.1);border:1px solid rgba(0,229,160,.3);color:var(--accent2);font-family:'IBM Plex Mono',monospace;font-size:11px;padding:2px 8px;border-radius:3px;">UPSET RTG ${t.upsetScore}/13</div>
+      </div>
+    </div>
+  `).join('');
+
+  // EV table
+  const evData = [
+    {scenario:'1-seed wins (as expected)', prob:95, pickPct:95, verdict:'No Edge — field pick'},
+    {scenario:'2-seed beats 1 (Sweet 16)', prob:40, pickPct:20, verdict:'High EV — undervalued'},
+    {scenario:'12-seed upsets 5-seed', prob:35, pickPct:15, verdict:'HIGH EV — target pick'},
+    {scenario:'11-seed upsets 6-seed', prob:37, pickPct:18, verdict:'HIGH EV — target pick'},
+    {scenario:'10-seed upsets 7-seed', prob:40, pickPct:22, verdict:'HIGH EV — target pick'},
+    {scenario:'8-seed to Final Four', prob:4, pickPct:8, verdict:'Negative EV — avoid'},
+    {scenario:'1-seed wins title (chalk)', prob:30, pickPct:65, verdict:'Low EV — overbet'},
+    {scenario:'Correctly picked champion', prob:14, pickPct:6, verdict:'MAX EV — game-changer'},
+  ];
+  document.getElementById('evTable').innerHTML = evData.map(r => {
+    const ev = (r.prob/r.pickPct).toFixed(2);
+    const evNum = parseFloat(ev);
+    const evColor = evNum >= 1.5 ? 'var(--accent2)' : evNum < 1.0 ? 'var(--accent)' : 'var(--avg)';
+    return `<tr>
+      <td style="text-align:left;font-size:13px;">${r.scenario}</td>
+      <td>${r.prob}%</td>
+      <td>${r.pickPct}%</td>
+      <td style="color:${evColor};font-family:'IBM Plex Mono',monospace;font-weight:700;">${ev}x</td>
+      <td style="text-align:left;font-size:12px;color:var(--muted);">${r.verdict}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ==== CHAMPION PROFILES ====
+function renderChampionProfiles() {
+  const candidates = TEAMS.filter(t => t.seed <= 4).map(t => {
+    let score = 0; let checks = [];
+    if(t.kenpom <= 10) { score++; checks.push('KenPom ≤10 ✓'); } else checks.push(`KenPom ${t.kenpom} ✗`);
+    if(t.kenpom <= 20) { score++; } // AdjO proxy
+    if(t.net <= 20) { score++; checks.push('NET ≤20 ✓'); } else checks.push(`NET ${t.net} ✗`);
+    if(t.seed <= 3) { score++; checks.push('Seed ≤3 ✓'); } else checks.push(`Seed ${t.seed} ✗`);
+    if(t.gaer >= 40) { score++; checks.push('GAER elite ✓'); } else checks.push(`GAER ${t.gaer.toFixed(0)}`);
+    if(t.exp === 'High') { score++; checks.push('High exp ✓'); } else checks.push('Med/Low exp');
+    if(t.threeRate < 0.38) { score++; checks.push('Low 3pt dep ✓'); } else checks.push('High 3pt dep ⚠️');
+    if(t.ftRate >= 0.36) { score++; checks.push('FT rate ✓'); } else checks.push('FT rate low');
+    if(t.coachBonus > 0) { score++; checks.push(`Coach edge ✓`); }
+    return { ...t, champScore: score, champChecks: checks };
+  }).sort((a,b) => b.champScore - a.champScore);
+
+  document.getElementById('champProfiles').innerHTML = candidates.map(t => {
+    const pct = (t.champScore / 9 * 100).toFixed(0);
+    const color = pct >= 80 ? 'var(--accent)' : pct >= 65 ? 'var(--good)' : 'var(--avg)';
+    return `
+    <div style="display:flex;gap:16px;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);">
+      <div class="champ-ring" style="border-color:${color};">
+        <div class="pct" style="color:${color};">${pct}%</div>
+        <div class="lbl">MATCH</div>
+      </div>
+      <div style="flex:1;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+          ${seedBadge(t.seed)}
+          <span style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;">${t.name}</span>
+          <span style="color:var(--muted);font-size:12px;">${t.conf}</span>
+          ${t.champProb ? `<span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--accent);margin-left:auto;">SIM: ${(t.champProb*100).toFixed(1)}% title</span>` : ''}
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          ${t.champChecks.map(c => `<span style="font-size:11px;font-family:'IBM Plex Mono',monospace;padding:2px 7px;border-radius:3px;background:${c.includes('✓')?'rgba(0,229,160,.1)':'rgba(255,75,31,.08)'};color:${c.includes('✓')?'var(--accent2)':c.includes('⚠️')?'var(--avg)':'var(--muted)'};">${c}</span>`).join('')}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ==== BETTING CALCS ====
+function calcSpread() {
+  const pA = parseFloat(document.getElementById('teamARtg').value);
+  const pB = parseFloat(document.getElementById('teamBRtg').value);
+  const vegas = parseFloat(document.getElementById('vegasSpread').value);
+  const modelSpread = -(pA - pB) * 0.85;
+  const edge = modelSpread - vegas;
+  const edgeAbs = Math.abs(edge).toFixed(1);
+  const isEdge = Math.abs(edge) >= 2.5;
+  document.getElementById('spreadResult').innerHTML = `
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px;">
+      <div class="stat-box" style="flex:1;min-width:100px;"><div class="val" style="font-size:24px;">${modelSpread.toFixed(1)}</div><div class="lbl">Model Spread</div></div>
+      <div class="stat-box" style="flex:1;min-width:100px;"><div class="val" style="font-size:24px;">${vegas}</div><div class="lbl">Vegas Spread</div></div>
+      <div class="stat-box" style="flex:1;min-width:100px;border-color:${isEdge?'var(--accent2)':'var(--border)'}"><div class="val" style="font-size:24px;color:${isEdge?'var(--accent2)':'var(--muted)'};">${edge>=0?'+':''}${edge.toFixed(1)}</div><div class="lbl">EDGE</div></div>
+    </div>
+    <div style="margin-top:10px;padding:10px;border-radius:4px;background:${isEdge?'rgba(0,229,160,.08)':'rgba(255,75,31,.08)'};border:1px solid ${isEdge?'rgba(0,229,160,.3)':'rgba(255,75,31,.2)'}; font-size:13px;color:${isEdge?'var(--accent2)':'var(--muted)'};">
+      ${isEdge ? `✅ <strong>EDGE DETECTED: ${edgeAbs} point advantage.</strong> Bet Team ${edge < 0 ? 'A' : 'B'}.` : `❌ No edge (need ≥2.5 pts). Vegas line is fair.`}
+    </div>
+  `;
+}
+function calcTotal() {
+  const tA = parseFloat(document.getElementById('tempoA').value);
+  const tB = parseFloat(document.getElementById('tempoB').value);
+  const offEff = parseFloat(document.getElementById('offEffA').value);
+  const vegas = parseFloat(document.getElementById('vegasTotal').value);
+  const avgTempo = (tA+tB)/2;
+  const projTotal = (avgTempo * 2 * offEff / 100).toFixed(0);
+  const edge = projTotal - vegas;
+  const isEdge = Math.abs(edge) >= 4;
+  document.getElementById('totalResult').innerHTML = `
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px;">
+      <div class="stat-box" style="flex:1;min-width:100px;"><div class="val" style="font-size:24px;">${projTotal}</div><div class="lbl">Model Total</div></div>
+      <div class="stat-box" style="flex:1;min-width:100px;"><div class="val" style="font-size:24px;">${vegas}</div><div class="lbl">Vegas O/U</div></div>
+      <div class="stat-box" style="flex:1;min-width:100px;border-color:${isEdge?'var(--accent2)':'var(--border)'}"><div class="val" style="font-size:24px;color:${isEdge?'var(--accent2)':'var(--muted)'};">${edge>=0?'+':''}${edge.toFixed(0)}</div><div class="lbl">EDGE</div></div>
+    </div>
+    <div style="margin-top:10px;padding:10px;border-radius:4px;background:${isEdge?'rgba(0,229,160,.08)':'rgba(255,75,31,.08)'};border:1px solid ${isEdge?'rgba(0,229,160,.3)':'rgba(255,75,31,.2)'}; font-size:13px;color:${isEdge?'var(--accent2)':'var(--muted)'};">
+      ${isEdge ? `✅ <strong>TOTAL EDGE: ${Math.abs(edge).toFixed(0)} pts.</strong> Play the ${projTotal > vegas ? 'OVER' : 'UNDER'}.` : `❌ No edge on total (need ≥4 pts). Vegas close to fair.`}
+    </div>
+  `;
+}
+
+// ==== MODEL BUILDER ====
+function renderWeightSliders() {
+  const keys = [{k:'kenpom',l:'KenPom Net Rating'},{k:'net',l:'NET Ranking'},{k:'q1',l:'Quad-1 Win %'},{k:'sos',l:'SOS'},{k:'seed',l:'Seed Adjustment'}];
+  document.getElementById('weightSliders').innerHTML = keys.map(({k,l}) => `
+    <div style="margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+        <label style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">${l}</label>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--accent);" id="wlbl-${k}">${modelWeights[k]}%</span>
+      </div>
+      <input type="range" min="0" max="70" value="${modelWeights[k]}" id="wsl-${k}" 
+        style="width:100%;accent-color:var(--accent);"
+        oninput="modelWeights['${k}']=parseInt(this.value);document.getElementById('wlbl-${k}').textContent=this.value+'%';updateWeightTotal()">
+    </div>
+  `).join('');
+  updateWeightTotal();
+}
+
+function updateWeightTotal() {
+  const total = Object.values(modelWeights).reduce((s,v)=>s+v,0);
+  const el = document.getElementById('weightTotal');
+  if (el) {
+    el.textContent = `Total weight: ${total}% ${total===100?'✅ Balanced':'⚠️ Adjust to 100%'}`;
+    el.style.color = total===100?'var(--accent2)':'var(--avg)';
+  }
+}
+
+function recalcModel() {
+  TEAMS.forEach(t => { t.power = computePower(t, modelWeights); });
+  renderRankings();
+  renderChampionProfiles();
+  alert('✅ Model recalculated with new weights. Rankings updated.');
+}
+
+// ==== TABS ====
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
+    if (tab.dataset.tab === 'champion') renderChampionProfiles();
+  });
+});
+
+// upset weight label
+document.getElementById('upsetWeight').addEventListener('input', function() {
+  document.getElementById('upsetVal').textContent = parseFloat(this.value).toFixed(1)+'x';
+});
+
+// ==== INIT ====
+renderRankings();
+renderUpsets();
+renderWeightSliders();
+</script>
+</body>
+</html>
