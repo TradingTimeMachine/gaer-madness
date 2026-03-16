@@ -742,7 +742,14 @@
         <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px;font-family:'IBM Plex Mono',monospace;">UPSET WEIGHT</label>
         <input type="range" id="upsetWeight" min="0.5" max="3.0" step="0.1" value="1.0" style="width:100%;accent-color:var(--accent);">
         <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-top:4px;">
-          <span>CONSERVATIVE</span><span id="upsetVal">1.0x</span><span>UPSET-HEAVY</span>
+          <span>CHALK</span><span id="upsetVal" style="color:var(--accent);font-weight:700;">1.0x</span><span>CHAOS</span>
+        </div>
+        <div style="margin-top:10px;padding:10px 12px;background:rgba(255,214,0,.05);border:1px solid rgba(255,214,0,.15);border-radius:5px;font-size:12px;color:var(--muted);line-height:1.7;">
+          <span style="color:var(--accent3);font-weight:700;">HOW TO USE THE SLIDER:</span><br>
+          <span style="color:var(--text);">Left (0.5x)</span> — Model picks mostly favorites. Top seeds dominate. Realistic chalk bracket.<br>
+          <span style="color:var(--text);">Middle (1.0x)</span> — Pure model output. Low variability run to run. Best for serious analysis.<br>
+          <span style="color:var(--text);">Right (2.0-3.0x)</span> — Upsets are compressed toward 50/50. High chaos. Every run produces a different bracket.<br><br>
+          <span style="color:var(--accent2);">💡 Pro tip:</span> If you're a fan of a specific team, crank the slider up and keep hitting <strong>Run Again</strong> until you see your team win — then jump to <strong>My Bracket</strong> and use that scenario as your pool entry. You're not cheating the model, you're picking a plausible upset-heavy world where your team runs hot.
         </div>
       </div>
       <button class="sim-btn" id="simBtn" onclick="runSimulation()" style="width:100%;">▶ RUN 25,000 SIMS</button>
