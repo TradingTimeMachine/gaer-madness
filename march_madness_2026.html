@@ -507,120 +507,16 @@
 
   .highlight-row td { background: rgba(255,214,0,.04) !important; }
   .mono { font-family: 'IBM Plex Mono', monospace; }
-
-  /* ---- ADMIN ---- */
-  .admin-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,.85);
-    z-index: 500; display: flex; align-items: center; justify-content: center;
-  }
-  .admin-modal {
-    background: var(--panel); border: 2px solid var(--accent3);
-    border-radius: 8px; padding: 32px; width: 420px; max-width: 95vw;
-  }
-  .admin-panel {
-    position: fixed; top: 0; right: 0; width: 420px; height: 100vh;
-    background: var(--panel); border-left: 2px solid var(--accent3);
-    z-index: 400; overflow-y: auto; padding: 24px;
-    transform: translateX(100%); transition: transform .3s ease;
-  }
-  .admin-panel.open { transform: translateX(0); }
-  .admin-input {
-    width: 100%; background: var(--bg); border: 1px solid var(--border);
-    color: var(--text); padding: 8px 12px; border-radius: 4px;
-    font-family: 'IBM Plex Mono', monospace; font-size: 13px;
-    margin-bottom: 10px; outline: none;
-  }
-  .admin-input:focus { border-color: var(--accent3); }
-  .admin-btn {
-    background: var(--accent3); color: #000; border: none;
-    font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
-    font-size: 14px; letter-spacing: 1.5px; text-transform: uppercase;
-    padding: 10px 20px; border-radius: 4px; cursor: pointer; width: 100%;
-    margin-bottom: 8px;
-  }
-  .admin-btn:hover { background: #ffe033; }
-  .admin-btn.secondary {
-    background: #1e2330; color: var(--muted);
-  }
-  .admin-btn.secondary:hover { color: var(--text); }
-  .round-tab {
-    font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
-    font-size: 12px; letter-spacing: 1px; text-transform: uppercase;
-    padding: 6px 14px; border-radius: 3px; border: 1px solid var(--border);
-    color: var(--muted); cursor: pointer; transition: all .2s;
-  }
-  .round-tab.active { background: var(--accent3); border-color: var(--accent3); color: #000; }
-  .status-dot-admin {
-    display: inline-block; width: 8px; height: 8px; border-radius: 50%;
-    background: var(--muted); margin-right: 6px; vertical-align: middle;
-  }
-  .status-dot-admin.live { background: var(--accent2); animation: pulse 1.4s infinite; }
 </style>
 </head>
 <body>
 
-<!-- =================== ADMIN LOGIN OVERLAY =================== -->
-<div id="adminLoginOverlay" class="admin-overlay" style="display:none;">
-  <div class="admin-modal">
-    <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:22px;letter-spacing:2px;color:var(--accent3);margin-bottom:6px;">🔐 ADMIN ACCESS</div>
-    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:20px;">Bracket management · Round updates · Gist sync</div>
-    <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">ADMIN PASSWORD</label>
-    <input type="password" id="adminPwdInput" class="admin-input" placeholder="Enter password..." onkeydown="if(event.key==='Enter')checkAdminPwd()">
-    <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;margin-top:8px;">GITHUB TOKEN <span style="color:var(--muted);font-weight:400;">(never stored)</span></label>
-    <input type="password" id="adminTokenInput" class="admin-input" placeholder="ghp_..." onkeydown="if(event.key==='Enter')checkAdminPwd()">
-    <div id="adminPwdError" style="color:var(--accent);font-size:12px;font-family:'IBM Plex Mono',monospace;margin-bottom:10px;display:none;">❌ Incorrect password</div>
-    <button class="admin-btn" onclick="checkAdminPwd()">UNLOCK</button>
-    <button class="admin-btn secondary" onclick="closeAdminLogin()">CANCEL</button>
-  </div>
-</div>
-
-<!-- =================== ADMIN PANEL DRAWER =================== -->
-<div id="adminPanel" class="admin-panel">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-    <div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:18px;letter-spacing:2px;color:var(--accent3);">⚙️ BRACKET ADMIN</div>
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;">
-        <span class="status-dot-admin" id="gistStatusDot"></span><span id="gistStatusText">Not connected</span>
-      </div>
-    </div>
-    <button onclick="closeAdminPanel()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;">✕</button>
-  </div>
-
-  <!-- Round selector -->
-  <div style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;margin-bottom:8px;">TOURNAMENT ROUND</div>
-  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;" id="roundTabs">
-    <div class="round-tab active" onclick="switchAdminRound(0,this)">R1 — First Round</div>
-    <div class="round-tab" onclick="switchAdminRound(1,this)">R2 — Sweet 16</div>
-    <div class="round-tab" onclick="switchAdminRound(2,this)">R3 — Elite 8</div>
-    <div class="round-tab" onclick="switchAdminRound(3,this)">R4 — Final 4</div>
-    <div class="round-tab" onclick="switchAdminRound(4,this)">R5 — Finals</div>
-  </div>
-
-  <div id="adminRoundContent">
-    <!-- rendered by JS -->
-  </div>
-
-  <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px;">
-    <button class="admin-btn" onclick="saveToGist()">💾 SAVE & PUSH TO GIST</button>
-    <button class="admin-btn secondary" onclick="fetchFromGist(true)">↺ RELOAD FROM GIST</button>
-    <div id="adminSaveStatus" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-top:8px;text-align:center;"></div>
-  </div>
-
-  <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px;">
-    <div style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;margin-bottom:8px;">GIST LINK</div>
-    <a href="https://gist.github.com/TradingTimeMachine/51c7790e2cbefaf03d825edbefe20045" target="_blank" style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--accent2);word-break:break-all;">gist.github.com/TradingTimeMachine/51c7790e2cbefaf03d825edbefe20045</a>
-  </div>
-</div>
-
 <header>
   <div class="logo">DAVE'S <span>BRACKET MADNESS</span> <sub>2026 ENGINE v2.0</sub></div>
-  <div style="display:flex;align-items:center;gap:16px;">
-    <div class="header-meta">
-      <div><span class="live-dot"></span><span id="headerStatus">SELECTION SUNDAY — MARCH 15, 6PM ET (CBS)</span></div>
-      <div>MODEL: GAER + KenPom + NET + Matchup Layer + Monte Carlo</div>
-      <div id="headerRound" style="color:var(--accent2);">BRACKET DROPS TONIGHT → RUN SIMULATION IMMEDIATELY</div>
-    </div>
-    <button onclick="openAdminLogin()" style="background:rgba(255,214,0,.1);border:1px solid rgba(255,214,0,.3);color:var(--accent3);font-family:'IBM Plex Mono',monospace;font-size:10px;padding:6px 12px;border-radius:4px;cursor:pointer;letter-spacing:1px;white-space:nowrap;" title="Admin access">🔐 ADMIN</button>
+  <div class="header-meta">
+    <div><span class="live-dot"></span>OFFICIAL 2026 BRACKET — SELECTION SUNDAY CONFIRMED</div>
+    <div>EAST: Duke · SOUTH: Florida · WEST: Arizona · MIDWEST: Michigan</div>
+    <div>FIRST FOUR: March 17-18 · FIRST ROUND: March 19-20 · INDIANAPOLIS FINAL FOUR</div>
   </div>
 </header>
 
@@ -631,7 +527,6 @@
   <div class="tab" data-tab="champion">Champion Profile</div>
   <div class="tab" data-tab="betting">Betting Edge</div>
   <div class="tab" data-tab="model">Model Builder</div>
-  <div class="tab" data-tab="bracket" style="color:var(--accent2);border-bottom:3px solid transparent;" id="bracketTab">🏀 BRACKET ENTRY</div>
 </div>
 
 <div class="main">
@@ -641,7 +536,7 @@
   <div class="section-header">
     <div>
       <div class="section-title">2026 Tournament Power Rankings</div>
-      <div class="section-sub">GAER composite · pre-Selection Sunday · projected field of 68</div>
+      <div class="section-sub">OFFICIAL 2026 bracket · 68 teams · East / South / West / Midwest</div>
     </div>
     <div style="display:flex;gap:8px;align-items:center;">
       <button class="sim-btn" style="font-size:12px;padding:8px 18px;" onclick="runQuickSort()">↕ RESORT</button>
@@ -649,7 +544,7 @@
   </div>
 
   <div class="alert">
-    <strong>⚡ BRACKET ALERT:</strong> Projected 1-seeds: Duke · Michigan · Arizona · Florida. UConn slipped after Marquette loss — now fighting for 2-seed. Big East final tonight (St. John's vs UConn) will affect seeding. <strong>Bracket drops 6pm ET tomorrow.</strong> Run the Monte Carlo immediately after.
+    <strong>✅ OFFICIAL BRACKET LOADED:</strong> Duke (East) · Florida (South) · Arizona (West) · Michigan (Midwest). Notable: Iowa St. drops to 2-seed in Midwest. Virginia lands as 3-seed. UConn is 2 in the East. <strong>First Four March 17-18 in Dayton — Texas/NC State (West 11), Miami-OH/SMU (Midwest 11), PVAM/Lehigh (South 16), UMBC/Howard (Midwest 16).</strong>
   </div>
 
   <div style="display:flex;gap:12px;align-items:center;margin-bottom:14px;flex-wrap:wrap;">
@@ -1011,120 +906,86 @@
   </div>
 </div>
 
-<!-- =================== TAB: BRACKET ENTRY =================== -->
-<div id="tab-bracket" class="section">
-  <div class="section-header">
-    <div>
-      <div class="section-title">🏀 Live Bracket Entry</div>
-      <div class="section-sub">Enter tonight's real bracket → powers the Monte Carlo with actual matchups</div>
-    </div>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-      <button class="sim-btn" style="font-size:12px;padding:8px 16px;background:var(--accent2);color:#000;" onclick="lockBracketAndSimulate()">🔒 LOCK & RUN SIM</button>
-      <button class="sim-btn" style="font-size:12px;padding:8px 16px;background:#1e2330;color:var(--muted);" onclick="resetBracket()">↺ RESET</button>
-    </div>
-  </div>
-
-  <div class="alert" id="bracketAlert">
-    <strong>⚡ SELECTION SUNDAY MODE:</strong> The real bracket drops tonight at 6pm ET on CBS. As teams are announced, type them in below by region and seed. Once all 4 regions are set, click <strong>LOCK & RUN SIM</strong> to fire the Monte Carlo on the real matchups. Use the AI Analyze button on any game for instant scouting.
-  </div>
-
-  <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;align-items:center;">
-    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">QUICK FILL SEED ORDER: 1 vs 16 · 8 vs 9 · 5 vs 12 · 4 vs 13 · 6 vs 11 · 3 vs 14 · 7 vs 10 · 2 vs 15</div>
-    <button class="sim-btn" style="font-size:11px;padding:5px 12px;background:#1e2330;color:var(--accent2);margin-left:auto;" onclick="loadSampleBracket()">Load Tonight's Projected Field</button>
-  </div>
-
-  <div class="grid-2" id="bracketRegions">
-    <!-- 4 regions rendered by JS -->
-  </div>
-
-  <div id="bracketSimResults" style="display:none;margin-top:24px;">
-    <div class="card">
-      <div class="card-title card-title-accent">▮ Real Bracket Simulation Results</div>
-      <div class="grid-2" style="margin-bottom:16px;" id="bracketSimSummary"></div>
-      <div class="grid-2">
-        <div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:12px;letter-spacing:2px;color:var(--muted);margin-bottom:10px;">CHAMPIONSHIP ODDS</div>
-          <div id="bracketChampProbs"></div>
-        </div>
-        <div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:12px;letter-spacing:2px;color:var(--muted);margin-bottom:10px;">FINAL FOUR ODDS</div>
-          <div id="bracketFF4Probs"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- AI Matchup Analysis Panel -->
-  <div id="aiAnalysisPanel" style="display:none;position:fixed;top:0;right:0;width:380px;height:100vh;background:var(--panel);border-left:2px solid var(--accent);z-index:200;overflow-y:auto;padding:20px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);">🤖 AI MATCHUP SCOUT</div>
-      <button onclick="document.getElementById('aiAnalysisPanel').style.display='none'" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;">✕</button>
-    </div>
-    <div id="aiMatchupTitle" style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;margin-bottom:16px;color:var(--text);"></div>
-    <div id="aiMatchupContent" style="font-family:'Barlow',sans-serif;font-size:13px;line-height:1.8;color:var(--text);">
-      <div style="color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:12px;">Loading analysis...</div>
-    </div>
-  </div>
-</div>
-
 </div><!-- end main -->
 
 <script>
 // ============================================================
-//  DATA — 2026 projected field (pre-Selection Sunday)
+//  DATA — OFFICIAL 2026 NCAA BRACKET (Selection Sunday)
+//  Regions: East, South, West, Midwest
+//  First Four winners slotted as their seed
 // ============================================================
 const TEAMS = [
-  // seed, name, gaer, kenpom, net, sos, q1w, q1l, tempo, orb, tov, threeRate, ftRate, exp, coachBonus, coachName
-  {seed:1,  name:"Duke",          conf:"ACC",   gaer:53.68, kenpom:1,  net:1,  sos:8,  q1w:14,q1l:4,  tempo:71, orb:31, tov:18, threeRate:.38, ftRate:.36, exp:"High",   coachBonus:0,    coachName:"Scheyer"},
-  {seed:1,  name:"Michigan",      conf:"B10",   gaer:52.44, kenpom:2,  net:2,  sos:6,  q1w:13,q1l:4,  tempo:68, orb:32, tov:16, threeRate:.35, ftRate:.38, exp:"High",   coachBonus:0.08, coachName:"Juwan Howard"},
-  {seed:1,  name:"Arizona",       conf:"B12",   gaer:50.27, kenpom:3,  net:3,  sos:4,  q1w:12,q1l:5,  tempo:73, orb:33, tov:17, threeRate:.37, ftRate:.34, exp:"Med",    coachBonus:0,    coachName:"Lloyd"},
-  {seed:1,  name:"Florida",       conf:"SEC",   gaer:47.92, kenpom:5,  net:5,  sos:5,  q1w:11,q1l:5,  tempo:66, orb:35, tov:14, threeRate:.31, ftRate:.42, exp:"High",   coachBonus:0,    coachName:"Golden"},
-  {seed:2,  name:"Houston",       conf:"B12",   gaer:44.10, kenpom:6,  net:6,  sos:7,  q1w:10,q1l:5,  tempo:63, orb:34, tov:22, threeRate:.32, ftRate:.41, exp:"Med",    coachBonus:0,    coachName:"Sampson"},
-  {seed:2,  name:"UConn",         conf:"BigE",  gaer:41.56, kenpom:4,  net:4,  sos:9,  q1w:12,q1l:6,  tempo:70, orb:30, tov:15, threeRate:.36, ftRate:.35, exp:"High",   coachBonus:0.09, coachName:"Hurley"},
-  {seed:2,  name:"Illinois",      conf:"B10",   gaer:40.80, kenpom:8,  net:8,  sos:10, q1w:10,q1l:6,  tempo:67, orb:29, tov:16, threeRate:.34, ftRate:.37, exp:"Med",    coachBonus:0,    coachName:"Underwood"},
-  {seed:2,  name:"Michigan St",   conf:"B10",   gaer:39.20, kenpom:9,  net:9,  sos:11, q1w:9, q1l:6,  tempo:65, orb:31, tov:17, threeRate:.33, ftRate:.40, exp:"High",   coachBonus:0.12, coachName:"Izzo ⭐"},
-  {seed:3,  name:"Kansas",        conf:"B12",   gaer:37.50, kenpom:10, net:11, sos:3,  q1w:9, q1l:7,  tempo:71, orb:28, tov:16, threeRate:.36, ftRate:.35, exp:"Med",    coachBonus:0.10, coachName:"Self ⭐"},
-  {seed:3,  name:"Purdue",        conf:"B10",   gaer:36.80, kenpom:11, net:10, sos:12, q1w:8, q1l:7,  tempo:64, orb:35, tov:15, threeRate:.33, ftRate:.38, exp:"High",   coachBonus:0.07, coachName:"Painter"},
-  {seed:3,  name:"Iowa State",    conf:"B12",   gaer:35.60, kenpom:7,  net:7,  sos:2,  q1w:11,q1l:6,  tempo:69, orb:27, tov:18, threeRate:.38, ftRate:.33, exp:"Med",    coachBonus:0,    coachName:"Otzelberger"},
-  {seed:3,  name:"Nebraska",      conf:"B10",   gaer:34.90, kenpom:14, net:14, sos:13, q1w:8, q1l:8,  tempo:68, orb:30, tov:16, threeRate:.36, ftRate:.36, exp:"High",   coachBonus:0,    coachName:"Hoiberg"},
-  {seed:4,  name:"Gonzaga",       conf:"WCC",   gaer:33.50, kenpom:12, net:12, sos:20, q1w:7, q1l:6,  tempo:74, orb:33, tov:14, threeRate:.37, ftRate:.37, exp:"High",   coachBonus:0.08, coachName:"Few"},
-  {seed:4,  name:"Texas Tech",    conf:"B12",   gaer:32.80, kenpom:15, net:15, sos:14, q1w:8, q1l:8,  tempo:63, orb:32, tov:20, threeRate:.34, ftRate:.40, exp:"Med",    coachBonus:0,    coachName:"Grant"},
-  {seed:4,  name:"N Carolina",    conf:"ACC",   gaer:32.10, kenpom:13, net:13, sos:15, q1w:7, q1l:8,  tempo:72, orb:31, tov:17, threeRate:.37, ftRate:.34, exp:"Med",    coachBonus:0.06, coachName:"Hubert Davis"},
-  {seed:4,  name:"Vanderbilt",    conf:"SEC",   gaer:31.40, kenpom:16, net:16, sos:16, q1w:7, q1l:7,  tempo:67, orb:29, tov:16, threeRate:.35, ftRate:.36, exp:"High",   coachBonus:0,    coachName:"Stackhouse"},
-  {seed:5,  name:"St. John's",    conf:"BigE",  gaer:30.20, kenpom:17, net:17, sos:18, q1w:7, q1l:8,  tempo:70, orb:28, tov:18, threeRate:.38, ftRate:.34, exp:"Med",    coachBonus:0.11, coachName:"Pitino ⭐"},
-  {seed:5,  name:"Louisville",    conf:"ACC",   gaer:29.80, kenpom:18, net:18, sos:19, q1w:6, q1l:8,  tempo:69, orb:30, tov:17, threeRate:.36, ftRate:.35, exp:"Med",    coachBonus:0,    coachName:"Kenny Payne"},
-  {seed:5,  name:"Tennessee",     conf:"SEC",   gaer:29.20, kenpom:19, net:19, sos:17, q1w:6, q1l:9,  tempo:65, orb:33, tov:21, threeRate:.31, ftRate:.43, exp:"Med",    coachBonus:0.07, coachName:"Barnes"},
-  {seed:5,  name:"Alabama",       conf:"SEC",   gaer:28.60, kenpom:20, net:20, sos:21, q1w:6, q1l:9,  tempo:75, orb:28, tov:19, threeRate:.42, ftRate:.31, exp:"Low",    coachBonus:0,    coachName:"Oats"},
-  {seed:6,  name:"Arkansas",      conf:"SEC",   gaer:27.40, kenpom:22, net:22, sos:22, q1w:5, q1l:9,  tempo:74, orb:35, tov:23, threeRate:.33, ftRate:.41, exp:"Low",    coachBonus:0,    coachName:"Calipari"},
-  {seed:6,  name:"Kentucky",      conf:"SEC",   gaer:26.80, kenpom:21, net:21, sos:23, q1w:5, q1l:10, tempo:72, orb:30, tov:18, threeRate:.36, ftRate:.36, exp:"Low",    coachBonus:0,    coachName:"Gillispie"},
-  {seed:6,  name:"Iowa",          conf:"B10",   gaer:26.20, kenpom:24, net:24, sos:24, q1w:5, q1l:10, tempo:68, orb:29, tov:17, threeRate:.37, ftRate:.34, exp:"High",   coachBonus:0,    coachName:"McCaffery"},
-  {seed:6,  name:"BYU",           conf:"B12",   gaer:25.60, kenpom:23, net:23, sos:25, q1w:5, q1l:10, tempo:66, orb:31, tov:15, threeRate:.35, ftRate:.38, exp:"High",   coachBonus:0,    coachName:"Pope"},
-  {seed:7,  name:"Clemson",       conf:"ACC",   gaer:24.80, kenpom:26, net:26, sos:26, q1w:4, q1l:10, tempo:67, orb:30, tov:17, threeRate:.36, ftRate:.35, exp:"Med",    coachBonus:0,    coachName:"Brownell"},
-  {seed:7,  name:"Villanova",     conf:"BigE",  gaer:24.20, kenpom:27, net:27, sos:27, q1w:4, q1l:11, tempo:65, orb:28, tov:15, threeRate:.42, ftRate:.33, exp:"High",   coachBonus:0,    coachName:"Wojciechowski"},
-  {seed:7,  name:"NC State",      conf:"ACC",   gaer:23.60, kenpom:28, net:28, sos:28, q1w:4, q1l:11, tempo:70, orb:27, tov:18, threeRate:.38, ftRate:.32, exp:"Med",    coachBonus:0,    coachName:"Keatts"},
-  {seed:7,  name:"Auburn",        conf:"SEC",   gaer:23.00, kenpom:25, net:25, sos:29, q1w:4, q1l:11, tempo:73, orb:29, tov:19, threeRate:.39, ftRate:.30, exp:"Low",    coachBonus:0,    coachName:"Pearl"},
-  {seed:8,  name:"Texas A&M",     conf:"SEC",   gaer:22.40, kenpom:30, net:30, sos:30, q1w:4, q1l:12, tempo:67, orb:30, tov:16, threeRate:.34, ftRate:.38, exp:"Med",    coachBonus:0,    coachName:"Buzz Williams"},
-  {seed:8,  name:"Indiana",       conf:"B10",   gaer:21.80, kenpom:31, net:31, sos:31, q1w:3, q1l:11, tempo:71, orb:28, tov:17, threeRate:.37, ftRate:.35, exp:"Med",    coachBonus:0,    coachName:"Woodson"},
-  {seed:8,  name:"Utah State",    conf:"MWC",   gaer:21.20, kenpom:29, net:29, sos:40, q1w:3, q1l:8,  tempo:64, orb:34, tov:14, threeRate:.33, ftRate:.40, exp:"High",   coachBonus:0,    coachName:"Odom"},
-  {seed:8,  name:"Wisconsin",     conf:"B10",   gaer:20.60, kenpom:32, net:32, sos:32, q1w:3, q1l:11, tempo:62, orb:31, tov:13, threeRate:.34, ftRate:.39, exp:"High",   coachBonus:0,    coachName:"Gard"},
-  {seed:9,  name:"UCF",           conf:"B12",   gaer:19.80, kenpom:35, net:35, sos:33, q1w:3, q1l:12, tempo:69, orb:27, tov:18, threeRate:.37, ftRate:.33, exp:"Med",    coachBonus:0,    coachName:"Dawkins"},
-  {seed:9,  name:"SMU",           conf:"ACC",   gaer:19.20, kenpom:36, net:36, sos:34, q1w:2, q1l:11, tempo:70, orb:26, tov:17, threeRate:.38, ftRate:.32, exp:"Low",    coachBonus:0,    coachName:"Jankovich"},
-  {seed:9,  name:"Georgia",       conf:"SEC",   gaer:18.60, kenpom:37, net:37, sos:35, q1w:2, q1l:12, tempo:68, orb:28, tov:18, threeRate:.36, ftRate:.34, exp:"Med",    coachBonus:0,    coachName:"White"},
-  {seed:10, name:"Saint Mary's",  conf:"WCC",   gaer:18.00, kenpom:33, net:33, sos:45, q1w:2, q1l:7,  tempo:61, orb:32, tov:12, threeRate:.32, ftRate:.38, exp:"High",   coachBonus:0.05, coachName:"Randy Bennett"},
-  {seed:10, name:"Texas",         conf:"SEC",   gaer:17.40, kenpom:38, net:38, sos:36, q1w:2, q1l:12, tempo:72, orb:27, tov:18, threeRate:.38, ftRate:.32, exp:"Med",    coachBonus:0,    coachName:"Turner"},
-  {seed:10, name:"UCLA",          conf:"B10",   gaer:16.80, kenpom:40, net:40, sos:37, q1w:2, q1l:13, tempo:70, orb:27, tov:17, threeRate:.37, ftRate:.33, exp:"Med",    coachBonus:0,    coachName:"Mick Cronin"},
-  {seed:11, name:"VCU",           conf:"A10",   gaer:15.60, kenpom:34, net:34, sos:50, q1w:1, q1l:8,  tempo:74, orb:36, tov:25, threeRate:.30, ftRate:.44, exp:"High",   coachBonus:0,    coachName:"Rhoades"},
-  {seed:11, name:"Ohio State",    conf:"B10",   gaer:15.00, kenpom:42, net:42, sos:38, q1w:2, q1l:13, tempo:69, orb:28, tov:17, threeRate:.37, ftRate:.33, exp:"Med",    coachBonus:0,    coachName:"Holtmann"},
-  {seed:12, name:"Akron",         conf:"MAC",   gaer:12.40, kenpom:55, net:55, sos:80, q1w:0, q1l:3,  tempo:68, orb:29, tov:16, threeRate:.40, ftRate:.33, exp:"High",   coachBonus:0,    coachName:"Barnes"},
-  {seed:12, name:"Belmont",       conf:"MVC",   gaer:11.80, kenpom:58, net:58, sos:85, q1w:0, q1l:2,  tempo:72, orb:27, tov:15, threeRate:.43, ftRate:.31, exp:"High",   coachBonus:0,    coachName:"Casey Alexander"},
-  {seed:13, name:"N Dakota St",   conf:"Sum",   gaer:8.60,  kenpom:80, net:82, sos:120,q1w:0, q1l:1,  tempo:66, orb:31, tov:14, threeRate:.35, ftRate:.36, exp:"High",   coachBonus:0,    coachName:"Richman"},
-  {seed:13, name:"Northern Iowa", conf:"MVC",   gaer:8.20,  kenpom:82, net:85, sos:115,q1w:0, q1l:1,  tempo:63, orb:33, tov:13, threeRate:.33, ftRate:.38, exp:"High",   coachBonus:0,    coachName:"Jacobson"},
-  {seed:14, name:"Wright State",  conf:"Hor",   gaer:5.40,  kenpom:105,net:110,sos:150,q1w:0, q1l:0,  tempo:67, orb:28, tov:15, threeRate:.38, ftRate:.34, exp:"Med",    coachBonus:0,    coachName:"Scott Nagy"},
-  {seed:14, name:"Sam Houston",   conf:"CUSA",  gaer:5.20,  kenpom:108,net:112,sos:155,q1w:0, q1l:0,  tempo:72, orb:30, tov:17, threeRate:.40, ftRate:.31, exp:"Med",    coachBonus:0,    coachName:"Lon Kruger"},
-  {seed:15, name:"Queens (ASUN)", conf:"ASUN",  gaer:3.80,  kenpom:130,net:135,sos:180,q1w:0, q1l:0,  tempo:70, orb:26, tov:18, threeRate:.41, ftRate:.30, exp:"Med",    coachBonus:0,    coachName:"Bret Burchard"},
-  {seed:15, name:"UMBC (AEC)",    conf:"AEC",   gaer:3.40,  kenpom:135,net:138,sos:185,q1w:0, q1l:0,  tempo:68, orb:27, tov:17, threeRate:.39, ftRate:.31, exp:"Med",    coachBonus:0,    coachName:"Odom"},
-  {seed:16, name:"LIU (NEC)",     conf:"NEC",   gaer:1.80,  kenpom:160,net:165,sos:210,q1w:0, q1l:0,  tempo:71, orb:25, tov:20, threeRate:.42, ftRate:.28, exp:"Low",    coachBonus:0,    coachName:""},
-  {seed:16, name:"Lehigh",        conf:"Pat",   gaer:1.60,  kenpom:165,net:168,sos:215,q1w:0, q1l:0,  tempo:67, orb:27, tov:16, threeRate:.38, ftRate:.30, exp:"Med",    coachBonus:0,    coachName:""},
+  // ---- EAST ----
+  {seed:1,  name:"Duke",          conf:"ACC",   region:"East",    gaer:53.68, kenpom:1,  net:1,  sos:8,  q1w:14,q1l:4,  tempo:71, orb:31, tov:18, threeRate:.38, ftRate:.36, exp:"High", coachBonus:0,    coachName:"Scheyer"},
+  {seed:16, name:"Siena",         conf:"MAAC",  region:"East",    gaer:1.50,  kenpom:168,net:170,sos:220,q1w:0, q1l:0,  tempo:69, orb:26, tov:19, threeRate:.40, ftRate:.30, exp:"Med",  coachBonus:0,    coachName:""},
+  {seed:8,  name:"Ohio St.",      conf:"B10",   region:"East",    gaer:15.00, kenpom:42, net:42, sos:38, q1w:2, q1l:13, tempo:69, orb:28, tov:17, threeRate:.37, ftRate:.33, exp:"Med",  coachBonus:0,    coachName:"Holtmann"},
+  {seed:9,  name:"TCU",           conf:"B12",   region:"East",    gaer:18.20, kenpom:38, net:38, sos:33, q1w:3, q1l:11, tempo:70, orb:27, tov:17, threeRate:.37, ftRate:.33, exp:"Med",  coachBonus:0,    coachName:"Dixon"},
+  {seed:5,  name:"St. John's",    conf:"BigE",  region:"East",    gaer:30.20, kenpom:17, net:17, sos:18, q1w:7, q1l:8,  tempo:70, orb:28, tov:18, threeRate:.38, ftRate:.34, exp:"Med",  coachBonus:0.11, coachName:"Pitino ⭐"},
+  {seed:12, name:"N. Iowa",       conf:"MVC",   region:"East",    gaer:8.20,  kenpom:82, net:85, sos:115,q1w:0, q1l:1,  tempo:63, orb:33, tov:13, threeRate:.33, ftRate:.38, exp:"High", coachBonus:0,    coachName:"Jacobson"},
+  {seed:4,  name:"Kansas",        conf:"B12",   region:"East",    gaer:37.50, kenpom:10, net:11, sos:3,  q1w:9, q1l:7,  tempo:71, orb:28, tov:16, threeRate:.36, ftRate:.35, exp:"Med",  coachBonus:0.10, coachName:"Self ⭐"},
+  {seed:13, name:"Cal Baptist",   conf:"WAC",   region:"East",    gaer:5.00,  kenpom:112,net:115,sos:160,q1w:0, q1l:0,  tempo:71, orb:27, tov:18, threeRate:.39, ftRate:.31, exp:"Med",  coachBonus:0,    coachName:""},
+  {seed:6,  name:"Louisville",    conf:"ACC",   region:"East",    gaer:29.80, kenpom:18, net:18, sos:19, q1w:6, q1l:8,  tempo:69, orb:30, tov:17, threeRate:.36, ftRate:.35, exp:"Med",  coachBonus:0,    coachName:"Kenny Payne"},
+  {seed:11, name:"South Florida", conf:"AAC",   region:"East",    gaer:12.00, kenpom:60, net:62, sos:75, q1w:0, q1l:5,  tempo:68, orb:28, tov:18, threeRate:.36, ftRate:.33, exp:"Med",  coachBonus:0,    coachName:""},
+  {seed:3,  name:"Michigan St.",  conf:"B10",   region:"East",    gaer:39.20, kenpom:9,  net:9,  sos:11, q1w:9, q1l:6,  tempo:65, orb:31, tov:17, threeRate:.33, ftRate:.40, exp:"High", coachBonus:0.12, coachName:"Izzo ⭐"},
+  {seed:14, name:"N. Dakota St.", conf:"Sum",   region:"East",    gaer:8.60,  kenpom:80, net:82, sos:120,q1w:0, q1l:1,  tempo:66, orb:31, tov:14, threeRate:.35, ftRate:.36, exp:"High", coachBonus:0,    coachName:"Richman"},
+  {seed:7,  name:"UCLA",          conf:"B10",   region:"East",    gaer:16.80, kenpom:40, net:40, sos:37, q1w:2, q1l:13, tempo:70, orb:27, tov:17, threeRate:.37, ftRate:.33, exp:"Med",  coachBonus:0,    coachName:"Mick Cronin"},
+  {seed:10, name:"UCF",           conf:"B12",   region:"East",    gaer:19.80, kenpom:35, net:35, sos:33, q1w:3, q1l:12, tempo:69, orb:27, tov:18, threeRate:.37, ftRate:.33, exp:"Med",  coachBonus:0,    coachName:"Dawkins"},
+  {seed:2,  name:"UConn",         conf:"BigE",  region:"East",    gaer:41.56, kenpom:4,  net:4,  sos:9,  q1w:12,q1l:6,  tempo:70, orb:30, tov:15, threeRate:.36, ftRate:.35, exp:"High", coachBonus:0.09, coachName:"Hurley"},
+  {seed:15, name:"Furman",        conf:"SoCon", region:"East",    gaer:3.20,  kenpom:140,net:142,sos:190,q1w:0, q1l:0,  tempo:70, orb:26, tov:17, threeRate:.41, ftRate:.30, exp:"Med",  coachBonus:0,    coachName:""},
+
+  // ---- SOUTH ----
+  {seed:1,  name:"Florida",       conf:"SEC",   region:"South",   gaer:47.92, kenpom:5,  net:5,  sos:5,  q1w:11,q1l:5,  tempo:66, orb:35, tov:14, threeRate:.31, ftRate:.42, exp:"High", coachBonus:0,    coachName:"Golden"},
+  {seed:16, name:"PV A&M/Lehigh", conf:"FF",    region:"South",   gaer:1.40,  kenpom:172,net:175,sos:225,q1w:0, q1l:0,  tempo:68, orb:25, tov:20, threeRate:.40, ftRate:.28, exp:"Low",  coachBonus:0,    coachName:""},
+  {seed:8,  name:"Clemson",       conf:"ACC",   region:"South",   gaer:24.80, kenpom:26, net:26, sos:26, q1w:4, q1l:10, tempo:67, orb:30, tov:17, threeRate:.36, ftRate:.35, exp:"Med",  coachBonus:0,    coachName:"Brownell"},
+  {seed:9,  name:"Iowa",          conf:"B10",   region:"South",   gaer:26.20, kenpom:24, net:24, sos:24, q1w:5, q1l:10, tempo:68, orb:29, tov:17, threeRate:.37, ftRate:.34, exp:"High", coachBonus:0,    coachName:"McCaffery"},
+  {seed:5,  name:"Vanderbilt",    conf:"SEC",   region:"South",   gaer:31.40, kenpom:16, net:16, sos:16, q1w:7, q1l:7,  tempo:67, orb:29, tov:16, threeRate:.35, ftRate:.36, exp:"High", coachBonus:0,    coachName:"Stackhouse"},
+  {seed:12, name:"McNeese",       conf:"Slnd",  region:"South",   gaer:7.80,  kenpom:88, net:90, sos:130,q1w:0, q1l:1,  tempo:70, orb:28, tov:17, threeRate:.38, ftRate:.32, exp:"Med",  coachBonus:0,    coachName:""},
+  {seed:4,  name:"Nebraska",      conf:"B10",   region:"South",   gaer:34.90, kenpom:14, net:14, sos:13, q1w:8, q1l:8,  tempo:68, orb:30, tov:16, threeRate:.36, ftRate:.36, exp:"High", coachBonus:0,    coachName:"Hoiberg"},
+  {seed:13, name:"Troy",          conf:"SB",    region:"South",   gaer:5.20,  kenpom:110,net:113,sos:158,q1w:0, q1l:0,  tempo:72, orb:28, tov:18, threeRate:.39, ftRate:.31, exp:"Med",  coachBonus:0,    coachName:""},
+  {seed:6,  name:"N. Carolina",   conf:"ACC",   region:"South",   gaer:32.10, kenpom:13, net:13, sos:15, q1w:7, q1l:8,  tempo:72, orb:31, tov:17, threeRate:.37, ftRate:.34, exp:"Med",  coachBonus:0.06, coachName:"Hubert Davis"},
+  {seed:11, name:"VCU",           conf:"A10",   region:"South",   gaer:15.60, kenpom:34, net:34, sos:50, q1w:1, q1l:8,  tempo:74, orb:36, tov:25, threeRate:.30, ftRate:.44, exp:"High", coachBonus:0,    coachName:"Rhoades"},
+  {seed:3,  name:"Illinois",      conf:"B10",   region:"South",   gaer:40.80, kenpom:8,  net:8,  sos:10, q1w:10,q1l:6,  tempo:67, orb:29, tov:16, threeRate:.34, ftRate:.37, exp:"Med",  coachBonus:0,    coachName:"Underwood"},
+  {seed:14, name:"Penn",          conf:"Ivy",   region:"South",   gaer:4.80,  kenpom:115,net:118,sos:165,q1w:0, q1l:0,  tempo:68, orb:26, tov:16, threeRate:.37, ftRate:.32, exp:"High", coachBonus:0,    coachName:""},
+  {seed:7,  name:"Saint Mary's",  conf:"WCC",   region:"South",   gaer:18.00, kenpom:33, net:33, sos:45, q1w:2, q1l:7,  tempo:61, orb:32, tov:12, threeRate:.32, ftRate:.38, exp:"High", coachBonus:0.05, coachName:"Randy Bennett"},
+  {seed:10, name:"Texas A&M",     conf:"SEC",   region:"South",   gaer:22.40, kenpom:30, net:30, sos:30, q1w:4, q1l:12, tempo:67, orb:30, tov:16, threeRate:.34, ftRate:.38, exp:"Med",  coachBonus:0,    coachName:"Buzz Williams"},
+  {seed:2,  name:"Houston",       conf:"B12",   region:"South",   gaer:44.10, kenpom:6,  net:6,  sos:7,  q1w:10,q1l:5,  tempo:63, orb:34, tov:22, threeRate:.32, ftRate:.41, exp:"Med",  coachBonus:0,    coachName:"Sampson"},
+  {seed:15, name:"Idaho",         conf:"BSky",  region:"South",   gaer:3.00,  kenpom:145,net:148,sos:195,q1w:0, q1l:0,  tempo:67, orb:27, tov:16, threeRate:.38, ftRate:.30, exp:"Med",  coachBonus:0,    coachName:""},
+
+  // ---- WEST ----
+  {seed:1,  name:"Arizona",       conf:"B12",   region:"West",    gaer:50.27, kenpom:3,  net:3,  sos:4,  q1w:12,q1l:5,  tempo:73, orb:33, tov:17, threeRate:.37, ftRate:.34, exp:"Med",  coachBonus:0,    coachName:"Lloyd"},
+  {seed:16, name:"LIU",           conf:"NEC",   region:"West",    gaer:1.80,  kenpom:160,net:165,sos:210,q1w:0, q1l:0,  tempo:71, orb:25, tov:20, threeRate:.42, ftRate:.28, exp:"Low",  coachBonus:0,    coachName:""},
+  {seed:8,  name:"Villanova",     conf:"BigE",  region:"West",    gaer:24.20, kenpom:27, net:27, sos:27, q1w:4, q1l:11, tempo:65, orb:28, tov:15, threeRate:.42, ftRate:.33, exp:"High", coachBonus:0,    coachName:"Wojciechowski"},
+  {seed:9,  name:"Utah St.",      conf:"MWC",   region:"West",    gaer:21.20, kenpom:29, net:29, sos:40, q1w:3, q1l:8,  tempo:64, orb:34, tov:14, threeRate:.33, ftRate:.40, exp:"High", coachBonus:0,    coachName:"Odom"},
+  {seed:5,  name:"Wisconsin",     conf:"B10",   region:"West",    gaer:20.60, kenpom:32, net:32, sos:32, q1w:3, q1l:11, tempo:62, orb:31, tov:13, threeRate:.34, ftRate:.39, exp:"High", coachBonus:0,    coachName:"Gard"},
+  {seed:12, name:"High Point",    conf:"BSth",  region:"West",    gaer:7.60,  kenpom:90, net:93, sos:135,q1w:0, q1l:1,  tempo:72, orb:27, tov:16, threeRate:.41, ftRate:.31, exp:"Med",  coachBonus:0,    coachName:""},
+  {seed:4,  name:"Arkansas",      conf:"SEC",   region:"West",    gaer:27.40, kenpom:22, net:22, sos:22, q1w:5, q1l:9,  tempo:74, orb:35, tov:23, threeRate:.33, ftRate:.41, exp:"Low",  coachBonus:0,    coachName:"Calipari"},
+  {seed:13, name:"Hawaii",        conf:"BW",    region:"West",    gaer:5.40,  kenpom:108,net:112,sos:155,q1w:0, q1l:0,  tempo:70, orb:27, tov:17, threeRate:.40, ftRate:.31, exp:"Med",  coachBonus:0,    coachName:""},
+  {seed:6,  name:"BYU",           conf:"B12",   region:"West",    gaer:25.60, kenpom:23, net:23, sos:25, q1w:5, q1l:10, tempo:66, orb:31, tov:15, threeRate:.35, ftRate:.38, exp:"High", coachBonus:0,    coachName:"Pope"},
+  {seed:11, name:"Tex/NC State",  conf:"FF",    region:"West",    gaer:14.00, kenpom:45, net:46, sos:35, q1w:2, q1l:11, tempo:69, orb:27, tov:18, threeRate:.38, ftRate:.32, exp:"Med",  coachBonus:0,    coachName:""},
+  {seed:3,  name:"Gonzaga",       conf:"WCC",   region:"West",    gaer:33.50, kenpom:12, net:12, sos:20, q1w:7, q1l:6,  tempo:74, orb:33, tov:14, threeRate:.37, ftRate:.37, exp:"High", coachBonus:0.08, coachName:"Few"},
+  {seed:14, name:"Kennesaw St.",  conf:"ASUN",  region:"West",    gaer:4.60,  kenpom:118,net:120,sos:168,q1w:0, q1l:0,  tempo:69, orb:27, tov:17, threeRate:.39, ftRate:.31, exp:"Med",  coachBonus:0,    coachName:""},
+  {seed:7,  name:"Miami (FL)",    conf:"ACC",   region:"West",    gaer:22.00, kenpom:36, net:37, sos:34, q1w:3, q1l:11, tempo:70, orb:26, tov:17, threeRate:.38, ftRate:.32, exp:"Low",  coachBonus:0,    coachName:"Larrañaga"},
+  {seed:10, name:"Missouri",      conf:"SEC",   region:"West",    gaer:16.40, kenpom:44, net:44, sos:40, q1w:2, q1l:11, tempo:71, orb:28, tov:17, threeRate:.37, ftRate:.33, exp:"Med",  coachBonus:0,    coachName:"Gates"},
+  {seed:2,  name:"Purdue",        conf:"B10",   region:"West",    gaer:36.80, kenpom:11, net:10, sos:12, q1w:8, q1l:7,  tempo:64, orb:35, tov:15, threeRate:.33, ftRate:.38, exp:"High", coachBonus:0.07, coachName:"Painter"},
+  {seed:15, name:"Queens",        conf:"ASUN",  region:"West",    gaer:3.80,  kenpom:130,net:135,sos:180,q1w:0, q1l:0,  tempo:70, orb:26, tov:18, threeRate:.41, ftRate:.30, exp:"Med",  coachBonus:0,    coachName:""},
+
+  // ---- MIDWEST ----
+  {seed:1,  name:"Michigan",      conf:"B10",   region:"Midwest", gaer:52.44, kenpom:2,  net:2,  sos:6,  q1w:13,q1l:4,  tempo:68, orb:32, tov:16, threeRate:.35, ftRate:.38, exp:"High", coachBonus:0.08, coachName:"Juwan Howard"},
+  {seed:16, name:"UMBC/Howard",   conf:"FF",    region:"Midwest", gaer:1.40,  kenpom:172,net:175,sos:225,q1w:0, q1l:0,  tempo:68, orb:25, tov:20, threeRate:.40, ftRate:.28, exp:"Low",  coachBonus:0,    coachName:""},
+  {seed:8,  name:"Georgia",       conf:"SEC",   region:"Midwest", gaer:18.60, kenpom:37, net:37, sos:35, q1w:2, q1l:12, tempo:68, orb:28, tov:18, threeRate:.36, ftRate:.34, exp:"Med",  coachBonus:0,    coachName:"White"},
+  {seed:9,  name:"Saint Louis",   conf:"A10",   region:"Midwest", gaer:16.00, kenpom:46, net:46, sos:55, q1w:1, q1l:9,  tempo:66, orb:30, tov:15, threeRate:.34, ftRate:.36, exp:"High", coachBonus:0,    coachName:""},
+  {seed:5,  name:"Texas Tech",    conf:"B12",   region:"Midwest", gaer:32.80, kenpom:15, net:15, sos:14, q1w:8, q1l:8,  tempo:63, orb:32, tov:20, threeRate:.34, ftRate:.40, exp:"Med",  coachBonus:0,    coachName:"Grant"},
+  {seed:12, name:"Akron",         conf:"MAC",   region:"Midwest", gaer:12.40, kenpom:55, net:55, sos:80, q1w:0, q1l:3,  tempo:68, orb:29, tov:16, threeRate:.40, ftRate:.33, exp:"High", coachBonus:0,    coachName:"Barnes"},
+  {seed:4,  name:"Alabama",       conf:"SEC",   region:"Midwest", gaer:28.60, kenpom:20, net:20, sos:21, q1w:6, q1l:9,  tempo:75, orb:28, tov:19, threeRate:.42, ftRate:.31, exp:"Low",  coachBonus:0,    coachName:"Oats"},
+  {seed:13, name:"Hofstra",       conf:"CAA",   region:"Midwest", gaer:5.80,  kenpom:100,net:102,sos:145,q1w:0, q1l:0,  tempo:71, orb:27, tov:17, threeRate:.38, ftRate:.32, exp:"Med",  coachBonus:0,    coachName:""},
+  {seed:6,  name:"Tennessee",     conf:"SEC",   region:"Midwest", gaer:29.20, kenpom:19, net:19, sos:17, q1w:6, q1l:9,  tempo:65, orb:33, tov:21, threeRate:.31, ftRate:.43, exp:"Med",  coachBonus:0.07, coachName:"Barnes"},
+  {seed:11, name:"M-OH/SMU",      conf:"FF",    region:"Midwest", gaer:13.00, kenpom:50, net:52, sos:70, q1w:1, q1l:8,  tempo:68, orb:27, tov:17, threeRate:.37, ftRate:.33, exp:"Med",  coachBonus:0,    coachName:""},
+  {seed:3,  name:"Virginia",      conf:"ACC",   region:"Midwest", gaer:35.00, kenpom:13, net:13, sos:15, q1w:8, q1l:7,  tempo:58, orb:30, tov:13, threeRate:.34, ftRate:.38, exp:"High", coachBonus:0,    coachName:"London"},
+  {seed:14, name:"Wright St.",    conf:"Hor",   region:"Midwest", gaer:5.40,  kenpom:105,net:110,sos:150,q1w:0, q1l:0,  tempo:67, orb:28, tov:15, threeRate:.38, ftRate:.34, exp:"Med",  coachBonus:0,    coachName:"Scott Nagy"},
+  {seed:7,  name:"Kentucky",      conf:"SEC",   region:"Midwest", gaer:26.80, kenpom:21, net:21, sos:23, q1w:5, q1l:10, tempo:72, orb:30, tov:18, threeRate:.36, ftRate:.36, exp:"Low",  coachBonus:0,    coachName:""},
+  {seed:10, name:"Santa Clara",   conf:"WCC",   region:"Midwest", gaer:15.80, kenpom:48, net:49, sos:60, q1w:1, q1l:7,  tempo:68, orb:29, tov:15, threeRate:.36, ftRate:.36, exp:"High", coachBonus:0,    coachName:""},
+  {seed:2,  name:"Iowa St.",      conf:"B12",   region:"Midwest", gaer:35.60, kenpom:7,  net:7,  sos:2,  q1w:11,q1l:6,  tempo:69, orb:27, tov:18, threeRate:.38, ftRate:.33, exp:"Med",  coachBonus:0,    coachName:"Otzelberger"},
+  {seed:15, name:"Tennessee St.", conf:"OVC",   region:"Midwest", gaer:2.80,  kenpom:150,net:152,sos:200,q1w:0, q1l:0,  tempo:72, orb:25, tov:19, threeRate:.41, ftRate:.29, exp:"Med",  coachBonus:0,    coachName:""},
 ];
 
 // ---- compute power rating ----
@@ -1278,22 +1139,9 @@ function runSimulation() {
 
   let totalFirstRoundUpsets = 0;
 
-  // split into 4 regions of 16
-  const sortedTeams = [...TEAMS].sort((a,b)=>a.seed-b.seed);
-  // Use top 16 per seed bracket logic (simplified: 4 regions, cycle teams)
-  const regions = [[],[],[],[]];
-  const seedOrder = [1,16,8,9,5,12,4,13,6,11,3,14,7,10,2,15];
-  const teamsByPow = [...TEAMS].sort((a,b) => b.power - a.power);
-
-  // assign to regions in order
-  for(let i=0;i<Math.min(64, TEAMS.length);i++) {
-    regions[i%4].push(teamsByPow[i]);
-  }
-
-  // ensure each region has 16 teams
-  while(regions.some(r=>r.length<16)) {
-    for(let r=0;r<4;r++) while(regions[r].length<16) regions[r].push({...TEAMS[TEAMS.length-1], name:'Placeholder '+r+regions[r].length});
-  }
+  // Use actual regions from official bracket
+  const regionNames = ['East','South','West','Midwest'];
+  const regions = regionNames.map(r => TEAMS.filter(t => t.region === r));
 
   function simGame(teamA, teamB) {
     const pA = winProb(teamA, teamB);
@@ -1301,15 +1149,17 @@ function runSimulation() {
   }
 
   function simRegion(regionTeams) {
-    // 8-game first round
-    let roundTeams = [...regionTeams.slice(0,16)];
-    // pair by seed: 1v16, 8v9, 5v12, 4v13, 6v11, 3v14, 7v10, 2v15
+    // sort by seed so index 0=1-seed, 1=2-seed ... 15=16-seed
+    const sorted = [...regionTeams].sort((a,b) => a.seed - b.seed).slice(0,16);
+    // pad if fewer than 16
+    while(sorted.length < 16) sorted.push({...sorted[sorted.length-1], name:'TBD', seed:sorted[sorted.length-1].seed+1});
+    // standard bracket pairs: 1v16, 8v9, 5v12, 4v13, 6v11, 3v14, 7v10, 2v15
     const pairs = [[0,15],[7,8],[4,11],[3,12],[5,10],[2,13],[6,9],[1,14]];
-    let round = pairs.map(([a,b]) => simGame(roundTeams[a], roundTeams[b]));
+    let round = pairs.map(([a,b]) => simGame(sorted[a], sorted[b]));
     let firstRoundUpsets = 0;
     pairs.forEach(([a,b]) => {
-      const winner = simGame(roundTeams[a], roundTeams[b]);
-      if(winner.seed > Math.min(roundTeams[a].seed, roundTeams[b].seed)) firstRoundUpsets++;
+      const winner = simGame(sorted[a], sorted[b]);
+      if(winner.seed > Math.min(sorted[a].seed, sorted[b].seed)) firstRoundUpsets++;
     });
     // R2
     const r2 = [];
@@ -1619,356 +1469,6 @@ function recalcModel() {
   alert('✅ Model recalculated with new weights. Rankings updated.');
 }
 
-// ==== BRACKET ENTRY SYSTEM ====
-
-const REGION_NAMES = ['East', 'West', 'South', 'Midwest'];
-const SEED_PAIRS = [[1,16],[8,9],[5,12],[4,13],[6,11],[3,14],[7,10],[2,15]];
-
-// bracket state: 4 regions, each has 16 slots keyed by seed
-let bracketData = {
-  regions: [
-    { name:'East',    teams: {} },
-    { name:'West',    teams: {} },
-    { name:'South',   teams: {} },
-    { name:'Midwest', teams: {} },
-  ],
-  locked: false
-};
-
-function renderBracketRegions() {
-  const container = document.getElementById('bracketRegions');
-  container.innerHTML = bracketData.regions.map((region, ri) => `
-    <div class="card">
-      <div class="card-title card-title-accent" style="font-size:14px;margin-bottom:16px;">
-        ▮ ${region.name} Region
-        <span style="margin-left:auto;font-size:10px;color:var(--muted);">${Object.keys(region.teams).length}/16 entered</span>
-      </div>
-      <div style="display:grid;gap:6px;">
-        ${SEED_PAIRS.map(([seedA, seedB]) => `
-          <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">
-            <div>
-              <div style="display:flex;align-items:center;gap:6px;">
-                ${seedBadge(seedA)}
-                <input 
-                  type="text" 
-                  placeholder="Team name..."
-                  value="${region.teams[seedA] || ''}"
-                  oninput="updateBracketTeam(${ri},${seedA},this.value)"
-                  style="flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:3px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;min-width:0;outline:none;transition:border-color .2s;"
-                  onfocus="this.style.borderColor='var(--accent)'" 
-                  onblur="this.style.borderColor='var(--border)'"
-                >
-              </div>
-            </div>
-            <div>
-              <button 
-                onclick="analyzeMatchup(${ri},${seedA},${seedB})"
-                style="background:rgba(0,229,160,.1);border:1px solid rgba(0,229,160,.3);color:var(--accent2);font-family:'IBM Plex Mono',monospace;font-size:9px;padding:4px 7px;border-radius:3px;cursor:pointer;white-space:nowrap;"
-                title="AI Matchup Analysis">🤖 ANALYZE</button>
-            </div>
-            <div>
-              <div style="display:flex;align-items:center;gap:6px;justify-content:flex-end;">
-                <input 
-                  type="text" 
-                  placeholder="Team name..."
-                  value="${region.teams[seedB] || ''}"
-                  oninput="updateBracketTeam(${ri},${seedB},this.value)"
-                  style="flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:3px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;min-width:0;outline:none;transition:border-color .2s;text-align:right;"
-                  onfocus="this.style.borderColor='var(--accent)'" 
-                  onblur="this.style.borderColor='var(--border)'"
-                >
-                ${seedBadge(seedB)}
-              </div>
-            </div>
-          </div>
-        `).join('')}
-      </div>
-    </div>
-  `).join('');
-}
-
-function updateBracketTeam(regionIdx, seed, name) {
-  bracketData.regions[regionIdx].teams[seed] = name.trim();
-  // update count display
-  const counts = document.querySelectorAll('#bracketRegions .card-title span');
-  if (counts[regionIdx]) {
-    counts[regionIdx].textContent = `${Object.values(bracketData.regions[regionIdx].teams).filter(v=>v).length}/16 entered`;
-  }
-}
-
-function loadSampleBracket() {
-  // Load from the existing TEAMS data as a projected bracket
-  const sorted = [...TEAMS].sort((a,b) => b.power - a.power);
-  const regionNames = ['East','West','South','Midwest'];
-  // Assign top 4 as 1-seeds (one per region), next 4 as 2-seeds, etc.
-  const byRank = sorted.slice(0,64);
-  
-  // Classic S-curve seeding distribution
-  // Seeds 1-4: one per region in order
-  // Within each seed line, rotate regions
-  const seedLines = {};
-  TEAMS.sort((a,b) => a.seed - b.seed || b.power - a.power);
-  
-  let seedCounts = {};
-  bracketData.regions.forEach((r,i) => { r.teams = {}; });
-
-  const teamsForBracket = [...TEAMS].sort((a,b) => a.seed - b.seed);
-  const regionAssign = [0,1,2,3];
-  let assignIdx = 0;
-  
-  teamsForBracket.forEach((t, i) => {
-    const ri = assignIdx % 4;
-    if (!bracketData.regions[ri].teams[t.seed]) {
-      bracketData.regions[ri].teams[t.seed] = t.name;
-      assignIdx++;
-    } else {
-      // find next available region for this seed
-      for (let r=0;r<4;r++) {
-        if (!bracketData.regions[r].teams[t.seed]) {
-          bracketData.regions[r].teams[t.seed] = t.name;
-          break;
-        }
-      }
-    }
-  });
-
-  renderBracketRegions();
-  document.getElementById('bracketAlert').innerHTML = '<strong>✅ PROJECTED FIELD LOADED</strong> — These are pre-Selection Sunday projections. Update team names tonight as the real bracket is announced on CBS at 6pm ET.';
-  document.getElementById('bracketAlert').style.background = 'rgba(0,229,160,.08)';
-  document.getElementById('bracketAlert').style.borderColor = 'rgba(0,229,160,.3)';
-}
-
-function resetBracket() {
-  bracketData.regions.forEach(r => r.teams = {});
-  bracketData.locked = false;
-  document.getElementById('bracketSimResults').style.display = 'none';
-  renderBracketRegions();
-}
-
-// Build team objects from bracket inputs for simulation
-function buildBracketTeams() {
-  const allBracketTeams = [];
-  bracketData.regions.forEach((region, ri) => {
-    for (let seed = 1; seed <= 16; seed++) {
-      const name = region.teams[seed] || `${region.name} Seed ${seed}`;
-      // Try to find matching team in TEAMS array for stats
-      const existing = TEAMS.find(t => 
-        t.name.toLowerCase() === name.toLowerCase() || 
-        name.toLowerCase().includes(t.name.toLowerCase().split(' ')[0])
-      );
-      if (existing) {
-        allBracketTeams.push({ ...existing, region: ri, regionName: region.name, bracketSeed: seed, name: name });
-      } else {
-        // Generate estimated stats from seed
-        const kp = seed * 8 + Math.floor(Math.random()*5);
-        const gaerEst = Math.max(1, 55 - seed*3.5);
-        allBracketTeams.push({
-          seed, name, region: ri, regionName: region.name, bracketSeed: seed,
-          gaer: gaerEst, kenpom: kp, net: kp+1, sos: 20+seed*5,
-          q1w: Math.max(0, 12-seed*1.2|0), q1l: Math.min(15, seed*1.5|0),
-          tempo: 67, orb: 30, tov: 17, threeRate: .36, ftRate: .36,
-          exp: seed<=4?'High':seed<=8?'Med':'Low',
-          coachBonus: 0, coachName: '', power: 0
-        });
-      }
-    }
-  });
-  allBracketTeams.forEach(t => { t.power = computePower(t, modelWeights); });
-  return allBracketTeams;
-}
-
-function lockBracketAndSimulate() {
-  const totalEntered = bracketData.regions.reduce((sum, r) => sum + Object.values(r.teams).filter(v=>v).length, 0);
-  if (totalEntered < 8) {
-    alert('Please enter at least a few teams per region before running the simulation.');
-    return;
-  }
-
-  bracketData.locked = true;
-  const bracketTeams = buildBracketTeams();
-  runBracketSimulation(bracketTeams);
-}
-
-function runBracketSimulation(bracketTeams) {
-  const N = parseInt(document.getElementById('simCount')?.value || 25000);
-  const champCounts = {}, ffCounts = {}, e8Counts = {}, s16Counts = {};
-  bracketTeams.forEach(t => { champCounts[t.name]=0; ffCounts[t.name]=0; e8Counts[t.name]=0; s16Counts[t.name]=0; });
-
-  // Build 4 regions from bracket teams
-  const regions = [0,1,2,3].map(ri => {
-    const rTeams = bracketTeams.filter(t => t.region === ri);
-    // Sort by seed order for pairing
-    const ordered = [];
-    SEED_PAIRS.forEach(([s1,s2]) => {
-      const t1 = rTeams.find(t=>t.bracketSeed===s1) || rTeams[0];
-      const t2 = rTeams.find(t=>t.bracketSeed===s2) || rTeams[1];
-      ordered.push(t1, t2);
-    });
-    return ordered;
-  });
-
-  function simGame(a,b) { return Math.random() < winProbForTeam(a,b) ? a : b; }
-  function winProbForTeam(a,b) {
-    const diff = a.power - b.power;
-    let p = 1/(1+Math.exp(-diff*0.15));
-    if(a.threeRate > 0.42) p = p*0.95 + (Math.random()>0.5?0.03:-0.03);
-    return Math.max(0.05, Math.min(0.95, p));
-  }
-
-  function simRegion(rTeams) {
-    const pairs = [[0,1],[2,3],[4,5],[6,7],[8,9],[10,11],[12,13],[14,15]];
-    let r1 = pairs.map(([a,b]) => simGame(rTeams[a], rTeams[b]));
-    r1.forEach(t => { if(s16Counts[t.name]!==undefined) s16Counts[t.name]++; });
-    let r2 = [[0,1],[2,3],[4,5],[6,7]].map(([a,b]) => simGame(r1[a],r1[b]));
-    let e8 = [simGame(r2[0],r2[1]), simGame(r2[2],r2[3])];
-    e8.forEach(t => { if(e8Counts[t.name]!==undefined) e8Counts[t.name]++; });
-    return simGame(e8[0],e8[1]);
-  }
-
-  let totalUpsets = 0;
-  const chunkSize = Math.ceil(N/50);
-  let sim = 0;
-
-  // Show results panel loading state
-  document.getElementById('bracketSimResults').style.display = 'block';
-  document.getElementById('bracketChampProbs').innerHTML = '<div style="color:var(--muted);font-family:\'IBM Plex Mono\',monospace;font-size:12px;padding:20px 0;">Running ' + N.toLocaleString() + ' simulations...</div>';
-  document.getElementById('bracketFF4Probs').innerHTML = '';
-
-  function runChunk() {
-    const end = Math.min(sim+chunkSize, N);
-    for(let i=sim;i<end;i++) {
-      const ffTeams = regions.map(r => simRegion(r));
-      ffTeams.forEach(t => { if(ffCounts[t.name]!==undefined) ffCounts[t.name]++; });
-      const sf1 = simGame(ffTeams[0], ffTeams[1]);
-      const sf2 = simGame(ffTeams[2], ffTeams[3]);
-      const champ = simGame(sf1, sf2);
-      if(champCounts[champ.name]!==undefined) champCounts[champ.name]++;
-    }
-    sim = end;
-    if(sim < N) { requestAnimationFrame(runChunk); return; }
-    finishBracketSim(bracketTeams, champCounts, ffCounts, e8Counts, s16Counts, N);
-  }
-  requestAnimationFrame(runChunk);
-}
-
-function finishBracketSim(bracketTeams, champCounts, ffCounts, e8Counts, s16Counts, N) {
-  bracketTeams.forEach(t => {
-    t.champProb = (champCounts[t.name]||0)/N;
-    t.ffProb = (ffCounts[t.name]||0)/N;
-  });
-
-  // Also update main TEAMS probs if name matches
-  bracketTeams.forEach(bt => {
-    const match = TEAMS.find(t => t.name === bt.name);
-    if(match) { match.champProb = bt.champProb; match.ffProb = bt.ffProb; }
-  });
-
-  const sorted = [...bracketTeams].sort((a,b) => b.champProb - a.champProb).slice(0,16);
-  const ff4sorted = [...bracketTeams].sort((a,b) => b.ffProb - a.ffProb).slice(0,16);
-  const maxChamp = sorted[0]?.champProb || 0.01;
-  const maxFF = ff4sorted[0]?.ffProb || 0.01;
-
-  document.getElementById('bracketSimSummary').innerHTML = `
-    <div class="stat-box"><div class="val" style="font-size:24px;">${N.toLocaleString()}</div><div class="lbl">Simulations Run</div></div>
-    <div class="stat-box"><div class="val" style="font-size:24px;color:var(--accent2);">${(sorted[0]?.champProb*100||0).toFixed(1)}%</div><div class="lbl">Top Champ Prob (${sorted[0]?.name||'—'})</div></div>
-  `;
-
-  document.getElementById('bracketChampProbs').innerHTML = sorted.map(t => {
-    const pct = (t.champProb*100).toFixed(1);
-    const barW = (t.champProb/maxChamp*100).toFixed(0);
-    const color = t.champProb >= 0.15 ? 'var(--accent)' : t.champProb >= 0.07 ? 'var(--good)' : 'var(--avg)';
-    return `<div class="prob-row">
-      <div class="prob-label">${seedBadge(t.seed)} ${t.name}</div>
-      <div class="prob-pct">${pct}%</div>
-      <div class="prob-bar-wrap"><div class="prob-bar-fill" style="width:${barW}%;background:${color};">${t.regionName}</div></div>
-    </div>`;
-  }).join('');
-
-  document.getElementById('bracketFF4Probs').innerHTML = ff4sorted.map(t => {
-    const pct = (t.ffProb*100).toFixed(1);
-    const barW = (t.ffProb/maxFF*100).toFixed(0);
-    const color = t.ffProb >= 0.35 ? 'var(--accent)' : t.ffProb >= 0.20 ? 'var(--good)' : 'var(--accent2)';
-    return `<div class="prob-row">
-      <div class="prob-label">${seedBadge(t.seed)} ${t.name}</div>
-      <div class="prob-pct">${pct}%</div>
-      <div class="prob-bar-wrap"><div class="prob-bar-fill" style="width:${barW}%;background:${color};">${t.regionName}</div></div>
-    </div>`;
-  }).join('');
-
-  renderRankings(); // refresh main rankings with new probs
-}
-
-// ==== AI MATCHUP ANALYSIS ====
-async function analyzeMatchup(regionIdx, seedA, seedB) {
-  const region = bracketData.regions[regionIdx];
-  const teamA = region.teams[seedA] || `Seed ${seedA}`;
-  const teamB = region.teams[seedB] || `Seed ${seedB}`;
-
-  // Find stats if available
-  const statsA = TEAMS.find(t => t.name.toLowerCase() === teamA.toLowerCase() || teamA.toLowerCase().includes(t.name.toLowerCase().split(' ')[0]));
-  const statsB = TEAMS.find(t => t.name.toLowerCase() === teamB.toLowerCase() || teamB.toLowerCase().includes(t.name.toLowerCase().split(' ')[0]));
-
-  const statsText = (t, seed) => t 
-    ? `KenPom #${t.kenpom}, NET #${t.net}, GAER ${t.gaer.toFixed(1)}, Tempo ${t.tempo}, ORB ${t.orb}%, TOV ${t.tov}%, 3PA Rate ${(t.threeRate*100).toFixed(0)}%, FT Rate ${(t.ftRate*100).toFixed(0)}%, Experience: ${t.exp}${t.coachBonus>0?`, Coach Edge: +${(t.coachBonus*100).toFixed(0)}% (${t.coachName})`:''}` 
-    : `(stats not in database — use known metrics)`;
-
-  const panel = document.getElementById('aiAnalysisPanel');
-  const title = document.getElementById('aiMatchupTitle');
-  const content = document.getElementById('aiMatchupContent');
-
-  panel.style.display = 'block';
-  title.textContent = `#${seedA} ${teamA} vs #${seedB} ${teamB}`;
-  content.innerHTML = `<div style="color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:11px;animation:pulse 1.4s infinite;">⏳ Analyzing matchup...</div>`;
-
-  const prompt = `You are an elite NCAA March Madness analyst with deep knowledge of basketball analytics, KenPom metrics, and tournament history.
-
-Analyze this first-round matchup in the ${region.name} Region:
-
-#${seedA} ${teamA}
-Stats: ${statsText(statsA, seedA)}
-
-vs
-
-#${seedB} ${teamB}  
-Stats: ${statsText(statsB, seedB)}
-
-Provide a sharp, data-driven matchup analysis covering:
-1. **Win probability** for each team (give a number like "62% ${teamA}")
-2. **Key matchup factors** — what decides this game (2-3 bullet points)
-3. **Upset alert** — is there upset potential? Why or why not?
-4. **Bracket pool edge** — is this a high-EV pick for bracket pools?
-5. **The X-factor** — one thing most bracketologists will miss
-
-Be specific, confident, and concise. Use analytics language. Keep total response under 250 words.`;
-
-  try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    const data = await response.json();
-    const text = data.content
-      .filter(b => b.type === 'text')
-      .map(b => b.text)
-      .join('\n');
-
-    // Format markdown-lite
-    content.innerHTML = text
-      .replace(/\*\*(.*?)\*\*/g, '<strong style="color:var(--accent2);">$1</strong>')
-      .replace(/^(\d+\.)/gm, '<br><span style="color:var(--accent);font-weight:700;">$1</span>')
-      .replace(/^[-•]/gm, '<br>•')
-      .replace(/\n/g, '<br>');
-  } catch(e) {
-    content.innerHTML = `<div style="color:var(--accent);">Error fetching analysis. Check API connection.<br><small>${e.message}</small></div>`;
-  }
-}
-
 // ==== TABS ====
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
@@ -1977,9 +1477,6 @@ document.querySelectorAll('.tab').forEach(tab => {
     tab.classList.add('active');
     document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
     if (tab.dataset.tab === 'champion') renderChampionProfiles();
-    if (tab.dataset.tab === 'bracket' && !document.getElementById('bracketRegions').children.length) {
-      renderBracketRegions();
-    }
   });
 });
 
@@ -1988,292 +1485,10 @@ document.getElementById('upsetWeight').addEventListener('input', function() {
   document.getElementById('upsetVal').textContent = parseFloat(this.value).toFixed(1)+'x';
 });
 
-// ==== ADMIN SYSTEM ====
-const GIST_ID = '51c7790e2cbefaf03d825edbefe20045';
-const GIST_FILENAME = 'bracket2026.json';
-const ADMIN_PASSWORD_HASH = 'aaebfc7365986f2841ed21d1eda7dd28'; // SHA-256[:32] of "gaer2026" — change via JS console: hashStr('newpwd').then(console.log)
-
-let adminToken = '';
-let adminUnlocked = false;
-let currentAdminRound = 0;
-
-// Live bracket data synced from Gist
-let liveBracket = {
-  round: 0,
-  roundLabel: 'Pre-Tournament',
-  lastUpdated: null,
-  regions: {
-    East:    { teams: {} },
-    West:    { teams: {} },
-    South:   { teams: {} },
-    Midwest: { teams: {} },
-  },
-  advancing: {
-    // round2 through finals — arrays of advancing team names
-    round2: [], round3: [], round4: [], round5: []
-  },
-  notes: ''
-};
-
-// Simple hash for password check (not cryptographically secure, just prevents casual access)
-async function hashStr(str) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('').slice(0,32);
-}
-
-function openAdminLogin() {
-  document.getElementById('adminLoginOverlay').style.display = 'flex';
-  setTimeout(() => document.getElementById('adminPwdInput').focus(), 100);
-}
-function closeAdminLogin() {
-  document.getElementById('adminLoginOverlay').style.display = 'none';
-  document.getElementById('adminPwdError').style.display = 'none';
-}
-function closeAdminPanel() {
-  document.getElementById('adminPanel').classList.remove('open');
-}
-
-async function checkAdminPwd() {
-  const pwd = document.getElementById('adminPwdInput').value;
-  const token = document.getElementById('adminTokenInput').value.trim();
-  const hash = await hashStr(pwd);
-  
-  if (hash !== ADMIN_PASSWORD_HASH) {
-    document.getElementById('adminPwdError').style.display = 'block';
-    return;
-  }
-  if (!token.startsWith('ghp_') && !token.startsWith('github_pat_')) {
-    document.getElementById('adminPwdError').style.display = 'block';
-    document.getElementById('adminPwdError').textContent = '❌ Invalid GitHub token format';
-    return;
-  }
-
-  adminToken = token;
-  adminUnlocked = true;
-  closeAdminLogin();
-  document.getElementById('adminPanel').classList.add('open');
-  document.getElementById('adminPwdInput').value = '';
-  renderAdminRound();
-  fetchFromGist(true);
-}
-
-// ==== GIST READ/WRITE ====
-async function fetchFromGist(showStatus = false) {
-  try {
-    const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
-      headers: adminUnlocked && adminToken 
-        ? { Authorization: `token ${adminToken}`, Accept: 'application/vnd.github.v3+json' }
-        : { Accept: 'application/vnd.github.v3+json' }
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    const file = data.files[GIST_FILENAME];
-    if (file && file.content) {
-      const parsed = JSON.parse(file.content);
-      liveBracket = { ...liveBracket, ...parsed };
-      applyLiveBracket();
-      if (showStatus) setGistStatus(true, `Loaded · ${new Date().toLocaleTimeString()}`);
-    } else {
-      if (showStatus) setGistStatus(false, 'File not found in Gist — save to create it');
-    }
-  } catch(e) {
-    if (showStatus) setGistStatus(false, `Error: ${e.message}`);
-  }
-}
-
-async function saveToGist() {
-  if (!adminToken) return;
-  document.getElementById('adminSaveStatus').textContent = '⏳ Saving...';
-  
-  // Collect admin form data into liveBracket
-  collectAdminFormData();
-
-  try {
-    const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
-      method: 'PATCH',
-      headers: {
-        Authorization: `token ${adminToken}`,
-        Accept: 'application/vnd.github.v3+json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        files: {
-          [GIST_FILENAME]: {
-            content: JSON.stringify({ ...liveBracket, lastUpdated: new Date().toISOString() }, null, 2)
-          }
-        }
-      })
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    document.getElementById('adminSaveStatus').textContent = `✅ Saved at ${new Date().toLocaleTimeString()}`;
-    setGistStatus(true, `Saved · ${new Date().toLocaleTimeString()}`);
-    applyLiveBracket();
-  } catch(e) {
-    document.getElementById('adminSaveStatus').textContent = `❌ Save failed: ${e.message}`;
-  }
-}
-
-function setGistStatus(ok, msg) {
-  const dot = document.getElementById('gistStatusDot');
-  const txt = document.getElementById('gistStatusText');
-  if (dot) { dot.className = 'status-dot-admin' + (ok ? ' live' : ''); }
-  if (txt) txt.textContent = msg;
-}
-
-// Apply live bracket data to the app
-function applyLiveBracket() {
-  // Push region teams into bracketData
-  Object.entries(liveBracket.regions).forEach(([rName, rData]) => {
-    const ri = bracketData.regions.findIndex(r => r.name === rName);
-    if (ri >= 0) bracketData.regions[ri].teams = { ...rData.teams };
-  });
-
-  // Update header
-  const roundLabels = ['Pre-Tournament','First Round','Sweet 16','Elite 8','Final Four','Championship'];
-  const label = liveBracket.roundLabel || roundLabels[liveBracket.round] || 'In Progress';
-  const headerRound = document.getElementById('headerRound');
-  if (headerRound) headerRound.textContent = `📍 CURRENT ROUND: ${label.toUpperCase()}`;
-
-  // Update bracket alert
-  const bracketAlert = document.getElementById('bracketAlert');
-  if (bracketAlert && liveBracket.notes) {
-    bracketAlert.innerHTML = `<strong>📡 LIVE DATA:</strong> ${liveBracket.notes}`;
-    bracketAlert.style.background = 'rgba(0,229,160,.08)';
-    bracketAlert.style.borderColor = 'rgba(0,229,160,.3)';
-  }
-
-  // Re-render bracket UI if on bracket tab
-  if (document.getElementById('tab-bracket')?.classList.contains('active')) {
-    renderBracketRegions();
-  }
-
-  // Show advancing teams in bracket sim results if data exists
-  if (liveBracket.round > 0) {
-    showAdvancingTeams();
-  }
-}
-
-function showAdvancingTeams() {
-  const advancing = liveBracket.advancing;
-  const roundLabels = {round2:'Sweet 16',round3:'Elite 8',round4:'Final Four',round5:'Championship Game'};
-  let html = '';
-  ['round2','round3','round4','round5'].forEach(r => {
-    const teams = advancing[r] || [];
-    if (!teams.length) return;
-    html += `<div style="margin-bottom:14px;">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:11px;letter-spacing:2px;color:var(--muted);margin-bottom:8px;">${roundLabels[r]}</div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;">
-        ${teams.map(t => `<span style="background:rgba(0,229,160,.1);border:1px solid rgba(0,229,160,.25);color:var(--accent2);font-family:'IBM Plex Mono',monospace;font-size:11px;padding:3px 10px;border-radius:3px;">${t}</span>`).join('')}
-      </div>
-    </div>`;
-  });
-  if (html) {
-    document.getElementById('bracketSimResults').style.display = 'block';
-    document.getElementById('bracketSimSummary').innerHTML = `
-      <div style="grid-column:1/-1;">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:12px;letter-spacing:2px;color:var(--muted);margin-bottom:12px;">ADVANCING TEAMS — LIVE</div>
-        ${html}
-      </div>`;
-  }
-}
-
-// ==== ADMIN ROUND EDITOR ====
-const ROUND_CONFIG = [
-  { key: 'regions', label: 'First Round — Enter All 68 Teams by Region' },
-  { key: 'round2',  label: 'Sweet 16 — 16 Advancing Teams' },
-  { key: 'round3',  label: 'Elite 8 — 8 Advancing Teams' },
-  { key: 'round4',  label: 'Final Four — 4 Teams' },
-  { key: 'round5',  label: 'Championship — 2 Teams' },
-];
-
-function switchAdminRound(idx, el) {
-  currentAdminRound = idx;
-  document.querySelectorAll('.round-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  renderAdminRound();
-}
-
-function renderAdminRound() {
-  const container = document.getElementById('adminRoundContent');
-  if (currentAdminRound === 0) {
-    // Region entry
-    container.innerHTML = `
-      <div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-bottom:14px;">Enter team names by seed for each region. Use tonight's CBS bracket.</div>
-      ${['East','West','South','Midwest'].map(rName => {
-        const rData = liveBracket.regions[rName] || { teams: {} };
-        return `<div style="margin-bottom:16px;">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;color:var(--accent3);margin-bottom:8px;">${rName} Region</div>
-          ${[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16].map(s => `
-            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
-              <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);width:22px;text-align:right;">${s}</span>
-              <input type="text" class="admin-input" style="margin:0;flex:1;padding:5px 8px;font-size:12px;" 
-                placeholder="Team name..." 
-                value="${rData.teams[s] || ''}"
-                data-region="${rName}" data-seed="${s}"
-                oninput="updateLiveBracketTeam('${rName}',${s},this.value)">
-            </div>`).join('')}
-        </div>`;
-      }).join('')}
-      <div style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-top:8px;">💡 Tip: After entering all teams, hit Save & Push. Users will see the bracket immediately.</div>
-    `;
-  } else {
-    const roundKey = ['','round2','round3','round4','round5'][currentAdminRound];
-    const counts = [0,16,8,4,2];
-    const count = counts[currentAdminRound];
-    const existing = liveBracket.advancing[roundKey] || [];
-    container.innerHTML = `
-      <div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-bottom:14px;">Enter the ${count} teams advancing to this round.</div>
-      ${Array.from({length: count}, (_,i) => `
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);width:16px;">${i+1}</span>
-          <input type="text" class="admin-input" style="margin:0;flex:1;padding:5px 8px;font-size:12px;"
-            placeholder="Team name..."
-            value="${existing[i] || ''}"
-            data-roundkey="${roundKey}" data-idx="${i}"
-            oninput="updateAdvancing('${roundKey}',${i},this.value)">
-        </div>`).join('')}
-      <div style="margin-top:12px;">
-        <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">ADMIN NOTES (shown to users)</label>
-        <textarea class="admin-input" rows="3" style="resize:vertical;" 
-          placeholder="e.g. Sweet 16 updated — Duke leads East bracket..."
-          oninput="liveBracket.notes=this.value">${liveBracket.notes||''}</textarea>
-      </div>
-    `;
-    // Update round marker
-    liveBracket.round = currentAdminRound;
-    liveBracket.roundLabel = ROUND_CONFIG[currentAdminRound].label.split('—')[0].trim();
-  }
-}
-
-function updateLiveBracketTeam(region, seed, value) {
-  if (!liveBracket.regions[region]) liveBracket.regions[region] = { teams: {} };
-  liveBracket.regions[region].teams[seed] = value.trim();
-  // Also keep bracketData in sync
-  const ri = bracketData.regions.findIndex(r => r.name === region);
-  if (ri >= 0) bracketData.regions[ri].teams[seed] = value.trim();
-}
-
-function updateAdvancing(roundKey, idx, value) {
-  if (!liveBracket.advancing[roundKey]) liveBracket.advancing[roundKey] = [];
-  liveBracket.advancing[roundKey][idx] = value.trim();
-}
-
-function collectAdminFormData() {
-  // Already updated live via oninput handlers — nothing extra needed
-}
-
-// ==== AUTO-FETCH ON LOAD (public read, no token needed) ====
-window.addEventListener('load', () => {
-  setTimeout(() => fetchFromGist(false), 800);
-  // Re-fetch every 5 minutes to stay current
-  setInterval(() => fetchFromGist(false), 5 * 60 * 1000);
-});
-
 // ==== INIT ====
 renderRankings();
 renderUpsets();
 renderWeightSliders();
-
 </script>
 </body>
 </html>
