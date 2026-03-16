@@ -790,64 +790,100 @@
   <div class="section-header">
     <div>
       <div class="section-title">Betting Edge Calculator</div>
-      <div class="section-sub">model spread vs vegas · total projections · edge identification</div>
+      <div class="section-sub">select teams · auto-fills power rating, tempo, efficiency · find the edge</div>
     </div>
   </div>
 
   <div class="alert">
-    <strong>📈 EDGE WINDOW:</strong> First-round sportsbooks price 32 games rapidly. Model edges of ≥2.5 points vs Vegas spread appear frequently. This is when your model has maximum value. Total edges appear when tempo mismatch is extreme.
+    <strong>📈 HOW TO USE:</strong> Pick Team A and Team B from the dropdowns — power rating, tempo, and offensive efficiency auto-fill from the model. Enter the Vegas spread or total, then hit Calculate. Edges of <strong>+2.5 pts on spreads</strong> or <strong>+4 pts on totals</strong> are actionable.
+  </div>
+
+  <!-- MATCHUP PICKER -->
+  <div class="card" style="margin-bottom:20px;">
+    <div class="card-title card-title-accent">▮ Select Matchup</div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;">
+      <div style="flex:1;min-width:200px;">
+        <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:6px;">TEAM A (Favorite / Higher Seed)</label>
+        <select id="pickTeamA" onchange="autoFillTeam('A')" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;">
+          <option value="">-- Select Team --</option>
+        </select>
+      </div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:22px;color:var(--muted);padding-bottom:6px;">VS</div>
+      <div style="flex:1;min-width:200px;">
+        <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:6px;">TEAM B (Underdog / Lower Seed)</label>
+        <select id="pickTeamB" onchange="autoFillTeam('B')" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;">
+          <option value="">-- Select Team --</option>
+        </select>
+      </div>
+      <div>
+        <button class="sim-btn" onclick="calcBoth()" style="font-size:14px;padding:11px 24px;">RUN BOTH CALCS</button>
+      </div>
+    </div>
+
+    <!-- Team stat preview cards -->
+    <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;" id="teamPreviewRow">
+      <div id="previewA" style="flex:1;min-width:220px;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:12px 16px;display:none;">
+        <div id="previewAName" style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;color:var(--accent);margin-bottom:8px;"></div>
+        <div id="previewAStats" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);line-height:2;"></div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;flex:0;padding:0 8px;" id="previewVs" style="display:none;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:28px;color:var(--border-bright);">VS</div>
+      </div>
+      <div id="previewB" style="flex:1;min-width:220px;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:12px 16px;display:none;">
+        <div id="previewBName" style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;color:var(--cinderella);margin-bottom:8px;"></div>
+        <div id="previewBStats" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);line-height:2;"></div>
+      </div>
+    </div>
   </div>
 
   <div class="grid-2" style="margin-bottom:20px;">
     <div class="card">
       <div class="card-title card-title-accent">▮ Spread Calculator</div>
       <div style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-bottom:14px;">
-        Model Spread ≈ Power Rating Difference × 0.85<br>
-        If Model Spread vs Vegas ≥ 2.5pts → edge
+        Model Spread = Power Rating Diff × 0.85 &nbsp;|&nbsp; Edge threshold: ±2.5 pts
       </div>
       <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
-        <div style="flex:1;min-width:140px;">
+        <div style="flex:1;min-width:130px;">
           <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">TEAM A POWER RTG</label>
-          <input type="number" id="teamARtg" value="93" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;">
+          <input type="number" id="teamARtg" value="" placeholder="auto-fill" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--accent);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;">
         </div>
-        <div style="flex:1;min-width:140px;">
+        <div style="flex:1;min-width:130px;">
           <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">TEAM B POWER RTG</label>
-          <input type="number" id="teamBRtg" value="86" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;">
+          <input type="number" id="teamBRtg" value="" placeholder="auto-fill" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--cinderella);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;">
         </div>
-        <div style="flex:1;min-width:140px;">
+        <div style="flex:1;min-width:130px;">
           <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">VEGAS SPREAD (A)</label>
-          <input type="number" id="vegasSpread" value="-4.5" step="0.5" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;">
+          <input type="number" id="vegasSpread" value="" placeholder="-4.5" step="0.5" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;">
         </div>
       </div>
-      <button class="sim-btn" onclick="calcSpread()" style="font-size:13px;padding:10px 20px;">CALCULATE EDGE</button>
+      <button class="sim-btn" onclick="calcSpread()" style="font-size:13px;padding:10px 20px;">CALCULATE SPREAD EDGE</button>
       <div id="spreadResult" style="margin-top:14px;"></div>
     </div>
 
     <div class="card">
       <div class="card-title card-title-accent">▮ Total Calculator</div>
       <div style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-bottom:14px;">
-        Projected Total = (TempoA + TempoB)/2 × efficiency matchup<br>
-        If Model vs Vegas ≥ 4pts → edge
+        Projected Total = Avg Tempo × 2 × Off Efficiency / 100 &nbsp;|&nbsp; Edge threshold: ±4 pts
       </div>
       <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
-        <div style="flex:1;min-width:120px;">
+        <div style="flex:1;min-width:110px;">
           <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">TEAM A TEMPO</label>
-          <input type="number" id="tempoA" value="70" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;">
+          <input type="number" id="tempoA" value="" placeholder="auto-fill" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--accent);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;">
         </div>
-        <div style="flex:1;min-width:120px;">
+        <div style="flex:1;min-width:110px;">
           <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">TEAM B TEMPO</label>
-          <input type="number" id="tempoB" value="68" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;">
+          <input type="number" id="tempoB" value="" placeholder="auto-fill" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--cinderella);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;">
         </div>
-        <div style="flex:1;min-width:120px;">
+        <div style="flex:1;min-width:110px;">
           <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">A OFF EFF</label>
-          <input type="number" id="offEffA" value="118" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;">
+          <input type="number" id="offEffA" value="" placeholder="auto-fill" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--accent);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;">
         </div>
-        <div style="flex:1;min-width:120px;">
+        <div style="flex:1;min-width:110px;">
           <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">VEGAS O/U</label>
-          <input type="number" id="vegasTotal" value="142" step="0.5" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;">
+          <input type="number" id="vegasTotal" value="" placeholder="142" step="0.5" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;">
         </div>
       </div>
-      <button class="sim-btn" onclick="calcTotal()" style="font-size:13px;padding:10px 20px;">CALCULATE EDGE</button>
+      <button class="sim-btn" onclick="calcTotal()" style="font-size:13px;padding:10px 20px;">CALCULATE TOTAL EDGE</button>
       <div id="totalResult" style="margin-top:14px;"></div>
     </div>
   </div>
@@ -1395,100 +1431,42 @@ function renderChampionProfiles() {
   }).join('');
 }
 
-// ==== BETTING CALCS ====
-function calcSpread() {
-  const pA = parseFloat(document.getElementById('teamARtg').value);
-  const pB = parseFloat(document.getElementById('teamBRtg').value);
-  const vegas = parseFloat(document.getElementById('vegasSpread').value);
-  const modelSpread = -(pA - pB) * 0.85;
-  const edge = modelSpread - vegas;
-  const edgeAbs = Math.abs(edge).toFixed(1);
-  const isEdge = Math.abs(edge) >= 2.5;
-  document.getElementById('spreadResult').innerHTML = `
-    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px;">
-      <div class="stat-box" style="flex:1;min-width:100px;"><div class="val" style="font-size:24px;">${modelSpread.toFixed(1)}</div><div class="lbl">Model Spread</div></div>
-      <div class="stat-box" style="flex:1;min-width:100px;"><div class="val" style="font-size:24px;">${vegas}</div><div class="lbl">Vegas Spread</div></div>
-      <div class="stat-box" style="flex:1;min-width:100px;border-color:${isEdge?'var(--accent2)':'var(--border)'}"><div class="val" style="font-size:24px;color:${isEdge?'var(--accent2)':'var(--muted)'};">${edge>=0?'+':''}${edge.toFixed(1)}</div><div class="lbl">EDGE</div></div>
-    </div>
-    <div style="margin-top:10px;padding:10px;border-radius:4px;background:${isEdge?'rgba(0,229,160,.08)':'rgba(255,75,31,.08)'};border:1px solid ${isEdge?'rgba(0,229,160,.3)':'rgba(255,75,31,.2)'}; font-size:13px;color:${isEdge?'var(--accent2)':'var(--muted)'};">
-      ${isEdge ? `✅ <strong>EDGE DETECTED: ${edgeAbs} point advantage.</strong> Bet Team ${edge < 0 ? 'A' : 'B'}.` : `❌ No edge (need ≥2.5 pts). Vegas line is fair.`}
-    </div>
-  `;
-}
-function calcTotal() {
-  const tA = parseFloat(document.getElementById('tempoA').value);
-  const tB = parseFloat(document.getElementById('tempoB').value);
-  const offEff = parseFloat(document.getElementById('offEffA').value);
-  const vegas = parseFloat(document.getElementById('vegasTotal').value);
-  const avgTempo = (tA+tB)/2;
-  const projTotal = (avgTempo * 2 * offEff / 100).toFixed(0);
-  const edge = projTotal - vegas;
-  const isEdge = Math.abs(edge) >= 4;
-  document.getElementById('totalResult').innerHTML = `
-    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px;">
-      <div class="stat-box" style="flex:1;min-width:100px;"><div class="val" style="font-size:24px;">${projTotal}</div><div class="lbl">Model Total</div></div>
-      <div class="stat-box" style="flex:1;min-width:100px;"><div class="val" style="font-size:24px;">${vegas}</div><div class="lbl">Vegas O/U</div></div>
-      <div class="stat-box" style="flex:1;min-width:100px;border-color:${isEdge?'var(--accent2)':'var(--border)'}"><div class="val" style="font-size:24px;color:${isEdge?'var(--accent2)':'var(--muted)'};">${edge>=0?'+':''}${edge.toFixed(0)}</div><div class="lbl">EDGE</div></div>
-    </div>
-    <div style="margin-top:10px;padding:10px;border-radius:4px;background:${isEdge?'rgba(0,229,160,.08)':'rgba(255,75,31,.08)'};border:1px solid ${isEdge?'rgba(0,229,160,.3)':'rgba(255,75,31,.2)'}; font-size:13px;color:${isEdge?'var(--accent2)':'var(--muted)'};">
-      ${isEdge ? `✅ <strong>TOTAL EDGE: ${Math.abs(edge).toFixed(0)} pts.</strong> Play the ${projTotal > vegas ? 'OVER' : 'UNDER'}.` : `❌ No edge on total (need ≥4 pts). Vegas close to fair.`}
-    </div>
-  `;
+// ==== BETTING DROPDOWNS ====
+function populateBettingDropdowns() {
+  const sorted = [...TEAMS].sort((a,b) => a.seed - b.seed || a.name.localeCompare(b.name));
+  const makeOptions = () => sorted.map(t =>
+    `<option value="${t.name}">[${t.seed}] ${t.name} (${t.region})</option>`
+  ).join('');
+  const selA = document.getElementById('pickTeamA');
+  const selB = document.getElementById('pickTeamB');
+  if (selA) selA.innerHTML = '<option value="">-- Select Team --</option>' + makeOptions();
+  if (selB) selB.innerHTML = '<option value="">-- Select Team --</option>' + makeOptions();
 }
 
-// ==== MODEL BUILDER ====
-function renderWeightSliders() {
-  const keys = [{k:'kenpom',l:'KenPom Net Rating'},{k:'net',l:'NET Ranking'},{k:'q1',l:'Quad-1 Win %'},{k:'sos',l:'SOS'},{k:'seed',l:'Seed Adjustment'}];
-  document.getElementById('weightSliders').innerHTML = keys.map(({k,l}) => `
-    <div style="margin-bottom:14px;">
-      <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
-        <label style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">${l}</label>
-        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--accent);" id="wlbl-${k}">${modelWeights[k]}%</span>
-      </div>
-      <input type="range" min="0" max="70" value="${modelWeights[k]}" id="wsl-${k}" 
-        style="width:100%;accent-color:var(--accent);"
-        oninput="modelWeights['${k}']=parseInt(this.value);document.getElementById('wlbl-${k}').textContent=this.value+'%';updateWeightTotal()">
-    </div>
-  `).join('');
-  updateWeightTotal();
-}
+function autoFillTeam(side) {
+  const name = document.getElementById('pickTeam'+side).value;
+  const t = TEAMS.find(x => x.name === name);
+  if (!t) return;
 
-function updateWeightTotal() {
-  const total = Object.values(modelWeights).reduce((s,v)=>s+v,0);
-  const el = document.getElementById('weightTotal');
-  if (el) {
-    el.textContent = `Total weight: ${total}% ${total===100?'✅ Balanced':'⚠️ Adjust to 100%'}`;
-    el.style.color = total===100?'var(--accent2)':'var(--avg)';
-  }
-}
+  // compute offensive efficiency proxy from kenpom rank (top teams ~120, lower ~100)
+  const offEff = Math.max(95, Math.round(125 - t.kenpom * 0.35));
 
-function recalcModel() {
-  TEAMS.forEach(t => { t.power = computePower(t, modelWeights); });
-  renderRankings();
-  renderChampionProfiles();
-  alert('✅ Model recalculated with new weights. Rankings updated.');
-}
-
-// ==== TABS ====
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
-    if (tab.dataset.tab === 'champion') renderChampionProfiles();
-  });
-});
-
-// upset weight label
-document.getElementById('upsetWeight').addEventListener('input', function() {
-  document.getElementById('upsetVal').textContent = parseFloat(this.value).toFixed(1)+'x';
-});
-
-// ==== INIT ====
-renderRankings();
-renderUpsets();
-renderWeightSliders();
-</script>
-</body>
-</html>
+  if (side === 'A') {
+    document.getElementById('teamARtg').value = t.power.toFixed(1);
+    document.getElementById('tempoA').value = t.tempo;
+    document.getElementById('offEffA').value = offEff;
+    document.getElementById('previewAName').textContent = `[${t.seed}] ${t.name}`;
+    document.getElementById('previewAStats').innerHTML =
+      `Power Rating: <span style="color:var(--accent)">${t.power.toFixed(1)}</span><br>` +
+      `Tempo: <span style="color:var(--accent)">${t.tempo}</span> poss/40min<br>` +
+      `Off Efficiency: <span style="color:var(--accent)">${offEff}</span><br>` +
+      `KenPom: <span style="color:var(--accent)">#${t.kenpom}</span> &nbsp; NET: <span style="color:var(--accent)">#${t.net}</span><br>` +
+      `GAER: <span style="color:var(--accent)">${t.gaer.toFixed(2)}</span> &nbsp; Region: <span style="color:var(--accent)">${t.region}</span>`;
+    document.getElementById('previewA').style.display = 'block';
+  } else {
+    document.getElementById('teamBRtg').value = t.power.toFixed(1);
+    document.getElementById('tempoB').value = t.tempo;
+    document.getElementById('previewBName').textContent = `[${t.seed}] ${t.name}`;
+    document.getElementById('previewBStats').innerHTML =
+      `Power Rating: <span style="color:var(--cinderella)">${t.power.toFixed(1)}</span><br>` +
+      `Tempo: <span style="color:var(--cinderella)">${t.tempo}<
