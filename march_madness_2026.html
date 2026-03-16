@@ -968,7 +968,7 @@
     <div class="card">
       <div class="card-title card-title-accent">▮ Spread Calculator</div>
       <div style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-bottom:14px;">
-        Model Spread = Power Rating Diff × 0.85 &nbsp;|&nbsp; Edge threshold: ±2.5 pts
+        Model Spread = Power Rating Diff × 0.85  |  Edge threshold: ±2.5 pts
       </div>
       <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
         <div style="flex:1;min-width:130px;">
@@ -991,7 +991,7 @@
     <div class="card">
       <div class="card-title card-title-accent">▮ Total Calculator</div>
       <div style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-bottom:14px;">
-        Projected Total = Avg Tempo × 2 × Off Efficiency / 100 &nbsp;|&nbsp; Edge threshold: ±4 pts
+        Projected Total = Avg Tempo × 2 × Off Efficiency / 100  |  Edge threshold: ±4 pts
       </div>
       <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
         <div style="flex:1;min-width:110px;">
@@ -1615,8 +1615,8 @@ function autoFillTeam(side) {
       `Power Rating: <span style="color:var(--accent)">${t.power.toFixed(1)}</span><br>` +
       `Tempo: <span style="color:var(--accent)">${t.tempo}</span> poss/40min<br>` +
       `Off Efficiency: <span style="color:var(--accent)">${offEff}</span><br>` +
-      `KenPom: <span style="color:var(--accent)">#${t.kenpom}</span> &nbsp; NET: <span style="color:var(--accent)">#${t.net}</span><br>` +
-      `GAER: <span style="color:var(--accent)">${t.gaer.toFixed(2)}</span> &nbsp; Region: <span style="color:var(--accent)">${t.region}</span>`;
+      `KenPom: <span style="color:var(--accent)">#${t.kenpom}</span>   NET: <span style="color:var(--accent)">#${t.net}</span><br>` +
+      `GAER: <span style="color:var(--accent)">${t.gaer.toFixed(2)}</span>   Region: <span style="color:var(--accent)">${t.region}</span>`;
     document.getElementById('previewA').style.display = 'block';
   } else {
     document.getElementById('teamBRtg').value = t.power.toFixed(1);
@@ -1626,8 +1626,8 @@ function autoFillTeam(side) {
       `Power Rating: <span style="color:var(--cinderella)">${t.power.toFixed(1)}</span><br>` +
       `Tempo: <span style="color:var(--cinderella)">${t.tempo}</span> poss/40min<br>` +
       `Off Efficiency: <span style="color:var(--cinderella)">${offEff}</span><br>` +
-      `KenPom: <span style="color:var(--cinderella)">#${t.kenpom}</span> &nbsp; NET: <span style="color:var(--cinderella)">#${t.net}</span><br>` +
-      `GAER: <span style="color:var(--cinderella)">${t.gaer.toFixed(2)}</span> &nbsp; Region: <span style="color:var(--cinderella)">${t.region}</span>`;
+      `KenPom: <span style="color:var(--cinderella)">#${t.kenpom}</span>   NET: <span style="color:var(--cinderella)">#${t.net}</span><br>` +
+      `GAER: <span style="color:var(--cinderella)">${t.gaer.toFixed(2)}</span>   Region: <span style="color:var(--cinderella)">${t.region}</span>`;
     document.getElementById('previewB').style.display = 'block';
   }
   document.getElementById('previewVs').style.display = 'flex';
@@ -1849,9 +1849,9 @@ function renderBracket(allRegions, ff, champGame) {
   const html = `
     <div style="margin-bottom:12px;display:flex;gap:24px;justify-content:center;flex-wrap:wrap;">
       <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;color:var(--muted);">
-        <span style="color:var(--accent);margin-right:6px;">■</span>WINNER &nbsp;
-        <span style="color:var(--accent3);margin-right:6px;">■</span>CHAMPION &nbsp;
-        <span style="color:var(--muted);margin-right:6px;">■</span>ELIMINATED &nbsp;
+        <span style="color:var(--accent);margin-right:6px;">■</span>WINNER  
+        <span style="color:var(--accent3);margin-right:6px;">■</span>CHAMPION  
+        <span style="color:var(--muted);margin-right:6px;">■</span>ELIMINATED  
         <span style="color:var(--accent2);font-family:'IBM Plex Mono',monospace;font-size:10px;">%</span> = TITLE PROB
       </div>
     </div>
