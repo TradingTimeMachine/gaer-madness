@@ -1202,9 +1202,28 @@ function getTier(power, seed) {
 }
 
 function seedWinProb(seedA, seedB, powerA, powerB) {
-  const diff = powerA - powerB;
-  // logistic
-  return 1 / (1 + Math.exp(-diff * 0.15));
+  // Flatten power differences — tournament basketball is high variance.
+  // A 10pt power gap should be ~65% not ~78%. Scale factor 0.06 achieves this.
+  // Also blend in a seed-based prior so massive mismatches still show correctly.
+  const powerDiff = powerA - powerB;
+  const powerProb = 1 / (1 + Math.exp(-powerDiff * 0.06));
+
+  // Historical seed win rates as a prior (regresses extreme power ratings toward reality)
+  const seedPriors = {
+    '1v16': 0.987, '2v15': 0.940, '3v14': 0.850, '4v13': 0.790,
+    '5v12': 0.650, '6v11': 0.630, '7v10': 0.600, '8v9':  0.510,
+  };
+  function getSeedPrior(sA, sB) {
+    const lo = Math.min(sA, sB), hi = Math.max(sA, sB);
+    const key = lo + 'v' + hi;
+    if (seedPriors[key]) return sA < sB ? seedPriors[key] : 1 - seedPriors[key];
+    // For later rounds, no prior — use pure power
+    return null;
+  }
+  const prior = getSeedPrior(seedA, seedB);
+  // Blend: 60% power model, 40% seed prior in early rounds; pure power in later rounds
+  if (prior !== null) return 0.60 * powerProb + 0.40 * prior;
+  return powerProb;
 }
 
 // initialize power ratings
@@ -1213,14 +1232,29 @@ TEAMS.forEach(t => { t.power = computePower(t, modelWeights); });
 // ---- WIN PROBABILITY (for matchup) ----
 function winProb(teamA, teamB) {
   let pwr = seedWinProb(teamA.seed, teamB.seed, teamA.power, teamB.power);
-  // 3pt volatility adjustment
-  if (teamA.threeRate > 0.42) pwr = pwr * 0.95 + (Math.random() > 0.5 ? 0.05 : -0.05);
-  // upset weight from slider
+
+  // 3pt volatility: high 3pt teams swing up to ±8% randomly each game
+  if (teamA.threeRate > 0.40) pwr += (Math.random() - 0.5) * 0.16;
+  if (teamB.threeRate > 0.40) pwr -= (Math.random() - 0.5) * 0.16;
+
+  // Experience penalty: freshman-heavy teams get a variance hit
+  if (teamA.exp === 'Low') pwr -= Math.random() * 0.06;
+  if (teamB.exp === 'Low') pwr += Math.random() * 0.06;
+
+  // Tempo conflict: extreme pace mismatch adds randomness
+  const tempoDiff = Math.abs(teamA.tempo - teamB.tempo);
+  if (tempoDiff > 8) pwr += (Math.random() - 0.5) * 0.10;
+
+  // Upset weight slider — applies to BOTH directions
   const upsetW = parseFloat(document.getElementById('upsetWeight')?.value || 1);
-  if (upsetW !== 1.0 && teamA.seed > teamB.seed) {
-    pwr = pwr * (2 - upsetW);
+  if (upsetW !== 1.0) {
+    // upsetW > 1 = more upsets = compress probabilities toward 50%
+    // upsetW < 1 = chalk = stretch probabilities away from 50%
+    pwr = 0.5 + (pwr - 0.5) / upsetW;
   }
-  return Math.max(0.05, Math.min(0.95, pwr));
+
+  // Hard floor/ceiling — even 1v16 should have a tiny chance
+  return Math.max(0.03, Math.min(0.97, pwr));
 }
 
 // ---- SEED BADGE ----
