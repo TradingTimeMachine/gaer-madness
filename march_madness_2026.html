@@ -1706,7 +1706,9 @@ function runSimulation() {
   const ffCounts = {};
   const elite8Counts = {};
   const sweet16Counts = {};
-  TEAMS.forEach(t => { champCounts[t.name]=0; ffCounts[t.name]=0; elite8Counts[t.name]=0; sweet16Counts[t.name]=0; });
+  const ff2Counts = {}; // tracks which two teams meet in the championship
+  const ffComboCounts = {}; // tracks most common Final Four combos
+  TEAMS.forEach(t => { champCounts[t.name]=0; ffCounts[t.name]=0; elite8Counts[t.name]=0; sweet16Counts[t.name]=0; ff2Counts[t.name]=0; });
 
   let totalFirstRoundUpsets = 0;
 
@@ -1764,6 +1766,8 @@ function runSimulation() {
     return { winner: e8, upsets };
   }
 
+  let lastFF = null; // stores the actual Final Four from the final simulation run
+
   let sim = 0;
   const chunk = Math.ceil(N/100);
 
@@ -1771,13 +1775,37 @@ function runSimulation() {
     const end = Math.min(sim + chunk, N);
     for(let i=sim;i<end;i++) {
       const regionWinners = regions.map(r => simRegion(r));
+      // All 4 region winners make the Final Four
       regionWinners.forEach(r => { if(ffCounts[r.winner.name]!==undefined) ffCounts[r.winner.name]++; });
       totalFirstRoundUpsets += regionWinners.reduce((s,r)=>s+r.upsets,0);
+
+      // Track Final Four combination (sorted so order doesn't matter)
+      const ff4names = regionWinners.map(r=>r.winner.name).sort().join('|');
+      ffComboCounts[ff4names] = (ffComboCounts[ff4names]||0) + 1;
+
       // FF games — East vs West, South vs Midwest (per actual 2026 bracket)
       const ff1 = simGame(regionWinners[0].winner, regionWinners[2].winner); // East vs West
       const ff2 = simGame(regionWinners[1].winner, regionWinners[3].winner); // South vs Midwest
+
+      // Track championship game participants
+      if(ff2Counts[ff1.name]!==undefined) ff2Counts[ff1.name]++;
+      if(ff2Counts[ff2.name]!==undefined) ff2Counts[ff2.name]++;
+
       const champ = simGame(ff1, ff2);
       if(champCounts[champ.name]!==undefined) champCounts[champ.name]++;
+
+      // Save the last simulation's specific result
+      if(i === end - 1) {
+        lastFF = {
+          ff1Left:  regionWinners[0].winner,  // East
+          ff1Right: regionWinners[2].winner,  // West
+          ff2Left:  regionWinners[1].winner,  // South
+          ff2Right: regionWinners[3].winner,  // Midwest
+          champGame1Winner: ff1,
+          champGame2Winner: ff2,
+          champion: champ,
+        };
+      }
     }
     sim = end;
     const pct = (sim/N*100).toFixed(0);
@@ -1787,13 +1815,13 @@ function runSimulation() {
     if(sim < N) {
       requestAnimationFrame(runChunk);
     } else {
-      finishSim(champCounts, ffCounts, elite8Counts, sweet16Counts, N, totalFirstRoundUpsets);
+      finishSim(champCounts, ffCounts, ff2Counts, ffComboCounts, elite8Counts, sweet16Counts, N, totalFirstRoundUpsets, lastFF);
     }
   }
   requestAnimationFrame(runChunk);
 }
 
-function finishSim(champCounts, ffCounts, elite8Counts, sweet16Counts, N, totalUpsets) {
+function finishSim(champCounts, ffCounts, ff2Counts, ffComboCounts, elite8Counts, sweet16Counts, N, totalUpsets, lastFF) {
   // store probs on teams
   TEAMS.forEach(t => {
     t.champProb = (champCounts[t.name]||0)/N;
@@ -1841,30 +1869,46 @@ function finishSim(champCounts, ffCounts, elite8Counts, sweet16Counts, N, totalU
   document.getElementById('sumTopChamp').textContent = (topChamp.champProb*100).toFixed(1)+'%';
   document.getElementById('sumSurprise').textContent = surprisePct;
 
-  // Final Four bracket
-  const ff4 = [...TEAMS].sort((a,b)=>b.ffProb-a.ffProb).slice(0,4);
-  const champTeam = [...TEAMS].sort((a,b)=>b.champProb-a.champProb)[0];
-  document.getElementById('ff4Bracket').innerHTML = `
+  // Show the actual Final Four from the last simulation run
+  const ff = lastFF;
+  document.getElementById('ff4Bracket').innerHTML = ff ? `
+    <div style="margin-bottom:12px;padding:8px 12px;background:rgba(0,229,160,.06);border:1px solid rgba(0,229,160,.2);border-radius:5px;font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--accent2);">
+      ⚡ This is simulation #${N.toLocaleString()} — the actual last bracket played out. Hit <strong>Run Again</strong> to get a different result.
+    </div>
     <div class="ff-bracket">
       <div class="ff-col">
         <div class="ff-game">
-          <div class="ff-team winner">${seedBadge(ff4[0].seed)} ${ff4[0].name} <span>${(ff4[0].ffProb*100).toFixed(0)}%</span></div>
-          <div class="ff-team">${seedBadge(ff4[2].seed)} ${ff4[2].name} <span>${(ff4[2].ffProb*100).toFixed(0)}%</span></div>
+          <div class="ff-team ${ff.champGame1Winner.name===ff.ff1Left.name?'winner':''}">
+            ${seedBadge(ff.ff1Left.seed)} ${ff.ff1Left.name}
+            <span>${(ff.ff1Left.champProb*100).toFixed(1)}% title</span>
+          </div>
+          <div class="ff-team ${ff.champGame1Winner.name===ff.ff1Right.name?'winner':''}">
+            ${seedBadge(ff.ff1Right.seed)} ${ff.ff1Right.name}
+            <span>${(ff.ff1Right.champProb*100).toFixed(1)}% title</span>
+          </div>
         </div>
+        <div style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;text-align:center;margin-top:4px;">EAST vs WEST</div>
       </div>
       <div class="ff-center">
         <div class="ff-trophy">🏆</div>
-        <div class="ff-champ-name">${champTeam.name}</div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">${(champTeam.champProb*100).toFixed(1)}% TITLE</div>
+        <div class="ff-champ-name">${ff.champion.name}</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">[${ff.champion.seed}] ${(ff.champion.champProb*100).toFixed(1)}% title prob</div>
       </div>
       <div class="ff-col">
         <div class="ff-game">
-          <div class="ff-team winner">${seedBadge(ff4[1].seed)} ${ff4[1].name} <span>${(ff4[1].ffProb*100).toFixed(0)}%</span></div>
-          <div class="ff-team">${seedBadge(ff4[3].seed)} ${ff4[3].name} <span>${(ff4[3].ffProb*100).toFixed(0)}%</span></div>
+          <div class="ff-team ${ff.champGame2Winner.name===ff.ff2Left.name?'winner':''}">
+            ${seedBadge(ff.ff2Left.seed)} ${ff.ff2Left.name}
+            <span>${(ff.ff2Left.champProb*100).toFixed(1)}% title</span>
+          </div>
+          <div class="ff-team ${ff.champGame2Winner.name===ff.ff2Right.name?'winner':''}">
+            ${seedBadge(ff.ff2Right.seed)} ${ff.ff2Right.name}
+            <span>${(ff.ff2Right.champProb*100).toFixed(1)}% title</span>
+          </div>
         </div>
+        <div style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;text-align:center;margin-top:4px;">SOUTH vs MIDWEST</div>
       </div>
     </div>
-  `;
+  ` : '<div style="color:var(--muted);font-size:12px;text-align:center;padding:20px;">No simulation run yet.</div>';
 
   // update rankings with probs
   renderRankings();
