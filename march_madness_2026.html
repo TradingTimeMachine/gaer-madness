@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Dave's Bracket Madness 2026</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -482,11 +482,126 @@
   }
 
   /* ---- responsive ---- */
+  /* =================== RESPONSIVE / MOBILE =================== */
   @media(max-width:900px) {
     .grid-2,.grid-3,.grid-4 { grid-template-columns: 1fr; }
-    .main { padding: 20px 16px; }
-    header { padding: 14px 16px; }
-    .tabs { padding: 0 16px; overflow-x: auto; }
+    .main { padding: 14px 12px; }
+    header { padding: 12px 14px; flex-wrap: wrap; gap: 8px; }
+    .tabs { padding: 0 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .tab { padding: 12px 14px; font-size: 12px; white-space: nowrap; }
+  }
+
+  @media(max-width:600px) {
+    /* Header */
+    header { padding: 10px 12px; }
+    .logo { font-size: 18px; }
+    .logo sub { display: none; }
+    .header-meta { font-size: 10px; }
+    .header-meta div:last-child { display: none; }
+
+    /* Main padding */
+    .main { padding: 10px 10px; }
+
+    /* Section headers */
+    .section-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .section-title { font-size: 20px; }
+
+    /* Cards */
+    .card { padding: 14px 14px; }
+    .card-title { font-size: 10px; }
+
+    /* Tabs — scrollable, smaller */
+    .tabs { padding: 0 8px; gap: 0; }
+    .tab { padding: 10px 10px; font-size: 11px; letter-spacing: 0.5px; }
+
+    /* Rankings table — hide less important columns on small screens */
+    .team-table th:nth-child(5),
+    .team-table td:nth-child(5),
+    .team-table th:nth-child(6),
+    .team-table td:nth-child(6),
+    .team-table th:nth-child(7),
+    .team-table td:nth-child(7),
+    .team-table th:nth-child(8),
+    .team-table td:nth-child(8),
+    .team-table th:nth-child(11),
+    .team-table td:nth-child(11),
+    .team-table th:nth-child(12),
+    .team-table td:nth-child(12) { display: none; }
+
+    /* Stat boxes — 2 per row */
+    #simSummary { grid-template-columns: 1fr 1fr !important; }
+    .stat-box .val { font-size: 28px; }
+
+    /* Prob rows */
+    .prob-label { width: 100px; font-size: 12px; }
+    .prob-pct { width: 38px; font-size: 11px; }
+
+    /* Upset cards — stack */
+    .grid-4 { grid-template-columns: 1fr 1fr; }
+    .upset-seeds { font-size: 18px; }
+    .upset-pct { font-size: 16px; }
+
+    /* Pills — wrap nicely */
+    .pills { gap: 6px; }
+    .pill { font-size: 10px; padding: 4px 10px; }
+
+    /* Betting matchup — stack */
+    .bracket-center-col { min-width: 100px !important; padding: 0 6px !important; }
+    .ff-champ-name { font-size: 14px; }
+
+    /* Alert boxes */
+    .alert { font-size: 12px; padding: 12px 14px; }
+
+    /* Model builder steps — 2 cols on mobile */
+    #modelStepsGrid { grid-template-columns: 1fr 1fr !important; }
+
+    /* Sim button */
+    .sim-btn { font-size: 14px; padding: 12px 20px; }
+
+    /* Search bar */
+    .search-wrap { width: 100% !important; }
+
+    /* Champ ring */
+    .champ-ring { width: 60px; height: 60px; }
+    .champ-ring .pct { font-size: 16px; }
+
+    /* Slider instruction box — shorter on mobile */
+    #upsetInstructions br { display: none; }
+
+    /* Bracket — always scrollable */
+    #bracketContainer { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    #bracketContainer > div { min-width: 900px; }
+
+    /* FF bracket in simulator */
+    .ff-bracket { grid-template-columns: 1fr auto 1fr; gap: 8px; }
+    .ff-game { padding: 8px 10px; }
+    .ff-team { font-size: 12px; }
+
+    /* Betting dropdowns */
+    #pickTeamA, #pickTeamB { font-size: 13px; }
+
+    /* Weight sliders label */
+    .wslider-row { flex-direction: column; }
+
+    /* Hide preset descriptions until clicked */
+    #presetDesc { font-size: 11px; }
+
+    /* Section sub */
+    .section-sub { font-size: 10px; }
+
+    /* Scrollable table on mobile */
+    .card > .scrollable { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .team-table { min-width: 320px; font-size: 11px; }
+    .team-name { font-size: 13px; }
+    .seed-badge { font-size: 9px; padding: 1px 4px; }
+  }
+
+  /* Touch-friendly tap targets */
+  @media(hover: none) {
+    .tab:hover { color: var(--muted); }
+    .bracket-team:hover { border-color: var(--border); background: var(--panel); }
+    .sim-btn { min-height: 44px; }
+    select, input[type=number], input[type=range] { min-height: 40px; }
   }
 
   /* ---- TOOLTIP ---- */
@@ -637,6 +752,12 @@
 </style>
 </head>
 <body>
+
+<div id="mobileBanner" style="display:none;background:rgba(255,214,0,.08);border-bottom:1px solid rgba(255,214,0,.2);padding:8px 14px;font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--avg);text-align:center;">
+  📱 Best experienced on a larger screen — all features work on mobile, bracket view requires scroll
+  <span onclick="document.getElementById('mobileBanner').style.display='none'" style="margin-left:10px;cursor:pointer;opacity:.6;">✕</span>
+</div>
+<script>if(window.innerWidth < 600) document.getElementById('mobileBanner').style.display='block';</script>
 
 <header>
   <div class="logo">DAVE'S <span>BRACKET MADNESS</span> <sub>2026 ENGINE v2.0</sub></div>
@@ -801,7 +922,7 @@
     </div>
   </div>
 
-  <div class="grid-4" style="margin-bottom:20px;">
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:20px;">
     <div class="upset-card">
       <div>
         <div class="upset-seeds">12 <span class="upset-vs">vs</span> 5</div>
