@@ -968,7 +968,7 @@
     <div class="card">
       <div class="card-title card-title-accent">▮ Spread Calculator</div>
       <div style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-bottom:14px;">
-        Model Spread = Power Rating Diff × 0.85  |  Edge threshold: ±2.5 pts
+        Model Spread = Power Rating Diff × 0.45  |  Win % uses logistic model  |  Edge threshold: ±2.5 pts
       </div>
       <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
         <div style="flex:1;min-width:130px;">
@@ -1808,8 +1808,8 @@ function autoFillTeam(side) {
   const t = TEAMS.find(x => x.name === name);
   if (!t) return;
 
-  // compute offensive efficiency proxy from kenpom rank (top teams ~120, lower ~100)
-  const offEff = Math.max(95, Math.round(125 - t.kenpom * 0.35));
+  // Offensive efficiency: kenpom rank 1 = ~122, rank 50 = ~112, rank 100 = ~106
+  const offEff = Math.max(98, Math.round(123 - t.kenpom * 0.22));
   // defensive efficiency proxy (inverse — lower kenpom = better defense too)
   const defEff = Math.max(92, Math.round(122 - t.kenpom * 0.30));
 
@@ -1864,7 +1864,11 @@ function calcSpread() {
     return;
   }
 
-  const modelSpread = -(pA - pB) * 0.85;
+  // Recalibrated for new power scale (18-85 range):
+  // Multiplier 0.45 produces realistic tournament spreads
+  // e.g. Michigan(78.5) vs UConn(75.5) = -1.4 pt favorite (correct for a close Final Four game)
+  const modelSpread = -(pA - pB) * 0.45;
+  const winPct = Math.round(1 / (1 + Math.exp(-(pA - pB) * 0.08)) * 100);
   const hasVegas = !isNaN(vegas);
   const edge = hasVegas ? modelSpread - vegas : null;
   const isEdge = hasVegas && Math.abs(edge) >= 2.5;
@@ -1891,6 +1895,10 @@ function calcSpread() {
   document.getElementById('spreadResult').innerHTML = `
     <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px;">
       <div class="stat-box" style="flex:1;min-width:100px;"><div class="val" style="font-size:24px;">${modelSpread.toFixed(1)}</div><div class="lbl">Model Spread</div></div>
+      <div class="stat-box" style="flex:1;min-width:100px;border-color:var(--accent2);">
+        <div class="val" style="font-size:24px;color:var(--accent2);">${winPct}%</div>
+        <div class="lbl">Team A Win %</div>
+      </div>
       ${vegasBox}
       ${edgeBox}
     </div>
