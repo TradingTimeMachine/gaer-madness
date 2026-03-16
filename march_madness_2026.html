@@ -1469,4 +1469,116 @@ function autoFillTeam(side) {
     document.getElementById('previewBName').textContent = `[${t.seed}] ${t.name}`;
     document.getElementById('previewBStats').innerHTML =
       `Power Rating: <span style="color:var(--cinderella)">${t.power.toFixed(1)}</span><br>` +
-      `Tempo: <span style="color:var(--cinderella)">${t.tempo}<
+      `Tempo: <span style="color:var(--cinderella)">${t.tempo}</span> poss/40min<br>` +
+      `Off Efficiency: <span style="color:var(--cinderella)">${offEff}</span><br>` +
+      `KenPom: <span style="color:var(--cinderella)">#${t.kenpom}</span> &nbsp; NET: <span style="color:var(--cinderella)">#${t.net}</span><br>` +
+      `GAER: <span style="color:var(--cinderella)">${t.gaer.toFixed(2)}</span> &nbsp; Region: <span style="color:var(--cinderella)">${t.region}</span>`;
+    document.getElementById('previewB').style.display = 'block';
+  }
+  document.getElementById('previewVs').style.display = 'flex';
+}
+
+function calcBoth() {
+  calcSpread();
+  calcTotal();
+}
+
+
+function calcSpread() {
+  const pA = parseFloat(document.getElementById('teamARtg').value);
+  const pB = parseFloat(document.getElementById('teamBRtg').value);
+  const vegas = parseFloat(document.getElementById('vegasSpread').value);
+  const modelSpread = -(pA - pB) * 0.85;
+  const edge = modelSpread - vegas;
+  const edgeAbs = Math.abs(edge).toFixed(1);
+  const isEdge = Math.abs(edge) >= 2.5;
+  document.getElementById('spreadResult').innerHTML = `
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px;">
+      <div class="stat-box" style="flex:1;min-width:100px;"><div class="val" style="font-size:24px;">${modelSpread.toFixed(1)}</div><div class="lbl">Model Spread</div></div>
+      <div class="stat-box" style="flex:1;min-width:100px;"><div class="val" style="font-size:24px;">${vegas}</div><div class="lbl">Vegas Spread</div></div>
+      <div class="stat-box" style="flex:1;min-width:100px;border-color:${isEdge?'var(--accent2)':'var(--border)'}"><div class="val" style="font-size:24px;color:${isEdge?'var(--accent2)':'var(--muted)'};">${edge>=0?'+':''}${edge.toFixed(1)}</div><div class="lbl">EDGE</div></div>
+    </div>
+    <div style="margin-top:10px;padding:10px;border-radius:4px;background:${isEdge?'rgba(0,229,160,.08)':'rgba(255,75,31,.08)'};border:1px solid ${isEdge?'rgba(0,229,160,.3)':'rgba(255,75,31,.2)'}; font-size:13px;color:${isEdge?'var(--accent2)':'var(--muted)'};">
+      ${isEdge ? `✅ <strong>EDGE DETECTED: ${edgeAbs} point advantage.</strong> Bet Team ${edge < 0 ? 'A' : 'B'}.` : `❌ No edge (need ≥2.5 pts). Vegas line is fair.`}
+    </div>
+  `;
+}
+function calcTotal() {
+  const tA = parseFloat(document.getElementById('tempoA').value);
+  const tB = parseFloat(document.getElementById('tempoB').value);
+  const offEff = parseFloat(document.getElementById('offEffA').value);
+  const vegas = parseFloat(document.getElementById('vegasTotal').value);
+  const avgTempo = (tA+tB)/2;
+  const projTotal = (avgTempo * 2 * offEff / 100).toFixed(0);
+  const edge = projTotal - vegas;
+  const isEdge = Math.abs(edge) >= 4;
+  document.getElementById('totalResult').innerHTML = `
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px;">
+      <div class="stat-box" style="flex:1;min-width:100px;"><div class="val" style="font-size:24px;">${projTotal}</div><div class="lbl">Model Total</div></div>
+      <div class="stat-box" style="flex:1;min-width:100px;"><div class="val" style="font-size:24px;">${vegas}</div><div class="lbl">Vegas O/U</div></div>
+      <div class="stat-box" style="flex:1;min-width:100px;border-color:${isEdge?'var(--accent2)':'var(--border)'}"><div class="val" style="font-size:24px;color:${isEdge?'var(--accent2)':'var(--muted)'};">${edge>=0?'+':''}${edge.toFixed(0)}</div><div class="lbl">EDGE</div></div>
+    </div>
+    <div style="margin-top:10px;padding:10px;border-radius:4px;background:${isEdge?'rgba(0,229,160,.08)':'rgba(255,75,31,.08)'};border:1px solid ${isEdge?'rgba(0,229,160,.3)':'rgba(255,75,31,.2)'}; font-size:13px;color:${isEdge?'var(--accent2)':'var(--muted)'};">
+      ${isEdge ? `✅ <strong>TOTAL EDGE: ${Math.abs(edge).toFixed(0)} pts.</strong> Play the ${projTotal > vegas ? 'OVER' : 'UNDER'}.` : `❌ No edge on total (need ≥4 pts). Vegas close to fair.`}
+    </div>
+  `;
+}
+
+// ==== MODEL BUILDER ====
+function renderWeightSliders() {
+  const keys = [{k:'kenpom',l:'KenPom Net Rating'},{k:'net',l:'NET Ranking'},{k:'q1',l:'Quad-1 Win %'},{k:'sos',l:'SOS'},{k:'seed',l:'Seed Adjustment'}];
+  document.getElementById('weightSliders').innerHTML = keys.map(({k,l}) => `
+    <div style="margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+        <label style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">${l}</label>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--accent);" id="wlbl-${k}">${modelWeights[k]}%</span>
+      </div>
+      <input type="range" min="0" max="70" value="${modelWeights[k]}" id="wsl-${k}" 
+        style="width:100%;accent-color:var(--accent);"
+        oninput="modelWeights['${k}']=parseInt(this.value);document.getElementById('wlbl-${k}').textContent=this.value+'%';updateWeightTotal()">
+    </div>
+  `).join('');
+  updateWeightTotal();
+}
+
+function updateWeightTotal() {
+  const total = Object.values(modelWeights).reduce((s,v)=>s+v,0);
+  const el = document.getElementById('weightTotal');
+  if (el) {
+    el.textContent = `Total weight: ${total}% ${total===100?'✅ Balanced':'⚠️ Adjust to 100%'}`;
+    el.style.color = total===100?'var(--accent2)':'var(--avg)';
+  }
+}
+
+function recalcModel() {
+  TEAMS.forEach(t => { t.power = computePower(t, modelWeights); });
+  renderRankings();
+  renderChampionProfiles();
+  populateBettingDropdowns();
+  alert('Model recalculated. Rankings and betting dropdowns updated.');
+}
+
+// ==== TABS ====
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
+    if (tab.dataset.tab === 'champion') renderChampionProfiles();
+  });
+});
+
+// upset weight label
+document.getElementById('upsetWeight').addEventListener('input', function() {
+  document.getElementById('upsetVal').textContent = parseFloat(this.value).toFixed(1)+'x';
+});
+
+// ==== INIT ====
+renderRankings();
+renderUpsets();
+renderWeightSliders();
+populateBettingDropdowns();
+</script>
+</body>
+</html>
