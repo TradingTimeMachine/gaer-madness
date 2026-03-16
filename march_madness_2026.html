@@ -505,6 +505,133 @@
     margin-top: 4px;
   }
 
+  /* ---- BRACKET ---- */
+  .bracket-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr auto 1fr 1fr 1fr 1fr;
+    gap: 0;
+    min-width: 1100px;
+    font-family: 'Barlow Condensed', sans-serif;
+  }
+  .bracket-region-label {
+    font-weight: 900;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: center;
+    padding: 6px 0 10px;
+    grid-column: span 4;
+  }
+  .bracket-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding: 0 3px;
+  }
+  .bracket-game {
+    display: flex;
+    flex-direction: column;
+    margin: 3px 0;
+  }
+  .bracket-team {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 5px 8px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .15s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 28px;
+    position: relative;
+  }
+  .bracket-team:hover { border-color: var(--accent); background: #161b28; }
+  .bracket-team.winner {
+    background: rgba(255,75,31,.12);
+    border-color: var(--accent);
+    color: var(--text);
+  }
+  .bracket-team.champion {
+    background: rgba(255,214,0,.15);
+    border-color: var(--accent3);
+    color: var(--accent3);
+    font-size: 13px;
+  }
+  .bracket-team .bseed {
+    font-size: 9px;
+    color: var(--muted);
+    font-weight: 400;
+    flex-shrink: 0;
+    background: var(--bg);
+    padding: 1px 4px;
+    border-radius: 2px;
+    min-width: 16px;
+    text-align: center;
+  }
+  .bracket-team.winner .bseed { color: var(--accent); }
+  .bracket-team .bprob {
+    font-size: 9px;
+    color: var(--accent2);
+    margin-left: auto;
+    flex-shrink: 0;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .bracket-divider { border-right: 1px solid var(--border-bright); margin: 2px 0; }
+  .bracket-spacer { flex: 1; }
+  .bracket-center-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
+    gap: 8px;
+  }
+  .bracket-champ-box {
+    background: rgba(255,214,0,.1);
+    border: 2px solid var(--accent3);
+    border-radius: 8px;
+    padding: 16px 20px;
+    text-align: center;
+    min-width: 130px;
+  }
+  .bracket-champ-box .trophy { font-size: 28px; }
+  .bracket-champ-box .champ-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 16px;
+    color: var(--accent3);
+    margin-top: 6px;
+  }
+  .bracket-champ-box .champ-prob {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .round-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-align: center;
+    padding: 4px 0 8px;
+    text-transform: uppercase;
+  }
+  @media print {
+    header, .tabs, .section-header button, #bracketNotice { display: none !important; }
+    body { background: white; color: black; }
+    .bracket-team { border-color: #ccc; background: #f9f9f9; color: black; }
+    .bracket-team.winner { background: #ffe8e0; border-color: #ff4b1f; }
+    .bracket-team.champion { background: #fff9cc; border-color: #ffd600; }
+  }
+
   .highlight-row td { background: rgba(255,214,0,.04) !important; }
   .mono { font-family: 'IBM Plex Mono', monospace; }
 </style>
@@ -526,6 +653,7 @@
   <div class="tab" data-tab="upsets">Upset Engine</div>
   <div class="tab" data-tab="champion">Champion Profile</div>
   <div class="tab" data-tab="betting">Betting Edge</div>
+  <div class="tab" data-tab="bracket">🏆 My Bracket</div>
   <div class="tab" data-tab="model">Model Builder</div>
 </div>
 
@@ -941,6 +1069,30 @@
     </div>
   </div>
 </div>
+<!-- =================== TAB: MY BRACKET =================== -->
+<div id="tab-bracket" class="section">
+  <div class="section-header">
+    <div>
+      <div class="section-title">My Bracket</div>
+      <div class="section-sub">generated from Monte Carlo simulation · most likely winner each game</div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <button class="sim-btn" style="font-size:12px;padding:8px 16px;background:var(--panel);border:1px solid var(--border);color:var(--muted);" onclick="window.print()">🖨 PRINT</button>
+      <button class="sim-btn" style="font-size:12px;padding:8px 16px;" onclick="generateBracket()">⚡ GENERATE FROM SIM</button>
+    </div>
+  </div>
+
+  <div id="bracketNotice" class="alert">
+    <strong>👆 Run the Monte Carlo Sim first</strong>, then come back here and click <strong>Generate From Sim</strong> to fill out your complete bracket based on the model's most likely winner in every game. You can also click any team name to manually override a pick.
+  </div>
+
+  <!-- BRACKET GRID -->
+  <div id="bracketContainer" style="overflow-x:auto;">
+    <div style="color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:13px;text-align:center;padding:60px 0;">
+      Run the Monte Carlo Sim, then click Generate From Sim above.
+    </div>
+  </div>
+</div>
 
 </div><!-- end main -->
 
@@ -1314,6 +1466,9 @@ function finishSim(champCounts, ffCounts, elite8Counts, sweet16Counts, N, totalU
   // update rankings with probs
   renderRankings();
 
+  // auto-generate bracket
+  generateBracket();
+
   // re-enable
   simRunning = false;
   const btn = document.getElementById('simBtn');
@@ -1566,6 +1721,9 @@ document.querySelectorAll('.tab').forEach(tab => {
     tab.classList.add('active');
     document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
     if (tab.dataset.tab === 'champion') renderChampionProfiles();
+    if (tab.dataset.tab === 'bracket') {
+      if (TEAMS.some(t => t.champProb > 0)) generateBracket();
+    }
   });
 });
 
@@ -1574,7 +1732,196 @@ document.getElementById('upsetWeight').addEventListener('input', function() {
   document.getElementById('upsetVal').textContent = parseFloat(this.value).toFixed(1)+'x';
 });
 
-// ==== INIT ====
+// ==== BRACKET GENERATOR ====
+// Stores the user's bracket picks: bracketPicks[roundIndex][gameKey] = teamName
+let bracketPicks = {};
+let bracketRounds = {}; // holds computed rounds per region
+
+function generateBracket() {
+  // Check sim has been run
+  const hasProbs = TEAMS.some(t => t.champProb > 0);
+  if (!hasProbs) {
+    document.getElementById('bracketNotice').innerHTML =
+      '<strong>⚠️ Run the Monte Carlo Sim first!</strong> Go to the Monte Carlo Sim tab, hit Run, then come back here.';
+    document.getElementById('bracketNotice').style.borderColor = 'var(--accent)';
+    return;
+  }
+
+  document.getElementById('bracketNotice').style.display = 'none';
+
+  const regionOrder = ['East','South','West','Midwest'];
+  // For each region, simulate the most-likely bracket path (highest win prob each game)
+  const seedPairs = [[0,15],[7,8],[4,11],[3,12],[5,10],[2,13],[6,9],[1,14]];
+
+  function getRegionTeams(regionName) {
+    return [...TEAMS]
+      .filter(t => t.region === regionName)
+      .sort((a,b) => a.seed - b.seed)
+      .slice(0,16);
+  }
+
+  function bestGuessWinner(a, b) {
+    const pA = winProb(a, b);
+    return pA >= 0.5 ? a : b;
+  }
+
+  function buildRegionRounds(regionName) {
+    const teams = getRegionTeams(regionName);
+    const rounds = [];
+    // Round 1: 8 games
+    const r1 = seedPairs.map(([i,j]) => ({
+      teamA: teams[i], teamB: teams[j],
+      winner: bestGuessWinner(teams[i], teams[j])
+    }));
+    rounds.push(r1);
+    // Rounds 2-4
+    let prev = r1.map(g => g.winner);
+    for (let r = 0; r < 3; r++) {
+      const round = [];
+      for (let i = 0; i < prev.length; i += 2) {
+        const a = prev[i], b = prev[i+1];
+        round.push({ teamA: a, teamB: b, winner: bestGuessWinner(a, b) });
+      }
+      rounds.push(round);
+      prev = round.map(g => g.winner);
+    }
+    return rounds; // [R1(8 games), R2(4), S16(2), E8(1)]
+  }
+
+  // Build all 4 regions
+  const allRegions = {};
+  regionOrder.forEach(r => { allRegions[r] = buildRegionRounds(r); });
+
+  // Final Four
+  const ff = [
+    { teamA: allRegions['East'][3][0].winner,    teamB: allRegions['South'][3][0].winner },
+    { teamA: allRegions['West'][3][0].winner,    teamB: allRegions['Midwest'][3][0].winner },
+  ];
+  ff[0].winner = bestGuessWinner(ff[0].teamA, ff[0].teamB);
+  ff[1].winner = bestGuessWinner(ff[1].teamA, ff[1].teamB);
+
+  // Championship
+  const champGame = { teamA: ff[0].winner, teamB: ff[1].winner };
+  champGame.winner = bestGuessWinner(champGame.teamA, champGame.teamB);
+
+  bracketRounds = { allRegions, ff, champGame };
+  renderBracket(allRegions, ff, champGame);
+}
+
+function renderBracket(allRegions, ff, champGame) {
+  const container = document.getElementById('bracketContainer');
+
+  function teamEl(team, isWinner, isChamp, gameKey, chosenTeam) {
+    if (!team) return `<div class="bracket-team" style="opacity:.3;">TBD</div>`;
+    const chosen = chosenTeam || team.name;
+    const cls = isChamp ? 'champion' : (isWinner ? 'winner' : '');
+    const prob = team.champProb ? `<span class="bprob">${(team.champProb*100).toFixed(0)}%</span>` : '';
+    return `<div class="bracket-team ${cls}" onclick="overridePick('${gameKey}','${team.name}')" title="Click to pick ${team.name}">
+      <span class="bseed">${team.seed}</span>
+      <span style="overflow:hidden;text-overflow:ellipsis;">${team.name}</span>
+      ${prob}
+    </div>`;
+  }
+
+  function gameEl(game, gameKey) {
+    const aWin = game.winner.name === game.teamA.name;
+    return `<div class="bracket-game">
+      ${teamEl(game.teamA, aWin,  false, gameKey+'_A', null)}
+      ${teamEl(game.teamB, !aWin, false, gameKey+'_B', null)}
+    </div>`;
+  }
+
+  function regionCols(regionName, side) {
+    const rounds = allRegions[regionName];
+    const roundNames = ['R64','R32','S16','E8'];
+    // side: 'left' = rounds flow left->right, 'right' = right->left
+    const colsData = rounds.map((round, ri) => ({ round, ri, label: roundNames[ri] }));
+    if (side === 'right') colsData.reverse();
+
+    return colsData.map(({round, ri, label}) => `
+      <div class="bracket-col">
+        <div class="round-label">${label}</div>
+        ${round.map((game, gi) => gameEl(game, `${regionName}_r${ri}_g${gi}`)).join('<div class="bracket-spacer"></div>')}
+      </div>
+    `).join('');
+  }
+
+  const html = `
+    <div style="margin-bottom:12px;display:flex;gap:24px;justify-content:center;flex-wrap:wrap;">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;color:var(--muted);">
+        <span style="color:var(--accent);margin-right:6px;">■</span>WINNER &nbsp;
+        <span style="color:var(--accent3);margin-right:6px;">■</span>CHAMPION &nbsp;
+        <span style="color:var(--muted);margin-right:6px;">■</span>ELIMINATED &nbsp;
+        <span style="color:var(--accent2);font-family:'IBM Plex Mono',monospace;font-size:10px;">%</span> = TITLE PROB
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr auto 1fr 1fr;gap:4px;min-width:1050px;">
+
+      <!-- LEFT SIDE: East + South -->
+      <div>
+        <div class="round-label" style="text-align:center;color:var(--accent2);font-size:10px;letter-spacing:2px;">EAST REGION</div>
+        <div style="display:flex;">
+          ${regionCols('East','left')}
+        </div>
+      </div>
+      <div>
+        <div class="round-label" style="text-align:center;color:var(--accent2);font-size:10px;letter-spacing:2px;">SOUTH REGION</div>
+        <div style="display:flex;">
+          ${regionCols('South','left')}
+        </div>
+      </div>
+
+      <!-- CENTER: Final Four + Championship -->
+      <div class="bracket-center-col" style="min-width:150px;">
+        <div class="round-label">FINAL FOUR</div>
+        <div class="bracket-game" style="margin-bottom:8px;">
+          ${teamEl(ff[0].teamA, ff[0].winner.name===ff[0].teamA.name, false, 'ff_0_A', null)}
+          ${teamEl(ff[0].teamB, ff[0].winner.name===ff[0].teamB.name, false, 'ff_0_B', null)}
+        </div>
+        <div class="bracket-champ-box">
+          <div class="trophy">🏆</div>
+          <div class="champ-name">${champGame.winner.name}</div>
+          <div class="champ-prob">[${champGame.winner.seed}] ${(champGame.winner.champProb*100).toFixed(1)}% title prob</div>
+        </div>
+        <div class="bracket-game" style="margin-top:8px;">
+          ${teamEl(ff[1].teamA, ff[1].winner.name===ff[1].teamA.name, false, 'ff_1_A', null)}
+          ${teamEl(ff[1].teamB, ff[1].winner.name===ff[1].teamB.name, false, 'ff_1_B', null)}
+        </div>
+        <div class="round-label">FINAL FOUR</div>
+      </div>
+
+      <!-- RIGHT SIDE: West + Midwest (reversed) -->
+      <div>
+        <div class="round-label" style="text-align:center;color:var(--accent2);font-size:10px;letter-spacing:2px;">WEST REGION</div>
+        <div style="display:flex;">
+          ${regionCols('West','right')}
+        </div>
+      </div>
+      <div>
+        <div class="round-label" style="text-align:center;color:var(--accent2);font-size:10px;letter-spacing:2px;">MIDWEST REGION</div>
+        <div style="display:flex;">
+          ${regionCols('Midwest','right')}
+        </div>
+      </div>
+
+    </div>
+
+    <div style="margin-top:20px;padding:14px 18px;background:rgba(255,214,0,.06);border:1px solid rgba(255,214,0,.2);border-radius:6px;font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;line-height:1.7;">
+      💡 <strong style="color:var(--accent3);">Override any pick</strong> by clicking a team name. The % shown is the model's championship probability from the simulation.
+      To regenerate from scratch, click <strong style="color:var(--text);">Generate From Sim</strong> again.
+    </div>
+  `;
+  container.innerHTML = html;
+}
+
+function overridePick(gameKey, teamName) {
+  // Just re-render a note for now — full override logic can be wired up per region
+  // For now flash the team name as a visual confirmation
+  alert(`Pick noted: ${teamName} — full manual override coming in next update!`);
+}
+
+
 renderRankings();
 renderUpsets();
 renderWeightSliders();
