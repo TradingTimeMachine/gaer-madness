@@ -1032,53 +1032,123 @@
 <div id="tab-model" class="section">
   <div class="section-header">
     <div>
-      <div class="section-title">GAER Model Builder</div>
-      <div class="section-sub">adjust weights · recalculate power ratings · export rankings</div>
+      <div class="section-title">Model Builder</div>
+      <div class="section-sub">adjust formula weights · recalculate all power ratings · changes flow into the sim</div>
     </div>
   </div>
 
-  <div class="grid-2">
+  <!-- INTRO -->
+  <div class="alert" style="border-color:rgba(0,229,160,.25);background:rgba(0,229,160,.05);margin-bottom:20px;">
+    <strong style="color:var(--accent2);">🔧 WHAT THIS TAB DOES:</strong> The sliders below control how much each metric contributes to every team's Power Rating. Change the weights, hit <strong>Recalculate</strong>, and the entire model updates — Power Rankings, Champion Profiles, Betting Calculator, and the Monte Carlo Simulation all use the new numbers. Think of it as tuning the engine before you run the race.
+    <br><br>
+    <strong style="color:var(--accent2);">💡 WHAT TO TRY:</strong> Believe defense wins championships? Bump KenPom up and reduce Q1 record. Think the committee seeds are overrated? Drop the Seed weight. Convinced SOS is the hidden key? Crank it up. Each change produces a different set of title contenders — run the sim after each adjustment to see how it changes the bracket.
+  </div>
+
+  <div class="grid-2" style="margin-bottom:20px;">
     <div class="card">
       <div class="card-title card-title-accent">▮ Power Rating Formula Weights</div>
-      <div style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-bottom:16px;">Weights auto-normalize to 100%. Adjust to see impact on rankings.</div>
+
+      <div style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-bottom:16px;line-height:1.7;">
+        Each slider controls how heavily that metric is weighted when calculating a team's Power Rating.<br>
+        Total must equal 100% for the model to be balanced.
+      </div>
+
       <div id="weightSliders"></div>
-      <div style="margin-top:14px;padding:10px;background:var(--bg);border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);" id="weightTotal"></div>
-      <button class="sim-btn" onclick="recalcModel()" style="width:100%;margin-top:14px;font-size:14px;padding:11px;">RECALCULATE MODEL</button>
+
+      <div style="margin-top:14px;padding:10px;background:var(--bg);border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:11px;" id="weightTotal"></div>
+
+      <button class="sim-btn" onclick="recalcModel()" style="width:100%;margin-top:14px;font-size:14px;padding:11px;">⚡ RECALCULATE MODEL</button>
+
+      <div id="recalcPreview" style="margin-top:14px;"></div>
     </div>
+
     <div class="card">
-      <div class="card-title card-title-accent">▮ Step-by-Step Model Structure</div>
-      <div style="font-size:13px;line-height:2;color:var(--muted);">
-        <div style="color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;">STEP 1 — Team Strength</div>
-        <div>KenPom Net Rating · NET · Quad-1 Win % · SOS · Seed Adj</div>
-        <div style="color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;margin-top:8px;">STEP 2 — Matchup Adjustments</div>
-        <div>3pt matchup · Turnover pressure · Rebounding · Tempo conflict · FT rate</div>
-        <div style="color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;margin-top:8px;">STEP 3 — Volatility Layer</div>
-        <div>High 3PA → +variance · Slow tempo → –variance · Experience multiplier</div>
-        <div style="color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;margin-top:8px;">STEP 4 — Coach Adjustment</div>
-        <div>Tournament wins above expectation (Izzo +12%, Self +10%, Hurley rising)</div>
-        <div style="color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;margin-top:8px;">STEP 5 — Monte Carlo</div>
-        <div>25,000 simulations → advancement probabilities → bracket optimization</div>
+      <div class="card-title card-title-accent">▮ What Each Metric Means</div>
+      <div style="font-size:13px;line-height:1;color:var(--muted);">
+
+        <div style="padding:10px 0;border-bottom:1px solid var(--border);">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;color:var(--text);margin-bottom:3px;">KenPom Net Rating <span style="color:var(--accent);font-size:11px;">DEFAULT 45%</span></div>
+          <div style="font-size:12px;line-height:1.6;">The gold standard — adjusted offensive minus defensive efficiency per 100 possessions. Historically the single best predictor of tournament success. Most serious models weight this 40-55%.</div>
+        </div>
+
+        <div style="padding:10px 0;border-bottom:1px solid var(--border);">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;color:var(--text);margin-bottom:3px;">NET Ranking <span style="color:var(--accent);font-size:11px;">DEFAULT 20%</span></div>
+          <div style="font-size:12px;line-height:1.6;">The NCAA's own metric — what the selection committee actually uses. Correlates strongly with seeding. Overlaps with KenPom so don't double-weight it too heavily.</div>
+        </div>
+
+        <div style="padding:10px 0;border-bottom:1px solid var(--border);">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;color:var(--text);margin-bottom:3px;">Quad-1 Win % <span style="color:var(--accent);font-size:11px;">DEFAULT 15%</span></div>
+          <div style="font-size:12px;line-height:1.6;">How a team performs against the best opponents (away vs top 30, neutral vs top 50). Teams that win big games in the regular season tend to win big games in March. Underweighted by most public models.</div>
+        </div>
+
+        <div style="padding:10px 0;border-bottom:1px solid var(--border);">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;color:var(--text);margin-bottom:3px;">Strength of Schedule <span style="color:var(--accent);font-size:11px;">DEFAULT 10%</span></div>
+          <div style="font-size:12px;line-height:1.6;">How hard a team's schedule was. Important context for efficiency metrics — a 25-5 record in a weak conference is very different from 25-5 in the Big Ten. Mid-majors often get penalized here.</div>
+        </div>
+
+        <div style="padding:10px 0;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:14px;color:var(--text);margin-bottom:3px;">Seed Adjustment <span style="color:var(--accent);font-size:11px;">DEFAULT 10%</span></div>
+          <div style="font-size:12px;line-height:1.6;">The committee's seeding encodes information the metrics miss — injuries, recent form, travel, geography. Gives a small bump to higher seeds as a prior. Reduce this if you trust the analytics over the committee.</div>
+        </div>
+
       </div>
     </div>
   </div>
 
-  <div class="card" style="margin-top:20px;">
-    <div class="card-title card-title-accent">▮ Variables to Add Before Bracket Locks (Tomorrow)</div>
-    <div class="grid-3" style="margin-top:8px;">
-      <div>
-        <div style="color:var(--accent2);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;margin-bottom:8px;">SHOOTING PROFILE</div>
-        <div style="font-size:12px;color:var(--muted);line-height:1.9;">3PA / FGA ratio<br>Opponent 3PT defense<br>FG% at rim<br>Defensive rim FG%</div>
+  <div class="card" style="margin-bottom:20px;">
+    <div class="card-title card-title-accent">▮ How the Full Model Works — End to End</div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:10px;" id="modelStepsGrid">
+
+      <div style="text-align:center;padding:14px 10px;background:var(--bg);border-radius:6px;border:1px solid var(--border);">
+        <div style="font-size:22px;margin-bottom:6px;">⚖️</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;color:var(--accent);margin-bottom:4px;">STEP 1</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;color:var(--text);margin-bottom:4px;">Power Rating</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.5;">Sliders here combine KenPom, NET, Q1, SOS + Seed into one number per team</div>
       </div>
-      <div>
-        <div style="color:var(--accent2);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;margin-bottom:8px;">POSSESSION CONTROL</div>
-        <div style="font-size:12px;color:var(--muted);line-height:1.9;">Turnover % forced<br>Opp turnover %<br>ORB %<br>Opponent DRB%</div>
+
+      <div style="text-align:center;padding:14px 10px;background:var(--bg);border-radius:6px;border:1px solid var(--border);">
+        <div style="font-size:22px;margin-bottom:6px;">🏟️</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;color:var(--accent);margin-bottom:4px;">STEP 2</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;color:var(--text);margin-bottom:4px;">Historical Priors</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.5;">2000-2024 seed advancement rates blended in — 12 seeds win 35% historically etc.</div>
       </div>
-      <div>
-        <div style="color:var(--accent2);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;margin-bottom:8px;">PROFILE FACTORS</div>
-        <div style="font-size:12px;color:var(--muted);line-height:1.9;">Roster avg age<br>Minutes continuity<br>FTA / FGA rate<br>Team FT%</div>
+
+      <div style="text-align:center;padding:14px 10px;background:var(--bg);border-radius:6px;border:1px solid var(--border);">
+        <div style="font-size:22px;margin-bottom:6px;">🔬</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;color:var(--accent);margin-bottom:4px;">STEP 3</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;color:var(--text);margin-bottom:4px;">Profile Multipliers</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.5;">Tempo, experience, 3pt rate, FT rate, ORB, coach track record — each shifts win probability</div>
       </div>
+
+      <div style="text-align:center;padding:14px 10px;background:var(--bg);border-radius:6px;border:1px solid var(--border);">
+        <div style="font-size:22px;margin-bottom:6px;">🎲</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;color:var(--accent);margin-bottom:4px;">STEP 4</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;color:var(--text);margin-bottom:4px;">Monte Carlo</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.5;">25,000 full tournaments simulated — each game is a weighted coin flip using all the above</div>
+      </div>
+
+      <div style="text-align:center;padding:14px 10px;background:var(--bg);border-radius:6px;border:1px solid var(--border);">
+        <div style="font-size:22px;margin-bottom:6px;">🏆</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;color:var(--accent);margin-bottom:4px;">STEP 5</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;color:var(--text);margin-bottom:4px;">Output</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.5;">Championship %, Final Four %, upset watchlist, bracket picks, betting edges</div>
+      </div>
+
     </div>
   </div>
+
+  <div class="card">
+    <div class="card-title card-title-accent">▮ Suggested Weight Presets — Try These Scenarios</div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;">
+      <button onclick="applyPreset('default')"  style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;padding:8px 16px;border-radius:4px;border:1px solid var(--border);background:var(--bg);color:var(--text);cursor:pointer;">DEFAULT</button>
+      <button onclick="applyPreset('analytics')" style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;padding:8px 16px;border-radius:4px;border:1px solid var(--border);background:var(--bg);color:var(--text);cursor:pointer;">ANALYTICS HEAVY</button>
+      <button onclick="applyPreset('committee')" style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;padding:8px 16px;border-radius:4px;border:1px solid var(--border);background:var(--bg);color:var(--text);cursor:pointer;">COMMITTEE THINKING</button>
+      <button onclick="applyPreset('defense')"   style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;padding:8px 16px;border-radius:4px;border:1px solid var(--border);background:var(--bg);color:var(--text);cursor:pointer;">DEFENSE WINS TITLES</button>
+      <button onclick="applyPreset('resume')"    style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;padding:8px 16px;border-radius:4px;border:1px solid var(--border);background:var(--bg);color:var(--text);cursor:pointer;">RESUME BASED</button>
+    </div>
+    <div id="presetDesc" style="margin-top:10px;font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;line-height:1.6;"></div>
+  </div>
+
 </div>
 <!-- =================== TAB: MY BRACKET =================== -->
 <div id="tab-bracket" class="section">
@@ -1997,12 +2067,54 @@ function updateWeightTotal() {
   }
 }
 
+const PRESETS = {
+  default:    { kenpom:45, net:20, q1:15, sos:10, seed:10,
+    desc:'Balanced default — equally respects advanced metrics, committee metrics, and resume. Best all-around starting point.' },
+  analytics:  { kenpom:60, net:10, q1:15, sos:10, seed:5,
+    desc:'Analytics heavy — trusts KenPom efficiency above everything. Rewards teams that dominate possession and shooting metrics even if the record looks uneven. Tends to elevate Virginia, Wisconsin, Purdue.' },
+  committee:  { kenpom:25, net:35, q1:20, sos:10, seed:10,
+    desc:"Committee thinking — mirrors how the selection committee actually evaluates teams. NET and Q1 record carry more weight. Favors teams the committee loves regardless of efficiency numbers." },
+  defense:    { kenpom:55, net:15, q1:10, sos:10, seed:10,
+    desc:'Defense wins titles — KenPom weighted toward defensive efficiency. Historically ~85% of champions rank top-20 in AdjD. Elevates Houston, Virginia, Michigan State, Tennessee.' },
+  resume:     { kenpom:30, net:20, q1:35, sos:10, seed:5,
+    desc:'Resume based — Q1 wins are everything. Teams that beat good opponents repeatedly get rewarded. Tends to elevate teams from tough conferences who pile up quality wins.' },
+};
+
+function applyPreset(name) {
+  const p = PRESETS[name];
+  if (!p) return;
+  Object.keys(modelWeights).forEach(k => {
+    modelWeights[k] = p[k];
+    const slider = document.getElementById('wsl-'+k);
+    const label  = document.getElementById('wlbl-'+k);
+    if (slider) slider.value = p[k];
+    if (label)  label.textContent = p[k]+'%';
+  });
+  updateWeightTotal();
+  document.getElementById('presetDesc').textContent = p.desc;
+}
+
 function recalcModel() {
   TEAMS.forEach(t => { t.power = computePower(t, modelWeights); });
   renderRankings();
   renderChampionProfiles();
   populateBettingDropdowns();
-  alert('Model recalculated. Rankings and betting dropdowns updated.');
+
+  // Show live preview of top 8 teams after recalc
+  const top8 = [...TEAMS].sort((a,b) => b.power - a.power).slice(0,8);
+  document.getElementById('recalcPreview').innerHTML = `
+    <div style="margin-top:4px;padding:10px 12px;background:rgba(0,229,160,.05);border:1px solid rgba(0,229,160,.2);border-radius:5px;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--accent2);letter-spacing:1px;margin-bottom:8px;">MODEL UPDATED — NEW TOP 8:</div>
+      ${top8.map((t,i) => `
+        <div style="display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:11px;padding:3px 0;border-bottom:1px solid var(--border);">
+          <span style="color:var(--muted);">${i+1}.</span>
+          <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;flex:1;margin:0 8px;">${t.name}</span>
+          <span style="color:var(--muted);font-size:10px;">[${t.seed}]</span>
+          <span style="color:var(--accent2);margin-left:10px;width:36px;text-align:right;">${t.power.toFixed(1)}</span>
+        </div>`).join('')}
+      <div style="font-size:10px;color:var(--muted);margin-top:8px;">Rankings, betting, and sim updated. Run Monte Carlo to see new bracket projections.</div>
+    </div>
+  `;
 }
 
 // ==== TABS ====
