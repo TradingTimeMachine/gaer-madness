@@ -1652,9 +1652,8 @@ function calcSpread() {
   const vegas = parseFloat(document.getElementById('vegasSpread').value);
 
   const missing = [];
-  if (isNaN(pA))    missing.push('Team A Power Rtg');
-  if (isNaN(pB))    missing.push('Team B Power Rtg');
-  if (isNaN(vegas)) missing.push('Vegas Spread');
+  if (isNaN(pA)) missing.push('Team A Power Rtg');
+  if (isNaN(pB)) missing.push('Team B Power Rtg');
 
   if (missing.length > 0) {
     document.getElementById('spreadResult').innerHTML =
@@ -1663,21 +1662,41 @@ function calcSpread() {
       </div>`;
     return;
   }
+
   const modelSpread = -(pA - pB) * 0.85;
-  const edge = modelSpread - vegas;
-  const edgeAbs = Math.abs(edge).toFixed(1);
-  const isEdge = Math.abs(edge) >= 2.5;
+  const hasVegas = !isNaN(vegas);
+  const edge = hasVegas ? modelSpread - vegas : null;
+  const isEdge = hasVegas && Math.abs(edge) >= 2.5;
+
+  const vegasBox = hasVegas
+    ? `<div class="stat-box" style="flex:1;min-width:100px;"><div class="val" style="font-size:24px;">${vegas}</div><div class="lbl">Vegas Spread</div></div>`
+    : `<div class="stat-box" style="flex:1;min-width:100px;opacity:.4;"><div class="val" style="font-size:24px;">—</div><div class="lbl">Vegas Spread</div></div>`;
+
+  const edgeBox = hasVegas
+    ? `<div class="stat-box" style="flex:1;min-width:100px;border-color:${isEdge?'var(--accent2)':'var(--border)'}">
+        <div class="val" style="font-size:24px;color:${isEdge?'var(--accent2)':'var(--muted)'};">${edge>=0?'+':''}${edge.toFixed(1)}</div>
+        <div class="lbl">EDGE</div>
+       </div>`
+    : `<div class="stat-box" style="flex:1;min-width:100px;opacity:.4;"><div class="val" style="font-size:24px;">—</div><div class="lbl">EDGE</div></div>`;
+
+  const verdict = hasVegas
+    ? `<div style="margin-top:10px;padding:10px;border-radius:4px;background:${isEdge?'rgba(0,229,160,.08)':'rgba(255,75,31,.08)'};border:1px solid ${isEdge?'rgba(0,229,160,.3)':'rgba(255,75,31,.2)'}; font-size:13px;color:${isEdge?'var(--accent2)':'var(--muted)'};">
+        ${isEdge ? `✅ <strong>EDGE DETECTED: ${Math.abs(edge).toFixed(1)} pts.</strong> Bet Team ${edge < 0 ? 'A' : 'B'}.` : `❌ No edge (need ≥2.5 pts). Vegas line is fair.`}
+       </div>`
+    : `<div style="margin-top:10px;padding:10px;border-radius:4px;background:rgba(255,214,0,.06);border:1px solid rgba(255,214,0,.2);font-size:12px;color:var(--muted);">
+        💡 Enter the Vegas spread above to calculate your betting edge.
+       </div>`;
+
   document.getElementById('spreadResult').innerHTML = `
     <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px;">
       <div class="stat-box" style="flex:1;min-width:100px;"><div class="val" style="font-size:24px;">${modelSpread.toFixed(1)}</div><div class="lbl">Model Spread</div></div>
-      <div class="stat-box" style="flex:1;min-width:100px;"><div class="val" style="font-size:24px;">${vegas}</div><div class="lbl">Vegas Spread</div></div>
-      <div class="stat-box" style="flex:1;min-width:100px;border-color:${isEdge?'var(--accent2)':'var(--border)'}"><div class="val" style="font-size:24px;color:${isEdge?'var(--accent2)':'var(--muted)'};">${edge>=0?'+':''}${edge.toFixed(1)}</div><div class="lbl">EDGE</div></div>
+      ${vegasBox}
+      ${edgeBox}
     </div>
-    <div style="margin-top:10px;padding:10px;border-radius:4px;background:${isEdge?'rgba(0,229,160,.08)':'rgba(255,75,31,.08)'};border:1px solid ${isEdge?'rgba(0,229,160,.3)':'rgba(255,75,31,.2)'}; font-size:13px;color:${isEdge?'var(--accent2)':'var(--muted)'};">
-      ${isEdge ? `✅ <strong>EDGE DETECTED: ${edgeAbs} point advantage.</strong> Bet Team ${edge < 0 ? 'A' : 'B'}.` : `❌ No edge (need ≥2.5 pts). Vegas line is fair.`}
-    </div>
+    ${verdict}
   `;
 }
+
 function calcTotal() {
   const tA = parseFloat(document.getElementById('tempoA').value);
   const tB = parseFloat(document.getElementById('tempoB').value);
@@ -1690,7 +1709,6 @@ function calcTotal() {
   if (isNaN(tB))      missing.push('Team B Tempo');
   if (isNaN(offEffA)) missing.push('A Off Eff');
   if (isNaN(offEffB)) missing.push('B Off Eff');
-  if (isNaN(vegas))   missing.push('Vegas O/U');
 
   if (missing.length > 0) {
     document.getElementById('totalResult').innerHTML =
@@ -1704,17 +1722,36 @@ function calcTotal() {
   const scoreA = avgTempo * (offEffA / 100);
   const scoreB = avgTempo * (offEffB / 100);
   const projTotal = Math.round(scoreA + scoreB);
-  const edge = projTotal - vegas;
-  const isEdge = Math.abs(edge) >= 4;
+  const hasVegas = !isNaN(vegas);
+  const edge = hasVegas ? projTotal - vegas : null;
+  const isEdge = hasVegas && Math.abs(edge) >= 4;
+
+  const vegasBox = hasVegas
+    ? `<div class="stat-box" style="flex:1;min-width:100px;"><div class="val" style="font-size:24px;">${vegas}</div><div class="lbl">Vegas O/U</div></div>`
+    : `<div class="stat-box" style="flex:1;min-width:100px;opacity:.4;"><div class="val" style="font-size:24px;">—</div><div class="lbl">Vegas O/U</div></div>`;
+
+  const edgeBox = hasVegas
+    ? `<div class="stat-box" style="flex:1;min-width:100px;border-color:${isEdge?'var(--accent2)':'var(--border)'}">
+        <div class="val" style="font-size:24px;color:${isEdge?'var(--accent2)':'var(--muted)'};">${edge>=0?'+':''}${edge.toFixed(0)}</div>
+        <div class="lbl">EDGE</div>
+       </div>`
+    : `<div class="stat-box" style="flex:1;min-width:100px;opacity:.4;"><div class="val" style="font-size:24px;">—</div><div class="lbl">EDGE</div></div>`;
+
+  const verdict = hasVegas
+    ? `<div style="margin-top:10px;padding:10px;border-radius:4px;background:${isEdge?'rgba(0,229,160,.08)':'rgba(255,75,31,.08)'};border:1px solid ${isEdge?'rgba(0,229,160,.3)':'rgba(255,75,31,.2)'}; font-size:13px;color:${isEdge?'var(--accent2)':'var(--muted)'};">
+        ${isEdge ? `✅ <strong>TOTAL EDGE: ${Math.abs(edge).toFixed(0)} pts.</strong> Play the ${projTotal > vegas ? 'OVER' : 'UNDER'}.` : `❌ No edge on total (need ≥4 pts). Vegas close to fair.`}
+       </div>`
+    : `<div style="margin-top:10px;padding:10px;border-radius:4px;background:rgba(255,214,0,.06);border:1px solid rgba(255,214,0,.2);font-size:12px;color:var(--muted);">
+        💡 Enter the Vegas O/U above to calculate your betting edge.
+       </div>`;
+
   document.getElementById('totalResult').innerHTML = `
     <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px;">
       <div class="stat-box" style="flex:1;min-width:100px;"><div class="val" style="font-size:24px;">${projTotal}</div><div class="lbl">Model Total</div></div>
-      <div class="stat-box" style="flex:1;min-width:100px;"><div class="val" style="font-size:24px;">${vegas}</div><div class="lbl">Vegas O/U</div></div>
-      <div class="stat-box" style="flex:1;min-width:100px;border-color:${isEdge?'var(--accent2)':'var(--border)'}"><div class="val" style="font-size:24px;color:${isEdge?'var(--accent2)':'var(--muted)'};">${edge>=0?'+':''}${edge.toFixed(0)}</div><div class="lbl">EDGE</div></div>
+      ${vegasBox}
+      ${edgeBox}
     </div>
-    <div style="margin-top:10px;padding:10px;border-radius:4px;background:${isEdge?'rgba(0,229,160,.08)':'rgba(255,75,31,.08)'};border:1px solid ${isEdge?'rgba(0,229,160,.3)':'rgba(255,75,31,.2)'}; font-size:13px;color:${isEdge?'var(--accent2)':'var(--muted)'};">
-      ${isEdge ? `✅ <strong>TOTAL EDGE: ${Math.abs(edge).toFixed(0)} pts.</strong> Play the ${projTotal > vegas ? 'OVER' : 'UNDER'}.` : `❌ No edge on total (need ≥4 pts). Vegas close to fair.`}
-    </div>
+    ${verdict}
   `;
 }
 
