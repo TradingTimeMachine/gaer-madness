@@ -1185,30 +1185,36 @@ const WEIGHTS = { kenpom: 0.45, net: 0.20, q1: 0.15, sos: 0.10, seed: 0.10 };
 const modelWeights = { kenpom: 45, net: 20, q1: 15, sos: 10, seed: 10 };
 
 function computePower(t, w) {
-  const kpScore = Math.max(0, (200 - t.kenpom) / 2);
-  const netScore = Math.max(0, (200 - t.net) / 2);
-  const q1Score = t.q1w / (t.q1w + t.q1l + 0.01) * 100;
-  const sosScore = Math.max(0, (200 - t.sos) / 2);
-  const seedAdj = [0,3,2,1,0,-1,-2,-3,-4,-5,-5,-5,-7,-8,-9,-10,-12][Math.min(t.seed,16)] || -12;
-  const raw = (w.kenpom/100)*kpScore + (w.net/100)*netScore + (w.q1/100)*q1Score + (w.sos/100)*sosScore + (w.seed/100)*((seedAdj+12)/15*100);
-  return Math.min(100, Math.max(50, raw * 0.9 + t.coachBonus * 100 * 0.3));
+  // Each component scored 0-100, then weighted
+  // kenpom: rank 1 = 100, rank 200 = 0
+  const kpScore  = Math.max(0, 100 - (t.kenpom - 1) * (100/199));
+  const netScore = Math.max(0, 100 - (t.net   - 1) * (100/199));
+  const q1Score  = t.q1w / (t.q1w + t.q1l + 0.01) * 100;
+  const sosScore = Math.max(0, 100 - (t.sos   - 1) * (100/249));
+  // Seed adjustment: 1-seed +15, 2-seed +8, 3-seed +3, 4=0, then -3 per seed
+  const seedAdjs = [0, 15, 8, 3, 0, -3, -6, -9, -12, -15, -15, -15, -20, -25, -30, -35, -40];
+  const seedAdj  = seedAdjs[Math.min(t.seed, 16)] || -40;
+
+  const raw = (w.kenpom/100)*kpScore
+            + (w.net/100)*netScore
+            + (w.q1/100)*q1Score
+            + (w.sos/100)*sosScore
+            + (w.seed/100)*(Math.max(0, seedAdj + 40) / 55 * 100);
+
+  // Coach bonus adds up to ~5 pts on top
+  return Math.min(100, Math.max(10, raw + t.coachBonus * 50));
 }
 
 function getTier(power, seed) {
-  if (power >= 88 && seed <= 2) return 'title';
-  if (power >= 80 && seed <= 5) return 'elite';
-  if (power >= 72 && seed <= 8) return 'sleeper';
+  if (power >= 75 && seed <= 2) return 'title';
+  if (power >= 60 && seed <= 5) return 'elite';
+  if (power >= 45 && seed <= 8) return 'sleeper';
   return 'cinderella';
 }
 
 function seedWinProb(seedA, seedB, powerA, powerB) {
-  // Flatten power differences — tournament basketball is high variance.
-  // A 10pt power gap should be ~65% not ~78%. Scale factor 0.06 achieves this.
-  // Also blend in a seed-based prior so massive mismatches still show correctly.
   const powerDiff = powerA - powerB;
   const powerProb = 1 / (1 + Math.exp(-powerDiff * 0.06));
-
-  // Historical seed win rates as a prior (regresses extreme power ratings toward reality)
   const seedPriors = {
     '1v16': 0.987, '2v15': 0.940, '3v14': 0.850, '4v13': 0.790,
     '5v12': 0.650, '6v11': 0.630, '7v10': 0.600, '8v9':  0.510,
@@ -1217,11 +1223,9 @@ function seedWinProb(seedA, seedB, powerA, powerB) {
     const lo = Math.min(sA, sB), hi = Math.max(sA, sB);
     const key = lo + 'v' + hi;
     if (seedPriors[key]) return sA < sB ? seedPriors[key] : 1 - seedPriors[key];
-    // For later rounds, no prior — use pure power
     return null;
   }
   const prior = getSeedPrior(seedA, seedB);
-  // Blend: 60% power model, 40% seed prior in early rounds; pure power in later rounds
   if (prior !== null) return 0.60 * powerProb + 0.40 * prior;
   return powerProb;
 }
@@ -1229,33 +1233,118 @@ function seedWinProb(seedA, seedB, powerA, powerB) {
 // initialize power ratings
 TEAMS.forEach(t => { t.power = computePower(t, modelWeights); });
 
+// ---- MATCHUP ANALYSIS — returns adjustment to win prob for teamA ----
+function matchupEdge(teamA, teamB) {
+  let edge = 0;
+  const notes = [];
+
+  // 1. THREE POINT DEPENDENCY VOLATILITY
+  // If teamA relies heavily on 3s AND teamB defends them well → hurts teamA
+  // If teamA has LOW 3pt dependency → more consistent, slight edge
+  const aThreeHeavy = teamA.threeRate > 0.40;
+  const bThreeHeavy = teamB.threeRate > 0.40;
+  if (aThreeHeavy) {
+    // Roll the dice — hot shooting teams can go either way
+    const roll = (Math.random() - 0.5) * 0.18;
+    edge += roll;
+    if (roll < -0.05) notes.push('3pt cold night hurts ' + teamA.name);
+    if (roll > 0.05)  notes.push('3pt hot night lifts ' + teamA.name);
+  }
+  if (bThreeHeavy) {
+    const roll = (Math.random() - 0.5) * 0.18;
+    edge -= roll;
+  }
+  // Low 3pt dependency = more consistent = small reliability edge
+  if (teamA.threeRate < 0.33) edge += 0.03;
+  if (teamB.threeRate < 0.33) edge -= 0.03;
+
+  // 2. TURNOVER PRESSURE
+  // Teams that force high turnovers (tov ≥ 20) gain edge in tournament pressure
+  if (teamA.tov >= 22) { edge += 0.05; notes.push(teamA.name + ' turnover pressure'); }
+  if (teamB.tov >= 22) { edge -= 0.05; }
+  // Teams prone to turnovers get hurt
+  if (teamA.tov <= 13) edge += 0.03; // ball security = reliable
+  if (teamB.tov <= 13) edge -= 0.03;
+
+  // 3. FREE THROW RATE — critical in close tournament games
+  if (teamA.ftRate >= 0.40) { edge += 0.04; }
+  if (teamB.ftRate >= 0.40) { edge -= 0.04; }
+
+  // 4. EXPERIENCE — freshman-heavy teams wilt under tournament lights
+  const expMap = { 'High': 0.04, 'Med': 0, 'Low': -0.06 };
+  edge += (expMap[teamA.exp] || 0);
+  edge -= (expMap[teamB.exp] || 0);
+  if (teamA.exp === 'Low')  notes.push(teamA.name + ' youth factor');
+  if (teamB.exp === 'Low')  notes.push(teamB.name + ' youth factor');
+
+  // 5. REBOUNDING EDGE — ORB% > 33 = extra possessions
+  if (teamA.orb >= 33) { edge += 0.04; }
+  if (teamB.orb >= 33) { edge -= 0.04; }
+  if (teamA.orb >= 35) { edge += 0.02; notes.push(teamA.name + ' board dominance'); }
+  if (teamB.orb >= 35) { edge -= 0.02; }
+
+  // 6. TEMPO CONFLICT — extreme pace mismatch is a coin flip
+  // Slow team can neutralize a superior fast team
+  const tempoDiff = teamA.tempo - teamB.tempo;
+  const absTemp = Math.abs(tempoDiff);
+  if (absTemp >= 10) {
+    // Slow team gets a neutralization bonus — disrupts favorite's rhythm
+    const slowBonus = 0.06 * (Math.random());
+    if (teamA.tempo < teamB.tempo) {
+      edge += slowBonus; // teamA is slower — benefits from pace control
+      if (slowBonus > 0.03) notes.push(teamA.name + ' tempo neutralization');
+    } else {
+      edge -= slowBonus;
+    }
+    // Extra random variance from pace mismatch
+    edge += (Math.random() - 0.5) * 0.08;
+  }
+  if (absTemp >= 6) {
+    edge += (Math.random() - 0.5) * 0.05;
+  }
+
+  // 7. COACH TOURNAMENT EXPERIENCE
+  // Already baked into power rating but add a small clutch-game bonus
+  if (teamA.coachBonus > 0.08) { edge += 0.03; }
+  if (teamB.coachBonus > 0.08) { edge -= 0.03; }
+
+  // 8. UPSET PROFILE SCORE
+  // Underdog with multiple upset signals gets a cumulative bonus
+  if (teamA.seed > teamB.seed) {
+    let upsetSignals = 0;
+    if (teamA.exp === 'High')      upsetSignals++;
+    if (teamA.tov >= 20)           upsetSignals++;
+    if (teamA.orb >= 32)           upsetSignals++;
+    if (teamA.ftRate >= 0.38)      upsetSignals++;
+    if (teamA.threeRate < 0.36)    upsetSignals++; // consistent scorer
+    if (teamA.coachBonus > 0)      upsetSignals++;
+    if (teamA.tempo < 65)          upsetSignals++; // pace control
+    if (upsetSignals >= 4) {
+      const bonus = upsetSignals * 0.015;
+      edge += bonus;
+      notes.push(teamA.name + ' upset profile (' + upsetSignals + ' signals)');
+    }
+  }
+
+  return edge;
+}
+
 // ---- WIN PROBABILITY (for matchup) ----
 function winProb(teamA, teamB) {
   let pwr = seedWinProb(teamA.seed, teamB.seed, teamA.power, teamB.power);
 
-  // 3pt volatility: high 3pt teams swing up to ±8% randomly each game
-  if (teamA.threeRate > 0.40) pwr += (Math.random() - 0.5) * 0.16;
-  if (teamB.threeRate > 0.40) pwr -= (Math.random() - 0.5) * 0.16;
+  // Apply full matchup engine
+  pwr += matchupEdge(teamA, teamB);
 
-  // Experience penalty: freshman-heavy teams get a variance hit
-  if (teamA.exp === 'Low') pwr -= Math.random() * 0.06;
-  if (teamB.exp === 'Low') pwr += Math.random() * 0.06;
-
-  // Tempo conflict: extreme pace mismatch adds randomness
-  const tempoDiff = Math.abs(teamA.tempo - teamB.tempo);
-  if (tempoDiff > 8) pwr += (Math.random() - 0.5) * 0.10;
-
-  // Upset weight slider — applies to BOTH directions
+  // Upset weight slider — compresses or stretches all probs toward/away from 50%
   const upsetW = parseFloat(document.getElementById('upsetWeight')?.value || 1);
   if (upsetW !== 1.0) {
-    // upsetW > 1 = more upsets = compress probabilities toward 50%
-    // upsetW < 1 = chalk = stretch probabilities away from 50%
     pwr = 0.5 + (pwr - 0.5) / upsetW;
   }
 
-  // Hard floor/ceiling — even 1v16 should have a tiny chance
   return Math.max(0.03, Math.min(0.97, pwr));
 }
+
 
 // ---- SEED BADGE ----
 function seedBadge(s) {
