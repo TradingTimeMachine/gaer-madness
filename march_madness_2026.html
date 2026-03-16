@@ -1236,97 +1236,75 @@ TEAMS.forEach(t => { t.power = computePower(t, modelWeights); });
 // ---- MATCHUP ANALYSIS — returns adjustment to win prob for teamA ----
 function matchupEdge(teamA, teamB) {
   let edge = 0;
-  const notes = [];
 
-  // 1. THREE POINT DEPENDENCY VOLATILITY
-  // If teamA relies heavily on 3s AND teamB defends them well → hurts teamA
-  // If teamA has LOW 3pt dependency → more consistent, slight edge
-  const aThreeHeavy = teamA.threeRate > 0.40;
-  const bThreeHeavy = teamB.threeRate > 0.40;
-  if (aThreeHeavy) {
-    // Roll the dice — hot shooting teams can go either way
-    const roll = (Math.random() - 0.5) * 0.18;
-    edge += roll;
-    if (roll < -0.05) notes.push('3pt cold night hurts ' + teamA.name);
-    if (roll > 0.05)  notes.push('3pt hot night lifts ' + teamA.name);
-  }
-  if (bThreeHeavy) {
-    const roll = (Math.random() - 0.5) * 0.18;
-    edge -= roll;
-  }
-  // Low 3pt dependency = more consistent = small reliability edge
-  if (teamA.threeRate < 0.33) edge += 0.03;
-  if (teamB.threeRate < 0.33) edge -= 0.03;
+  // Helper: small random scale so profile traits influence variance, not guarantee outcomes
+  const r = () => Math.random();
 
-  // 2. TURNOVER PRESSURE
-  // Teams that force high turnovers (tov ≥ 20) gain edge in tournament pressure
-  if (teamA.tov >= 22) { edge += 0.05; notes.push(teamA.name + ' turnover pressure'); }
-  if (teamB.tov >= 22) { edge -= 0.05; }
-  // Teams prone to turnovers get hurt
-  if (teamA.tov <= 13) edge += 0.03; // ball security = reliable
-  if (teamB.tov <= 13) edge -= 0.03;
+  // 1. THREE POINT DEPENDENCY
+  // High 3pt team = volatile (can win big OR lose badly)
+  if (teamA.threeRate > 0.40) edge += (r() - 0.5) * 0.14;
+  if (teamB.threeRate > 0.40) edge -= (r() - 0.5) * 0.14;
+  // Low 3pt = slightly more consistent, but only fires sometimes
+  if (teamA.threeRate < 0.33 && r() > 0.5) edge += 0.03;
+  if (teamB.threeRate < 0.33 && r() > 0.5) edge -= 0.03;
 
-  // 3. FREE THROW RATE — critical in close tournament games
-  if (teamA.ftRate >= 0.40) { edge += 0.04; }
-  if (teamB.ftRate >= 0.40) { edge -= 0.04; }
+  // 2. TURNOVER PRESSURE — only fires partially, not every game
+  if (teamA.tov >= 22 && r() > 0.4) edge += 0.04;
+  if (teamB.tov >= 22 && r() > 0.4) edge -= 0.04;
+  // Ball security bonus is tiny and random
+  if (teamA.tov <= 13 && r() > 0.5) edge += 0.02;
+  if (teamB.tov <= 13 && r() > 0.5) edge -= 0.02;
 
-  // 4. EXPERIENCE — freshman-heavy teams wilt under tournament lights
-  const expMap = { 'High': 0.04, 'Med': 0, 'Low': -0.06 };
-  edge += (expMap[teamA.exp] || 0);
-  edge -= (expMap[teamB.exp] || 0);
-  if (teamA.exp === 'Low')  notes.push(teamA.name + ' youth factor');
-  if (teamB.exp === 'Low')  notes.push(teamB.name + ' youth factor');
+  // 3. FREE THROW RATE — matters but not every game
+  if (teamA.ftRate >= 0.40 && r() > 0.5) edge += 0.03;
+  if (teamB.ftRate >= 0.40 && r() > 0.5) edge -= 0.03;
 
-  // 5. REBOUNDING EDGE — ORB% > 33 = extra possessions
-  if (teamA.orb >= 33) { edge += 0.04; }
-  if (teamB.orb >= 33) { edge -= 0.04; }
-  if (teamA.orb >= 35) { edge += 0.02; notes.push(teamA.name + ' board dominance'); }
-  if (teamB.orb >= 35) { edge -= 0.02; }
+  // 4. EXPERIENCE — matters most for underdogs in high-pressure spots
+  // For favorites, experience is already baked into power rating
+  const seedGap = teamB.seed - teamA.seed; // positive = A is favorite
+  if (teamA.exp === 'Low')  edge -= r() * 0.05;
+  if (teamB.exp === 'Low')  edge += r() * 0.05;
+  // Only give underdog an experience BONUS if they're actually the underdog
+  if (teamA.seed > teamB.seed && teamA.exp === 'High') edge += r() * 0.03;
 
-  // 6. TEMPO CONFLICT — extreme pace mismatch is a coin flip
-  // Slow team can neutralize a superior fast team
+  // 5. REBOUNDING — only meaningful edge, not a guaranteed bonus
+  if (teamA.orb >= 35 && teamB.orb < 30) edge += r() * 0.04;
+  if (teamB.orb >= 35 && teamA.orb < 30) edge -= r() * 0.04;
+
+  // 6. TEMPO CONFLICT — slow team neutralizes fast team, adds chaos
   const tempoDiff = teamA.tempo - teamB.tempo;
   const absTemp = Math.abs(tempoDiff);
-  if (absTemp >= 10) {
-    // Slow team gets a neutralization bonus — disrupts favorite's rhythm
-    const slowBonus = 0.06 * (Math.random());
-    if (teamA.tempo < teamB.tempo) {
-      edge += slowBonus; // teamA is slower — benefits from pace control
-      if (slowBonus > 0.03) notes.push(teamA.name + ' tempo neutralization');
-    } else {
-      edge -= slowBonus;
-    }
-    // Extra random variance from pace mismatch
-    edge += (Math.random() - 0.5) * 0.08;
-  }
-  if (absTemp >= 6) {
-    edge += (Math.random() - 0.5) * 0.05;
+  if (absTemp >= 8) {
+    // Random variance from pace mismatch
+    edge += (r() - 0.5) * 0.10;
+    // Slow team gets a small neutralization bonus vs faster opponent
+    if (teamA.tempo < teamB.tempo) edge += r() * 0.04;
+    else edge -= r() * 0.04;
   }
 
-  // 7. COACH TOURNAMENT EXPERIENCE
-  // Already baked into power rating but add a small clutch-game bonus
-  if (teamA.coachBonus > 0.08) { edge += 0.03; }
-  if (teamB.coachBonus > 0.08) { edge -= 0.03; }
+  // 7. COACH TOURNAMENT EXPERIENCE — small random bonus, not guaranteed
+  if (teamA.coachBonus > 0.08 && r() > 0.5) edge += 0.02;
+  if (teamB.coachBonus > 0.08 && r() > 0.5) edge -= 0.02;
 
-  // 8. UPSET PROFILE SCORE
-  // Underdog with multiple upset signals gets a cumulative bonus
+  // 8. UPSET PROFILE — only applies when team is actually the underdog
+  // Multiple signals give a real but probabilistic boost
   if (teamA.seed > teamB.seed) {
-    let upsetSignals = 0;
-    if (teamA.exp === 'High')      upsetSignals++;
-    if (teamA.tov >= 20)           upsetSignals++;
-    if (teamA.orb >= 32)           upsetSignals++;
-    if (teamA.ftRate >= 0.38)      upsetSignals++;
-    if (teamA.threeRate < 0.36)    upsetSignals++; // consistent scorer
-    if (teamA.coachBonus > 0)      upsetSignals++;
-    if (teamA.tempo < 65)          upsetSignals++; // pace control
-    if (upsetSignals >= 4) {
-      const bonus = upsetSignals * 0.015;
-      edge += bonus;
-      notes.push(teamA.name + ' upset profile (' + upsetSignals + ' signals)');
+    let signals = 0;
+    if (teamA.exp === 'High')   signals++;
+    if (teamA.tov >= 20)        signals++;
+    if (teamA.orb >= 32)        signals++;
+    if (teamA.ftRate >= 0.38)   signals++;
+    if (teamA.threeRate < 0.36) signals++;
+    if (teamA.coachBonus > 0)   signals++;
+    if (teamA.tempo < 65)       signals++;
+    // Each signal is worth ~1.5% but only fires 60% of the time
+    for (let i = 0; i < signals; i++) {
+      if (r() > 0.4) edge += 0.015;
     }
   }
 
-  return edge;
+  // Cap total matchup edge so no team gets a free +13% every game
+  return Math.max(-0.12, Math.min(0.12, edge));
 }
 
 // ---- WIN PROBABILITY (for matchup) ----
