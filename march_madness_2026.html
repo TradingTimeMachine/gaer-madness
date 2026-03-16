@@ -1650,6 +1650,19 @@ function calcSpread() {
   const pA = parseFloat(document.getElementById('teamARtg').value);
   const pB = parseFloat(document.getElementById('teamBRtg').value);
   const vegas = parseFloat(document.getElementById('vegasSpread').value);
+
+  const missing = [];
+  if (isNaN(pA))    missing.push('Team A Power Rtg');
+  if (isNaN(pB))    missing.push('Team B Power Rtg');
+  if (isNaN(vegas)) missing.push('Vegas Spread');
+
+  if (missing.length > 0) {
+    document.getElementById('spreadResult').innerHTML =
+      `<div style="padding:10px;background:rgba(255,75,31,.08);border:1px solid rgba(255,75,31,.3);border-radius:4px;font-size:12px;color:var(--accent);">
+        ⚠️ Missing: ${missing.join(', ')}. Select both teams from the dropdown above first.
+      </div>`;
+    return;
+  }
   const modelSpread = -(pA - pB) * 0.85;
   const edge = modelSpread - vegas;
   const edgeAbs = Math.abs(edge).toFixed(1);
@@ -1671,15 +1684,22 @@ function calcTotal() {
   const offEffA = parseFloat(document.getElementById('offEffA').value);
   const offEffB = parseFloat(document.getElementById('offEffB').value);
   const vegas = parseFloat(document.getElementById('vegasTotal').value);
-  if (!tA || !tB || !offEffA || !offEffB || !vegas) {
-    document.getElementById('totalResult').innerHTML = '<div style="color:var(--muted);font-size:12px;">Select both teams and enter a Vegas total first.</div>';
+
+  const missing = [];
+  if (isNaN(tA))      missing.push('Team A Tempo');
+  if (isNaN(tB))      missing.push('Team B Tempo');
+  if (isNaN(offEffA)) missing.push('A Off Eff');
+  if (isNaN(offEffB)) missing.push('B Off Eff');
+  if (isNaN(vegas))   missing.push('Vegas O/U');
+
+  if (missing.length > 0) {
+    document.getElementById('totalResult').innerHTML =
+      `<div style="padding:10px;background:rgba(255,75,31,.08);border:1px solid rgba(255,75,31,.3);border-radius:4px;font-size:12px;color:var(--accent);">
+        ⚠️ Missing: ${missing.join(', ')}. Select both teams from the dropdown above first.
+      </div>`;
     return;
   }
-  // Correct formula:
-  // Possessions in game = average of both teams' tempos
-  // Team A score = possessions * (offEffA / 100)
-  // Team B score = possessions * (offEffB / 100)
-  // Total = Team A score + Team B score
+
   const avgTempo = (tA + tB) / 2;
   const scoreA = avgTempo * (offEffA / 100);
   const scoreB = avgTempo * (offEffB / 100);
