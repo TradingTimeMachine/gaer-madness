@@ -1279,7 +1279,7 @@
       <div class="section-sub">generated from Monte Carlo simulation · most likely winner each game</div>
     </div>
     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-      <button class="sim-btn" style="font-size:12px;padding:8px 16px;background:var(--panel);border:1px solid var(--border);color:var(--muted);" onclick="window.print()">🖨 PRINT</button>
+      <button class="sim-btn" style="font-size:12px;padding:8px 16px;background:var(--panel);border:1px solid var(--border);color:var(--muted);" onclick="printBracketPDF()">🖨 SAVE / PRINT PDF</button>
       <button class="sim-btn" style="font-size:12px;padding:8px 16px;" onclick="generateBracket()">⚡ GENERATE FROM SIM</button>
     </div>
   </div>
@@ -2546,6 +2546,146 @@ function overridePick(gameKey, teamName) {
   // Just re-render a note for now — full override logic can be wired up per region
   // For now flash the team name as a visual confirmation
   alert(`Pick noted: ${teamName} — full manual override coming in next update!`);
+}
+
+
+// ==== PRINT / SAVE PDF ====
+function printBracketPDF() {
+  if (!lastSimBracket || !lastSimBracket.regions.East) {
+    alert('Run the Monte Carlo Sim first, then Generate From Sim before printing.');
+    return;
+  }
+
+  const sb = lastSimBracket;
+  const champ = sb.champGame.winner;
+
+  function teamLine(team, isWinner) {
+    if (!team || team.name === 'TBD') return `<div class="bl empty">TBD</div>`;
+    const w = isWinner ? ' win' : '';
+    return `<div class="bl${w}"><span class="sd">${team.seed}</span>${team.name}</div>`;
+  }
+
+  function regionRound(rounds, roundIdx) {
+    if (!rounds || !rounds[roundIdx]) return '<div></div>';
+    const games = rounds[roundIdx];
+    return `<div class="rcol">${games.map(g => `
+      <div class="game">
+        ${teamLine(g.teamA, g.winner && g.winner.name === g.teamA.name)}
+        ${teamLine(g.teamB, g.winner && g.winner.name === g.teamB.name)}
+      </div>`).join('<div class="sp"></div>')}</div>`;
+  }
+
+  const E = sb.regions.East;
+  const S = sb.regions.South;
+  const W = sb.regions.West;
+  const Mw = sb.regions.Midwest;
+  const ff = sb.ff;
+
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Dave's Bracket Madness 2026</title>
+<style>
+  @page { size: 11in 8.5in landscape; margin: 6mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial Narrow, Arial, sans-serif; font-size: 7px; background: #fff; color: #111; height: 100vh; display: flex; flex-direction: column; }
+  .header { display: flex; justify-content: space-between; align-items: center; padding: 0 4px 5px; border-bottom: 2px solid #e8390e; margin-bottom: 5px; flex-shrink: 0; }
+  .htitle { font-size: 15px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
+  .htitle span { color: #e8390e; }
+  .hchamp { text-align: center; }
+  .hchamp .tr { font-size: 22px; }
+  .hchamp .cn { font-size: 12px; font-weight: 900; color: #e8390e; }
+  .hchamp .cl { font-size: 6px; color: #888; }
+  .hmeta { font-size: 6.5px; color: #999; text-align: right; line-height: 1.7; }
+  .wrap { display: grid; grid-template-columns: 1fr 1fr 54px 1fr 1fr; gap: 3px; flex: 1; min-height: 0; }
+  .region { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; }
+  .rl { font-size: 7.5px; font-weight: 900; color: #e8390e; grid-column: span 4; text-align: center; letter-spacing: 1px; padding-bottom: 2px; text-transform: uppercase; }
+  .rcol { display: flex; flex-direction: column; justify-content: space-around; }
+  .game { display: flex; flex-direction: column; gap: 1px; margin: 1px 0; }
+  .sp { flex: 1; }
+  .bl { display: flex; align-items: center; gap: 2px; padding: 1.5px 3px; border: 0.5px solid #ddd; border-radius: 1px; background: #f8f8f8; font-size: 6.5px; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-height: 12px; }
+  .bl.win { background: #fff0ee; border-color: #e8390e; font-weight: 700; color: #c02800; }
+  .bl.empty { color: #ccc; border-color: #eee; }
+  .sd { display: inline-flex; align-items: center; justify-content: center; background: #444; color: #fff; font-size: 5.5px; font-weight: 700; min-width: 11px; height: 11px; border-radius: 1px; flex-shrink: 0; padding: 0 1px; }
+  .bl.win .sd { background: #e8390e; }
+  .center { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-align: center; padding: 2px; }
+  .ffg { width: 100%; }
+  .trophy { font-size: 24px; }
+  .cname { font-size: 10px; font-weight: 900; color: #e8390e; }
+  .clbl { font-size: 5.5px; color: #aaa; letter-spacing: 0.5px; }
+  .fflbl { font-size: 5.5px; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; }
+  @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="htitle">Dave's <span>Bracket Madness</span> 2026</div>
+  <div class="hchamp">
+    <div class="tr">🏆</div>
+    <div class="cn">${champ ? champ.name : '?'}</div>
+    <div class="cl">SEED ${champ ? champ.seed : '?'} CHAMPION</div>
+  </div>
+  <div class="hmeta">Dave's Bracket Madness 2026<br>March Madness · Simulation Result</div>
+</div>
+
+<div class="wrap">
+
+  <div class="region">
+    <div class="rl">EAST</div>
+    ${E ? regionRound(E,0) : ''}
+    ${E ? regionRound(E,1) : ''}
+    ${E ? regionRound(E,2) : ''}
+    ${E ? regionRound(E,3) : ''}
+  </div>
+
+  <div class="region">
+    <div class="rl">SOUTH</div>
+    ${S ? regionRound(S,0) : ''}
+    ${S ? regionRound(S,1) : ''}
+    ${S ? regionRound(S,2) : ''}
+    ${S ? regionRound(S,3) : ''}
+  </div>
+
+  <div class="center">
+    <div class="fflbl">Final Four</div>
+    <div class="ffg">
+      ${teamLine(ff && ff[0] ? ff[0].teamA : null, ff && ff[0] && ff[0].winner && ff[0].winner.name === (ff[0].teamA||{}).name)}
+      ${teamLine(ff && ff[0] ? ff[0].teamB : null, ff && ff[0] && ff[0].winner && ff[0].winner.name === (ff[0].teamB||{}).name)}
+    </div>
+    <div class="trophy">🏆</div>
+    <div class="cname">${champ ? champ.name : '?'}</div>
+    <div class="clbl">[${champ ? champ.seed : '?'}] CHAMP</div>
+    <div class="ffg">
+      ${teamLine(ff && ff[1] ? ff[1].teamA : null, ff && ff[1] && ff[1].winner && ff[1].winner.name === (ff[1].teamA||{}).name)}
+      ${teamLine(ff && ff[1] ? ff[1].teamB : null, ff && ff[1] && ff[1].winner && ff[1].winner.name === (ff[1].teamB||{}).name)}
+    </div>
+    <div class="fflbl">Final Four</div>
+  </div>
+
+  <div class="region">
+    <div class="rl">WEST</div>
+    ${W ? regionRound(W,3) : ''}
+    ${W ? regionRound(W,2) : ''}
+    ${W ? regionRound(W,1) : ''}
+    ${W ? regionRound(W,0) : ''}
+  </div>
+
+  <div class="region">
+    <div class="rl">MIDWEST</div>
+    ${Mw ? regionRound(Mw,3) : ''}
+    ${Mw ? regionRound(Mw,2) : ''}
+    ${Mw ? regionRound(Mw,1) : ''}
+    ${Mw ? regionRound(Mw,0) : ''}
+  </div>
+
+</div>
+<script>window.onload = function(){ window.print(); }<\/script>
+</body></html>`;
+
+  const win = window.open('', '_blank', 'width=1200,height=750');
+  if (win) { win.document.write(html); win.document.close(); }
+  else alert('Please allow popups to use the Print/PDF feature.');
 }
 
 
