@@ -1836,9 +1836,9 @@ function runSimulation() {
       const ff4names = regionWinners.map(r=>r.winner.name).sort().join('|');
       ffComboCounts[ff4names] = (ffComboCounts[ff4names]||0) + 1;
 
-      // FF games — East vs West, South vs Midwest (per actual 2026 bracket)
-      const ff1 = simGame(regionWinners[0].winner, regionWinners[2].winner); // East vs West
-      const ff2 = simGame(regionWinners[1].winner, regionWinners[3].winner); // South vs Midwest
+      // FF games — East vs South, West vs Midwest (per actual 2026 bracket)
+      const ff1 = simGame(regionWinners[0].winner, regionWinners[1].winner); // East vs South
+      const ff2 = simGame(regionWinners[2].winner, regionWinners[3].winner); // West vs Midwest
 
       // Track championship game participants
       if(ff2Counts[ff1.name]!==undefined) ff2Counts[ff1.name]++;
@@ -1851,15 +1851,14 @@ function runSimulation() {
       if(i === end - 1) {
         lastFF = {
           ff1Left:  regionWinners[0].winner,  // East
-          ff1Right: regionWinners[2].winner,  // West
-          ff2Left:  regionWinners[1].winner,  // South
+          ff1Right: regionWinners[1].winner,  // South
+          ff2Left:  regionWinners[2].winner,  // West
           ff2Right: regionWinners[3].winner,  // Midwest
           champGame1Winner: ff1,
           champGame2Winner: ff2,
           champion: champ,
         };
         // Store full bracket for My Bracket tab
-        const regionNames2 = ['East','South','West','Midwest'];
         lastSimBracket = {
           regions: {
             East:    regionWinners[0].rounds || null,
@@ -1868,8 +1867,8 @@ function runSimulation() {
             Midwest: regionWinners[3].rounds || null,
           },
           ff: [
-            { teamA: regionWinners[0].winner, teamB: regionWinners[2].winner, winner: ff1 }, // East vs West
-            { teamA: regionWinners[1].winner, teamB: regionWinners[3].winner, winner: ff2 }, // South vs Midwest
+            { teamA: regionWinners[0].winner, teamB: regionWinners[1].winner, winner: ff1 }, // East vs South
+            { teamA: regionWinners[2].winner, teamB: regionWinners[3].winner, winner: ff2 }, // West vs Midwest
           ],
           champGame: { teamA: ff1, teamB: ff2, winner: champ },
         };
@@ -1955,7 +1954,7 @@ function finishSim(champCounts, ffCounts, ff2Counts, ffComboCounts, elite8Counts
             <span>${(ff.ff1Right.champProb*100).toFixed(1)}% title</span>
           </div>
         </div>
-        <div style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;text-align:center;margin-top:4px;">EAST vs WEST</div>
+        <div style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;text-align:center;margin-top:4px;">EAST vs SOUTH</div>
       </div>
       <div class="ff-center">
         <div class="ff-trophy">🏆</div>
@@ -1973,7 +1972,7 @@ function finishSim(champCounts, ffCounts, ff2Counts, ffComboCounts, elite8Counts
             <span>${(ff.ff2Right.champProb*100).toFixed(1)}% title</span>
           </div>
         </div>
-        <div style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;text-align:center;margin-top:4px;">SOUTH vs MIDWEST</div>
+        <div style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;text-align:center;margin-top:4px;">WEST vs MIDWEST</div>
       </div>
     </div>
   ` : '<div style="color:var(--muted);font-size:12px;text-align:center;padding:20px;">No simulation run yet.</div>';
@@ -2421,8 +2420,8 @@ function generateBracket() {
   regionOrder.forEach(r => { allRegions[r] = buildRegionRounds(r); });
 
   const ff = [
-    { teamA: allRegions['East'][3][0].winner,  teamB: allRegions['West'][3][0].winner },
-    { teamA: allRegions['South'][3][0].winner, teamB: allRegions['Midwest'][3][0].winner },
+    { teamA: allRegions['East'][3][0].winner,  teamB: allRegions['South'][3][0].winner },
+    { teamA: allRegions['West'][3][0].winner,  teamB: allRegions['Midwest'][3][0].winner },
   ];
   ff[0].winner = bestGuessWinner(ff[0].teamA, ff[0].teamB);
   ff[1].winner = bestGuessWinner(ff[1].teamA, ff[1].teamB);
