@@ -1280,12 +1280,17 @@
     </div>
     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
       <button class="sim-btn" style="font-size:12px;padding:8px 16px;background:var(--panel);border:1px solid var(--border);color:var(--muted);" onclick="printBracketPDF()">🖨 SAVE / PRINT PDF</button>
-      <button class="sim-btn" style="font-size:12px;padding:8px 16px;" onclick="generateBracket()">⚡ GENERATE FROM SIM</button>
+      <button class="sim-btn" style="font-size:12px;padding:8px 16px;" onclick="runSimThenBracket()">⚡ RUN NEW SIM + GENERATE</button>
     </div>
   </div>
 
-  <div id="bracketNotice" class="alert">
-    <strong>👆 Run the Monte Carlo Sim first</strong>, then come back here. The bracket will show the <strong>actual result of that simulation</strong> — every team that advanced, every upset that happened, all the way to the champion. Hit Run Again in the sim to get a different bracket.
+  <div id="bracketSimProgress" style="display:none;margin-bottom:12px;">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:6px;" id="bracketSimStatus">Running simulation...</div>
+    <div style="width:100%;background:#1a1f2e;border-radius:3px;height:6px;overflow:hidden;">
+      <div id="bracketProgressFill" style="height:100%;background:linear-gradient(90deg,var(--accent),var(--accent3));border-radius:3px;width:0%;transition:width .1s linear;"></div>
+    </div>
+  </div>
+    <strong>👆 Run the Monte Carlo Sim first</strong>, then come back here. The bracket shows the <strong>actual result of that simulation</strong> — every team that advanced, every upset, all the way to the champion. Hit <strong>Run New Sim + Generate</strong> to run a fresh simulation and instantly see a new bracket.
   </div>
 
   <!-- BRACKET GRID -->
@@ -1880,6 +1885,13 @@ function runSimulation() {
     const pct = (sim/N*100).toFixed(0);
     document.getElementById('progressFill').style.width = pct+'%';
     document.getElementById('simStatus').textContent = `Running simulation ${sim.toLocaleString()} / ${N.toLocaleString()} ...`;
+    // Mirror to bracket tab progress bar if running from there
+    if (window._returnToBracketAfterSim) {
+      const bf = document.getElementById('bracketProgressFill');
+      const bs = document.getElementById('bracketSimStatus');
+      if (bf) bf.style.width = pct+'%';
+      if (bs) bs.textContent = `Simulating... ${pct}% complete`;
+    }
 
     if(sim < N) {
       requestAnimationFrame(runChunk);
@@ -1984,6 +1996,15 @@ function finishSim(champCounts, ffCounts, ff2Counts, ffComboCounts, elite8Counts
 
   // auto-generate bracket
   generateBracket();
+
+  // if triggered from bracket tab, just restore button — stay on bracket tab
+  if (window._returnToBracketAfterSim) {
+    window._returnToBracketAfterSim = false;
+    const btn = document.querySelector('[onclick="runSimThenBracket()"]');
+    if (btn) { btn.disabled = false; btn.textContent = '⚡ RUN NEW SIM + GENERATE'; }
+    const bp = document.getElementById('bracketSimProgress');
+    if (bp) bp.style.display = 'none';
+  }
 
   // re-enable
   simRunning = false;
@@ -2375,7 +2396,20 @@ document.getElementById('upsetWeight').addEventListener('input', function() {
 let bracketPicks = {};
 let bracketRounds = {}; // holds computed rounds per region
 
-function generateBracket() {
+function runSimThenBracket() {
+  if (simRunning) return;
+  const btn = document.querySelector('[onclick="runSimThenBracket()"]');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ SIMULATING...'; }
+  // Show inline progress on bracket tab
+  const bp = document.getElementById('bracketSimProgress');
+  if (bp) bp.style.display = 'block';
+  const bf = document.getElementById('bracketProgressFill');
+  if (bf) bf.style.width = '0%';
+  window._returnToBracketAfterSim = true;
+  runSimulation();
+}
+
+
   const hasProbs = TEAMS.some(t => t.champProb > 0);
   if (!hasProbs) {
     document.getElementById('bracketNotice').innerHTML =
