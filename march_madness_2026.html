@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Dave's Bracket Madness 2026</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -30,8 +30,6 @@
     min-height: 100vh;
     overflow-x: hidden;
   }
-
-  /* ---- HEADER ---- */
   header {
     border-bottom: 2px solid var(--accent);
     padding: 18px 32px;
@@ -59,13 +57,11 @@
   }
   .live-dot {
     display: inline-block; width: 7px; height: 7px;
-    background: var(--accent2); border-radius: 50%;
+    background: var(--accent3); border-radius: 50%;
     animation: pulse 1.4s ease-in-out infinite;
     margin-right: 5px; vertical-align: middle;
   }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
-
-  /* ---- TABS ---- */
   .tabs {
     display: flex;
     gap: 0;
@@ -87,22 +83,13 @@
     border-top: 3px solid transparent;
   }
   .tab:hover { color: var(--text); }
-  .tab.active {
-    color: var(--accent);
-    border-bottom-color: var(--accent);
-  }
-
-  /* ---- MAIN ---- */
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
   .main { padding: 28px 32px; max-width: 1400px; margin: 0 auto; }
   .section { display: none; }
   .section.active { display: block; }
-
-  /* ---- GRID ---- */
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
   .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; }
-
-  /* ---- CARDS ---- */
   .card {
     background: var(--panel);
     border: 1px solid var(--border);
@@ -120,8 +107,6 @@
     display: flex; align-items: center; gap: 8px;
   }
   .card-title-accent { color: var(--accent); }
-
-  /* ---- STAT BOXES ---- */
   .stat-box {
     background: var(--panel);
     border: 1px solid var(--border);
@@ -144,8 +129,6 @@
     margin-top: 6px;
     text-transform: uppercase;
   }
-
-  /* ---- TEAM TABLE ---- */
   .team-table { width: 100%; border-collapse: collapse; font-size: 13px; }
   .team-table th {
     font-family: 'IBM Plex Mono', monospace;
@@ -194,17 +177,12 @@
   .seed-3 { background: var(--good); color: #111; }
   .seed-4 { background: var(--avg); color: #111; }
   .seed-low { background: #1e2330; color: var(--muted); }
-
-  /* ---- BARS ---- */
   .bar-wrap { width: 100%; background: #1a1f2e; border-radius: 2px; height: 6px; overflow: hidden; }
   .bar-fill { height: 100%; border-radius: 2px; transition: width .6s ease; }
   .bar-elite { background: var(--accent); }
   .bar-good { background: var(--good); }
   .bar-avg { background: var(--avg); }
   .bar-bubble { background: var(--bubble); }
-  .bar-blue { background: var(--cinderella); }
-
-  /* ---- TIER BADGE ---- */
   .tier {
     font-family: 'Barlow Condensed', sans-serif;
     font-weight: 800;
@@ -219,15 +197,7 @@
   .tier-elite { background: rgba(255,166,75,.12); color: var(--good); border: 1px solid rgba(255,166,75,.3); }
   .tier-sleeper { background: rgba(75,142,255,.12); color: var(--cinderella); border: 1px solid rgba(75,142,255,.3); }
   .tier-cinderella { background: rgba(0,229,160,.1); color: var(--bubble); border: 1px solid rgba(0,229,160,.3); }
-
-  /* ---- COACH TAG ---- */
-  .coach-bonus {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 10px;
-    color: var(--accent2);
-  }
-
-  /* ---- MONTE CARLO ---- */
+  .coach-bonus { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--accent2); }
   .sim-btn {
     background: var(--accent);
     color: white;
@@ -245,7 +215,6 @@
   .sim-btn:hover { background: #ff6b3d; transform: translateY(-1px); }
   .sim-btn:active { transform: translateY(0); }
   .sim-btn:disabled { background: #333; color: var(--muted); cursor: not-allowed; transform: none; }
-
   .progress-wrap {
     width: 100%;
     background: #1a1f2e;
@@ -261,395 +230,150 @@
     transition: width .1s linear;
     width: 0%;
   }
-
-  .prob-row {
-    display: flex; align-items: center; gap: 10px; margin-bottom: 8px;
-  }
-  .prob-label {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 700;
-    font-size: 14px;
-    width: 140px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .prob-pct {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 12px;
-    color: var(--accent);
-    width: 44px;
-    text-align: right;
-  }
-  .prob-bar-wrap {
-    flex: 1;
-    background: #1a1f2e;
-    border-radius: 2px;
-    height: 18px;
-    overflow: hidden;
-    position: relative;
-  }
-  .prob-bar-fill {
-    height: 100%;
-    border-radius: 2px;
-    transition: width .8s ease;
-    display: flex; align-items: center; padding-left: 6px;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 9px;
-    color: rgba(255,255,255,.7);
-    white-space: nowrap;
-  }
-
-  /* ---- UPSET PANEL ---- */
-  .upset-card {
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 14px 16px;
-    background: var(--panel);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-  }
-  .upset-seeds {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 900;
-    font-size: 22px;
-    color: var(--accent3);
-  }
+  .prob-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .prob-label { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px; width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .prob-pct { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--accent); width: 44px; text-align: right; }
+  .prob-bar-wrap { flex: 1; background: #1a1f2e; border-radius: 2px; height: 18px; overflow: hidden; position: relative; }
+  .prob-bar-fill { height: 100%; border-radius: 2px; transition: width .8s ease; display: flex; align-items: center; padding-left: 6px; font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: rgba(255,255,255,.7); white-space: nowrap; }
+  .upset-card { border: 1px solid var(--border); border-radius: 6px; padding: 14px 16px; background: var(--panel); display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .upset-seeds { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 22px; color: var(--accent3); }
   .upset-vs { color: var(--muted); font-size: 14px; }
-  .upset-pct {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--accent2);
-  }
-  .upset-note {
-    font-size: 11px;
-    color: var(--muted);
-    line-height: 1.5;
-  }
-
-  /* ---- BETTING ---- */
-  .edge-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .edge-val {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 13px;
-    color: var(--accent2);
-    font-weight: 700;
-  }
-  .edge-neg { color: var(--accent); }
-
-  /* ---- SEARCH ---- */
-  .search-wrap {
-    position: relative; margin-bottom: 16px;
-  }
-  .search-input {
-    width: 100%;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    color: var(--text);
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 13px;
-    padding: 10px 14px 10px 36px;
-    outline: none;
-    transition: border-color .2s;
-  }
+  .upset-pct { font-family: 'IBM Plex Mono', monospace; font-size: 20px; font-weight: 700; color: var(--accent2); }
+  .upset-note { font-size: 11px; color: var(--muted); line-height: 1.5; }
+  .search-wrap { position: relative; margin-bottom: 16px; }
+  .search-input { width: 100%; background: var(--panel); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-family: 'IBM Plex Mono', monospace; font-size: 13px; padding: 10px 14px 10px 36px; outline: none; transition: border-color .2s; }
   .search-input:focus { border-color: var(--accent); }
-  .search-icon {
-    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
-    color: var(--muted); font-size: 14px;
-  }
-
-  /* ---- FILTER PILLS ---- */
+  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 14px; }
   .pills { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-  .pill {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 700;
-    font-size: 11px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    padding: 5px 12px;
-    border-radius: 20px;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    cursor: pointer;
-    transition: all .2s;
-  }
+  .pill { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border); color: var(--muted); cursor: pointer; transition: all .2s; }
   .pill:hover { border-color: var(--text); color: var(--text); }
   .pill.active { background: var(--accent); border-color: var(--accent); color: white; }
-
-  /* ---- ALERT BOX ---- */
-  .alert {
-    background: rgba(255,75,31,.08);
-    border: 1px solid rgba(255,75,31,.25);
-    border-radius: 6px;
-    padding: 14px 18px;
-    font-size: 13px;
-    line-height: 1.6;
-    color: var(--text);
-    margin-bottom: 20px;
-  }
+  .alert { background: rgba(255,75,31,.08); border: 1px solid rgba(255,75,31,.25); border-radius: 6px; padding: 14px 18px; font-size: 13px; line-height: 1.6; color: var(--text); margin-bottom: 20px; }
   .alert strong { color: var(--accent); }
-
-  /* ---- CHAMPION PROFILE ---- */
-  .champ-ring {
-    width: 80px; height: 80px;
-    border-radius: 50%;
-    border: 3px solid var(--accent);
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 900;
-    background: rgba(255,75,31,.08);
-    flex-shrink: 0;
-  }
+  .alert-yellow { background: rgba(255,214,0,.08); border-color: rgba(255,214,0,.3); }
+  .alert-yellow strong { color: var(--accent3); }
+  .champ-ring { width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--accent); display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Barlow Condensed', sans-serif; font-weight: 900; background: rgba(255,75,31,.08); flex-shrink: 0; }
   .champ-ring .pct { font-size: 22px; color: var(--accent); line-height: 1; }
   .champ-ring .lbl { font-size: 8px; color: var(--muted); letter-spacing: 1px; }
-
-  /* ---- SECTION HEADER ---- */
-  .section-header {
-    display: flex; justify-content: space-between; align-items: flex-end;
-    margin-bottom: 20px;
-  }
-  .section-title {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 900;
-    font-size: 28px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-  .section-sub {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    color: var(--muted);
-    margin-top: 4px;
-  }
-
-  /* ---- SCROLLABLE ---- */
+  .section-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; }
+  .section-title { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 28px; letter-spacing: 1px; text-transform: uppercase; }
+  .section-sub { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); margin-top: 4px; }
   .scrollable { overflow-y: auto; max-height: 480px; }
   .scrollable::-webkit-scrollbar { width: 4px; }
   .scrollable::-webkit-scrollbar-track { background: transparent; }
   .scrollable::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 2px; }
-
-  /* ---- SORT INDICATOR ---- */
   .sort-active { color: var(--accent) !important; }
-
-  /* ---- FINAL FOUR BRACKET ---- */
-  .ff-bracket {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    gap: 16px;
-    align-items: center;
-    margin-top: 16px;
-  }
+  .ff-bracket { display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: center; margin-top: 16px; }
   .ff-col { display: flex; flex-direction: column; gap: 12px; }
-  .ff-game {
-    background: #161b28;
-    border: 1px solid var(--border);
-    border-radius: 5px;
-    padding: 10px 14px;
-  }
-  .ff-team {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 700;
-    font-size: 14px;
-    display: flex; justify-content: space-between;
-    padding: 4px 0;
-  }
+  .ff-game { background: #161b28; border: 1px solid var(--border); border-radius: 5px; padding: 10px 14px; }
+  .ff-team { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px; display: flex; justify-content: space-between; padding: 4px 0; }
   .ff-team span { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--accent2); }
   .ff-team.winner { color: var(--accent); }
-  .ff-center {
-    display: flex; flex-direction: column; align-items: center; gap: 8px;
-  }
-  .ff-trophy {
-    font-size: 32px;
-    filter: drop-shadow(0 0 12px var(--accent3));
-  }
-  .ff-champ-name {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 900;
-    font-size: 18px;
-    color: var(--accent3);
-    text-align: center;
-  }
-
-  /* ---- responsive ---- */
-  @media(max-width:900px) {
-    .grid-2,.grid-3,.grid-4 { grid-template-columns: 1fr; }
-    .main { padding: 20px 16px; }
-    header { padding: 14px 16px; }
-    .tabs { padding: 0 16px; overflow-x: auto; }
-  }
-
-  /* ---- TOOLTIP ---- */
-  [title]:hover::after {
-    content: attr(title);
-    position: absolute;
-    background: #1e2330;
-    border: 1px solid var(--border-bright);
-    color: var(--text);
-    font-size: 11px;
-    padding: 4px 8px;
-    border-radius: 4px;
-    white-space: nowrap;
-    z-index: 999;
-    pointer-events: none;
-    margin-top: 4px;
-  }
-
+  .ff-center { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .ff-trophy { font-size: 32px; filter: drop-shadow(0 0 12px var(--accent3)); }
+  .ff-champ-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 18px; color: var(--accent3); text-align: center; }
+  .bracket-wrap { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto 1fr 1fr 1fr 1fr; gap: 0; min-width: 1100px; font-family: 'Barlow Condensed', sans-serif; }
+  .bracket-col { display: flex; flex-direction: column; justify-content: space-around; padding: 0 3px; }
+  .bracket-game { display: flex; flex-direction: column; margin: 3px 0; }
+  .bracket-team { background: var(--panel); border: 1px solid var(--border); border-radius: 3px; padding: 5px 8px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all .15s; display: flex; align-items: center; gap: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-height: 28px; position: relative; }
+  .bracket-team:hover { border-color: var(--accent); background: #161b28; }
+  .bracket-team.winner { background: rgba(255,75,31,.12); border-color: var(--accent); color: var(--text); }
+  .bracket-team.champion { background: rgba(255,214,0,.15); border-color: var(--accent3); color: var(--accent3); font-size: 13px; }
+  .bracket-team .bseed { font-size: 9px; color: var(--muted); font-weight: 400; flex-shrink: 0; background: var(--bg); padding: 1px 4px; border-radius: 2px; min-width: 16px; text-align: center; }
+  .bracket-team.winner .bseed { color: var(--accent); }
+  .bracket-team .bprob { font-size: 9px; color: var(--accent2); margin-left: auto; flex-shrink: 0; font-family: 'IBM Plex Mono', monospace; }
+  .bracket-spacer { flex: 1; }
+  .bracket-center-col { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 12px; gap: 8px; }
+  .bracket-champ-box { background: rgba(255,214,0,.1); border: 2px solid var(--accent3); border-radius: 8px; padding: 16px 20px; text-align: center; min-width: 130px; }
+  .bracket-champ-box .trophy { font-size: 28px; }
+  .bracket-champ-box .champ-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 16px; color: var(--accent3); margin-top: 6px; }
+  .bracket-champ-box .champ-prob { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); margin-top: 4px; }
+  .round-label { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 1px; color: var(--muted); text-align: center; padding: 4px 0 8px; text-transform: uppercase; }
+  .matchup-badge { display: inline-block; background: rgba(255,214,0,.1); border: 1px solid rgba(255,214,0,.25); border-radius: 4px; padding: 3px 8px; font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--accent3); margin-right: 6px; }
+  @media(max-width:900px) { .grid-2,.grid-3,.grid-4 { grid-template-columns: 1fr; } .main { padding: 14px 12px; } header { padding: 12px 14px; flex-wrap: wrap; gap: 8px; } .tabs { padding: 0 12px; overflow-x: auto; } .tab { padding: 12px 14px; font-size: 12px; white-space: nowrap; } }
+  @media(max-width:600px) { header { padding: 10px 12px; } .logo { font-size: 18px; } .logo sub { display: none; } .main { padding: 10px 10px; } .section-header { flex-direction: column; align-items: flex-start; gap: 10px; } .section-title { font-size: 20px; } .card { padding: 14px 14px; } .tabs { padding: 0 8px; } .tab { padding: 10px 10px; font-size: 11px; } #bracketContainer { overflow-x: auto; } #bracketContainer > div { min-width: 900px; } }
   .highlight-row td { background: rgba(255,214,0,.04) !important; }
   .mono { font-family: 'IBM Plex Mono', monospace; }
-
-  /* ---- ADMIN ---- */
-  .admin-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,.85);
-    z-index: 500; display: flex; align-items: center; justify-content: center;
-  }
-  .admin-modal {
-    background: var(--panel); border: 2px solid var(--accent3);
-    border-radius: 8px; padding: 32px; width: 420px; max-width: 95vw;
-  }
-  .admin-panel {
-    position: fixed; top: 0; right: 0; width: 420px; height: 100vh;
-    background: var(--panel); border-left: 2px solid var(--accent3);
-    z-index: 400; overflow-y: auto; padding: 24px;
-    transform: translateX(100%); transition: transform .3s ease;
-  }
-  .admin-panel.open { transform: translateX(0); }
-  .admin-input {
-    width: 100%; background: var(--bg); border: 1px solid var(--border);
-    color: var(--text); padding: 8px 12px; border-radius: 4px;
-    font-family: 'IBM Plex Mono', monospace; font-size: 13px;
-    margin-bottom: 10px; outline: none;
-  }
-  .admin-input:focus { border-color: var(--accent3); }
-  .admin-btn {
-    background: var(--accent3); color: #000; border: none;
-    font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
-    font-size: 14px; letter-spacing: 1.5px; text-transform: uppercase;
-    padding: 10px 20px; border-radius: 4px; cursor: pointer; width: 100%;
-    margin-bottom: 8px;
-  }
-  .admin-btn:hover { background: #ffe033; }
-  .admin-btn.secondary {
-    background: #1e2330; color: var(--muted);
-  }
-  .admin-btn.secondary:hover { color: var(--text); }
-  .round-tab {
-    font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
-    font-size: 12px; letter-spacing: 1px; text-transform: uppercase;
-    padding: 6px 14px; border-radius: 3px; border: 1px solid var(--border);
-    color: var(--muted); cursor: pointer; transition: all .2s;
-  }
-  .round-tab.active { background: var(--accent3); border-color: var(--accent3); color: #000; }
-  .status-dot-admin {
-    display: inline-block; width: 8px; height: 8px; border-radius: 50%;
-    background: var(--muted); margin-right: 6px; vertical-align: middle;
-  }
-  .status-dot-admin.live { background: var(--accent2); animation: pulse 1.4s infinite; }
 </style>
 </head>
 <body>
 
-<!-- =================== ADMIN LOGIN OVERLAY =================== -->
-<div id="adminLoginOverlay" class="admin-overlay" style="display:none;">
-  <div class="admin-modal">
-    <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:22px;letter-spacing:2px;color:var(--accent3);margin-bottom:6px;">🔐 ADMIN ACCESS</div>
-    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:20px;">Bracket management · Round updates · Gist sync</div>
-    <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">ADMIN PASSWORD</label>
-    <input type="password" id="adminPwdInput" class="admin-input" placeholder="Enter password..." onkeydown="if(event.key==='Enter')checkAdminPwd()">
-    <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;margin-top:8px;">GITHUB TOKEN <span style="color:var(--muted);font-weight:400;">(never stored)</span></label>
-    <input type="password" id="adminTokenInput" class="admin-input" placeholder="ghp_..." onkeydown="if(event.key==='Enter')checkAdminPwd()">
-    <div id="adminPwdError" style="color:var(--accent);font-size:12px;font-family:'IBM Plex Mono',monospace;margin-bottom:10px;display:none;">❌ Incorrect password</div>
-    <button class="admin-btn" onclick="checkAdminPwd()">UNLOCK</button>
-    <button class="admin-btn secondary" onclick="closeAdminLogin()">CANCEL</button>
-  </div>
+<div id="mobileBanner" style="display:none;background:rgba(255,214,0,.08);border-bottom:1px solid rgba(255,214,0,.2);padding:8px 14px;font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--avg);text-align:center;">
+  📱 Best experienced on a larger screen — all features work on mobile, bracket view requires scroll
+  <span onclick="document.getElementById('mobileBanner').style.display='none'" style="margin-left:10px;cursor:pointer;opacity:.6;">✕</span>
 </div>
-
-<!-- =================== ADMIN PANEL DRAWER =================== -->
-<div id="adminPanel" class="admin-panel">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-    <div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:18px;letter-spacing:2px;color:var(--accent3);">⚙️ BRACKET ADMIN</div>
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;">
-        <span class="status-dot-admin" id="gistStatusDot"></span><span id="gistStatusText">Not connected</span>
-      </div>
-    </div>
-    <button onclick="closeAdminPanel()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;">✕</button>
-  </div>
-
-  <!-- Round selector -->
-  <div style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;margin-bottom:8px;">TOURNAMENT ROUND</div>
-  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;" id="roundTabs">
-    <div class="round-tab active" onclick="switchAdminRound(0,this)">R1 — First Round</div>
-    <div class="round-tab" onclick="switchAdminRound(1,this)">R2 — Sweet 16</div>
-    <div class="round-tab" onclick="switchAdminRound(2,this)">R3 — Elite 8</div>
-    <div class="round-tab" onclick="switchAdminRound(3,this)">R4 — Final 4</div>
-    <div class="round-tab" onclick="switchAdminRound(4,this)">R5 — Finals</div>
-  </div>
-
-  <div id="adminRoundContent">
-    <!-- rendered by JS -->
-  </div>
-
-  <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px;">
-    <button class="admin-btn" onclick="saveToGist()">💾 SAVE & PUSH TO GIST</button>
-    <button class="admin-btn secondary" onclick="fetchFromGist(true)">↺ RELOAD FROM GIST</button>
-    <div id="adminSaveStatus" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-top:8px;text-align:center;"></div>
-  </div>
-
-  <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px;">
-    <div style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;margin-bottom:8px;">GIST LINK</div>
-    <a href="https://gist.github.com/TradingTimeMachine/51c7790e2cbefaf03d825edbefe20045" target="_blank" style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--accent2);word-break:break-all;">gist.github.com/TradingTimeMachine/51c7790e2cbefaf03d825edbefe20045</a>
-  </div>
-</div>
+<script>if(window.innerWidth < 600) document.getElementById('mobileBanner').style.display='block';</script>
 
 <header>
-  <div class="logo">DAVE'S <span>BRACKET MADNESS</span> <sub>2026 ENGINE v2.0</sub></div>
-  <div style="display:flex;align-items:center;gap:16px;">
-    <div class="header-meta">
-      <div><span class="live-dot"></span><span id="headerStatus">SELECTION SUNDAY — MARCH 15, 6PM ET (CBS)</span></div>
-      <div>MODEL: GAER + KenPom + NET + Matchup Layer + Monte Carlo</div>
-      <div id="headerRound" style="color:var(--accent2);">BRACKET DROPS TONIGHT → RUN SIMULATION IMMEDIATELY</div>
-    </div>
-    <button onclick="openAdminLogin()" style="background:rgba(255,214,0,.1);border:1px solid rgba(255,214,0,.3);color:var(--accent3);font-family:'IBM Plex Mono',monospace;font-size:10px;padding:6px 12px;border-radius:4px;cursor:pointer;letter-spacing:1px;white-space:nowrap;" title="Admin access">🔐 ADMIN</button>
+  <div class="logo">DAVE'S <span>BRACKET MADNESS</span> <sub>2026 ENGINE v3.0</sub></div>
+  <div class="header-meta">
+    <div><span class="live-dot"></span>ROUND OF 32 — MARCH 21-22, 2026</div>
+    <div>EAST: Duke · SOUTH: Florida · WEST: Arizona · MIDWEST: Michigan</div>
+    <div>32 TEAMS REMAINING · SWEET 16 NEXT · INDIANAPOLIS FINAL FOUR APRIL 4-6</div>
   </div>
 </header>
 
 <div class="tabs">
-  <div class="tab active" data-tab="rankings">Power Rankings</div>
+  <div class="tab active" data-tab="matchups">R32 Matchups</div>
+  <div class="tab" data-tab="rankings">Power Rankings</div>
   <div class="tab" data-tab="simulator">Monte Carlo Sim</div>
   <div class="tab" data-tab="upsets">Upset Engine</div>
   <div class="tab" data-tab="champion">Champion Profile</div>
   <div class="tab" data-tab="betting">Betting Edge</div>
-  <div class="tab" data-tab="model">Model Builder</div>
-  <div class="tab" data-tab="bracket" style="color:var(--accent2);border-bottom:3px solid transparent;" id="bracketTab">🏀 BRACKET ENTRY</div>
+  <div class="tab" data-tab="bracket">🏆 My Bracket</div>
 </div>
 
 <div class="main">
 
-<!-- =================== TAB: RANKINGS =================== -->
-<div id="tab-rankings" class="section active">
+<!-- =================== TAB: R32 MATCHUPS =================== -->
+<div id="tab-matchups" class="section active">
   <div class="section-header">
     <div>
-      <div class="section-title">2026 Tournament Power Rankings</div>
-      <div class="section-sub">GAER composite · pre-Selection Sunday · projected field of 68</div>
-    </div>
-    <div style="display:flex;gap:8px;align-items:center;">
-      <button class="sim-btn" style="font-size:12px;padding:8px 18px;" onclick="runQuickSort()">↕ RESORT</button>
+      <div class="section-title">Round of 32 — Today's Matchups</div>
+      <div class="section-sub">March 21–22, 2026 · 16 games · Sweet 16 spots on the line</div>
     </div>
   </div>
 
-  <div class="alert">
-    <strong>⚡ BRACKET ALERT:</strong> Projected 1-seeds: Duke · Michigan · Arizona · Florida. UConn slipped after Marquette loss — now fighting for 2-seed. Big East final tonight (St. John's vs UConn) will affect seeding. <strong>Bracket drops 6pm ET tomorrow.</strong> Run the Monte Carlo immediately after.
+  <div class="alert alert-yellow">
+    <strong>🏀 ROUND OF 32 IS LIVE:</strong> First round is complete. All 4 top seeds and all 4 two-seeds survived. Biggest upset: 12-seed High Point over 5-seed Wisconsin. All 4 nine-seeds advanced — a historic first. 32 teams remain. Run the simulator to project your bracket from here.
+  </div>
+
+  <div class="grid-2" style="margin-bottom:20px;">
+    <!-- EAST -->
+    <div class="card">
+      <div class="card-title card-title-accent">▮ East Region — Washington D.C. Sweet 16</div>
+      <div id="east-matchups"></div>
+    </div>
+    <!-- SOUTH -->
+    <div class="card">
+      <div class="card-title card-title-accent">▮ South Region — Houston Sweet 16</div>
+      <div id="south-matchups"></div>
+    </div>
+  </div>
+  <div class="grid-2">
+    <!-- WEST -->
+    <div class="card">
+      <div class="card-title card-title-accent">▮ West Region — San Jose Sweet 16</div>
+      <div id="west-matchups"></div>
+    </div>
+    <!-- MIDWEST -->
+    <div class="card">
+      <div class="card-title card-title-accent">▮ Midwest Region — Chicago Sweet 16</div>
+      <div id="midwest-matchups"></div>
+    </div>
+  </div>
+</div>
+
+<!-- =================== TAB: RANKINGS =================== -->
+<div id="tab-rankings" class="section">
+  <div class="section-header">
+    <div>
+      <div class="section-title">32-Team Power Rankings</div>
+      <div class="section-sub">Remaining field · Round of 32 · Updated for current bracket</div>
+    </div>
+    <div>
+      <button class="sim-btn" style="font-size:12px;padding:8px 18px;" onclick="runQuickSort()">↕ RESORT</button>
+    </div>
   </div>
 
   <div style="display:flex;gap:12px;align-items:center;margin-bottom:14px;flex-wrap:wrap;">
@@ -673,16 +397,14 @@
           <tr>
             <th onclick="sortTable('name')">Team</th>
             <th onclick="sortTable('seed')" class="sort-active">SEED ▲</th>
-            <th onclick="sortTable('gaer')">GAER</th>
             <th onclick="sortTable('power')">POWER RTG</th>
             <th onclick="sortTable('kenpom')">KenPom</th>
             <th onclick="sortTable('net')">NET</th>
-            <th onclick="sortTable('sos')">SOS</th>
             <th onclick="sortTable('q1')">Q1%</th>
             <th onclick="sortTable('champ_prob')">CHAMP %</th>
             <th onclick="sortTable('ff_prob')">FINAL 4 %</th>
             <th>TIER</th>
-            <th>COACH EDGE</th>
+            <th>R32 OPPONENT</th>
           </tr>
         </thead>
         <tbody id="rankingsBody"></tbody>
@@ -696,12 +418,12 @@
   <div class="section-header">
     <div>
       <div class="section-title">Monte Carlo Tournament Simulator</div>
-      <div class="section-sub">25,000 tournament simulations · probability engine · bracket optimization</div>
+      <div class="section-sub">25,000 simulations · starting from Round of 32 · probability engine</div>
     </div>
   </div>
 
   <div class="alert">
-    <strong>💡 HOW TO USE:</strong> Click <strong>RUN 25,000 SIMS</strong> to simulate the entire tournament. Each simulation plays out all 63 games using matchup-adjusted win probabilities. Results show true championship odds, Final Four frequency, and optimal bracket picks.
+    <strong>💡 HOW TO USE:</strong> Set your simulation count and upset weight, then hit <strong>Run</strong>. The simulator starts from the current Round of 32 bracket. When complete, head to the <strong>🏆 My Bracket</strong> tab to get a fully filled-out bracket from here to the champion.
   </div>
 
   <div class="grid-2" style="margin-bottom:20px;">
@@ -717,9 +439,9 @@
       </div>
       <div style="margin-bottom:16px;">
         <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px;font-family:'IBM Plex Mono',monospace;">UPSET WEIGHT</label>
-        <input type="range" id="upsetWeight" min="0.5" max="1.5" step="0.1" value="1.0" style="width:100%;accent-color:var(--accent);">
+        <input type="range" id="upsetWeight" min="0.5" max="3.0" step="0.1" value="1.0" style="width:100%;accent-color:var(--accent);">
         <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-top:4px;">
-          <span>CONSERVATIVE</span><span id="upsetVal">1.0x</span><span>UPSET-HEAVY</span>
+          <span>CHALK</span><span id="upsetVal" style="color:var(--accent);font-weight:700;">1.0x</span><span>CHAOS</span>
         </div>
       </div>
       <button class="sim-btn" id="simBtn" onclick="runSimulation()" style="width:100%;">▶ RUN 25,000 SIMS</button>
@@ -732,7 +454,7 @@
       <div class="card-title">Last Run Summary</div>
       <div class="grid-2" id="simSummary">
         <div class="stat-box"><div class="val" id="sumSims">—</div><div class="lbl">Simulations</div></div>
-        <div class="stat-box"><div class="val" id="sumUpsets">—</div><div class="lbl">Avg 1st Rd Upsets</div></div>
+        <div class="stat-box"><div class="val" id="sumUpsets">—</div><div class="lbl">Avg R32 Upsets</div></div>
         <div class="stat-box"><div class="val" id="sumTopChamp">—</div><div class="lbl">Top Champ Prob</div></div>
         <div class="stat-box"><div class="val" id="sumSurprise">—</div><div class="lbl">Surprise Champ %</div></div>
       </div>
@@ -755,7 +477,7 @@
   </div>
 
   <div class="card" style="margin-top:20px;">
-    <div class="card-title card-title-accent">▮ Projected Final Four Bracket (Most Likely Outcome)</div>
+    <div class="card-title card-title-accent">▮ Projected Final Four (Most Likely Outcome from Last Sim)</div>
     <div id="ff4Bracket">
       <div style="color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:12px;text-align:center;padding:30px;">Run simulation to generate bracket projection</div>
     </div>
@@ -767,70 +489,50 @@
   <div class="section-header">
     <div>
       <div class="section-title">Upset Engine</div>
-      <div class="section-sub">historical rates · matchup signals · bracket pool EV maximization</div>
+      <div class="section-sub">R32 upset watchlist · historical rates · pool EV strategy</div>
     </div>
   </div>
 
-  <div class="grid-4" style="margin-bottom:20px;">
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:20px;">
     <div class="upset-card">
-      <div>
-        <div class="upset-seeds">12 <span class="upset-vs">vs</span> 5</div>
-        <div class="upset-note">GAER target: top 50 KenPom offense + senior guards + 3pt volume</div>
-      </div>
-      <div class="upset-pct">35%</div>
+      <div><div class="upset-seeds">9 <span class="upset-vs">vs</span> 1</div><div class="upset-note">All four 9-seeds advanced — first time in history. Momentum is real.</div></div>
+      <div class="upset-pct">28%</div>
     </div>
     <div class="upset-card">
-      <div>
-        <div class="upset-seeds">11 <span class="upset-vs">vs</span> 6</div>
-        <div class="upset-note">Highest historical variance. Often an NIT-quality team vs bubble team.</div>
-      </div>
-      <div class="upset-pct">37%</div>
+      <div><div class="upset-seeds">10 <span class="upset-vs">vs</span> 2</div><div class="upset-note">Texas A&M vs Houston — Aggie upset potential. Bucky Ball is real.</div></div>
+      <div class="upset-pct">22%</div>
     </div>
     <div class="upset-card">
-      <div>
-        <div class="upset-seeds">10 <span class="upset-vs">vs</span> 7</div>
-        <div class="upset-note">Essentially a coin flip. Focus on turnover pressure + FT shooting.</div>
-      </div>
-      <div class="upset-pct">40%</div>
+      <div><div class="upset-seeds">11 <span class="upset-vs">vs</span> 3</div><div class="upset-note">VCU vs Illinois — Havoc style, press defense. Classic trap game.</div></div>
+      <div class="upset-pct">30%</div>
     </div>
     <div class="upset-card">
-      <div>
-        <div class="upset-seeds">13 <span class="upset-vs">vs</span> 4</div>
-        <div class="upset-note">Rare but brutal. Slow-tempo elite defense profile. Avoid top-offense 4s.</div>
-      </div>
-      <div class="upset-pct">21%</div>
+      <div><div class="upset-seeds">12 <span class="upset-vs">vs</span> 4</div><div class="upset-note">High Point vs Arkansas — 12 seed already in! Momentum and confidence.</div></div>
+      <div class="upset-pct">38%</div>
     </div>
   </div>
 
   <div class="grid-2">
     <div class="card">
-      <div class="card-title card-title-accent">▮ 8 Hidden Upset Factors</div>
-      <div id="upsetFactors">
-        <!-- rendered by JS -->
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title card-title-accent">▮ 2026 Upset Watchlist</div>
+      <div class="card-title card-title-accent">▮ R32 Upset Watchlist</div>
       <div id="upsetWatchlist"></div>
     </div>
-  </div>
-
-  <div class="card" style="margin-top:20px;">
-    <div class="card-title card-title-accent">▮ Pool EV Strategy — Why You Pick Underdogs</div>
-    <div style="overflow-x:auto;">
-      <table class="team-table" style="min-width:500px;">
-        <thead><tr>
-          <th style="text-align:left">Scenario</th>
-          <th>Win Prob</th>
-          <th>Pool Pick %</th>
-          <th>EV Factor</th>
-          <th>Verdict</th>
-        </tr></thead>
-        <tbody id="evTable"></tbody>
-      </table>
-    </div>
-    <div style="font-size:12px;color:var(--muted);margin-top:12px;font-family:'IBM Plex Mono',monospace;line-height:1.7;">
-      In a 100-person pool, picking the favorite wins you ~zero differentiation. The path to winning pools is <span style="color:var(--accent2)">identifying 2-3 high-EV upsets</span> where your model sees higher win probability than the crowd assigns. Champion pick alone often accounts for 40-50% of final score.
+    <div class="card">
+      <div class="card-title card-title-accent">▮ Pool EV Strategy</div>
+      <div style="overflow-x:auto;">
+        <table class="team-table" style="min-width:400px;">
+          <thead><tr>
+            <th style="text-align:left">Scenario</th>
+            <th>Win Prob</th>
+            <th>Pool Pick %</th>
+            <th>EV</th>
+          </tr></thead>
+          <tbody id="evTable"></tbody>
+        </table>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-top:12px;font-family:'IBM Plex Mono',monospace;line-height:1.7;">
+        From R32 on, <span style="color:var(--accent2)">2-3 upset picks</span> differentiate bracket winners. Champion pick is still 40-50% of total score.
+      </div>
     </div>
   </div>
 </div>
@@ -840,7 +542,7 @@
   <div class="section-header">
     <div>
       <div class="section-title">Champion Profile Analyzer</div>
-      <div class="section-sub">historical champion DNA · 2026 title contender shortlist</div>
+      <div class="section-sub">historical champion DNA · 2026 title contender shortlist (32 remaining)</div>
     </div>
   </div>
 
@@ -849,8 +551,7 @@
       <div class="card-title">Historical Champion DNA</div>
       <div style="font-size:13px;line-height:2;color:var(--text);">
         <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:4px 0;"><span style="color:var(--muted)">KenPom Rank</span><span style="color:var(--accent);font-family:'IBM Plex Mono',monospace;">≤ 10</span></div>
-        <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:4px 0;"><span style="color:var(--muted)">AdjO Rank</span><span style="color:var(--accent);font-family:'IBM Plex Mono',monospace;">≤ 20</span></div>
-        <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:4px 0;"><span style="color:var(--muted)">AdjD Rank</span><span style="color:var(--accent);font-family:'IBM Plex Mono',monospace;">≤ 20</span></div>
+        <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:4px 0;"><span style="color:var(--muted)">NET Ranking</span><span style="color:var(--accent);font-family:'IBM Plex Mono',monospace;">≤ 20</span></div>
         <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:4px 0;"><span style="color:var(--muted)">Seed</span><span style="color:var(--accent);font-family:'IBM Plex Mono',monospace;">1–3</span></div>
         <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:4px 0;"><span style="color:var(--muted)">Net Efficiency</span><span style="color:var(--accent);font-family:'IBM Plex Mono',monospace;">> +28</span></div>
         <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:4px 0;"><span style="color:var(--muted)">FT% (late game)</span><span style="color:var(--accent);font-family:'IBM Plex Mono',monospace;">> 74%</span></div>
@@ -871,7 +572,7 @@
       </div>
     </div>
     <div class="card">
-      <div class="card-title">Key Predictive Stats (Often Missing)</div>
+      <div class="card-title">Key Predictive Stats</div>
       <div style="font-size:13px;line-height:1.9;color:var(--muted);">
         <div>📊 <span style="color:var(--accent2)">Rim FG%</span> — best deep-run predictor</div>
         <div>📊 <span style="color:var(--accent2)">Opp Rim FG%</span> — defensive rim control</div>
@@ -895,174 +596,116 @@
   <div class="section-header">
     <div>
       <div class="section-title">Betting Edge Calculator</div>
-      <div class="section-sub">model spread vs vegas · total projections · edge identification</div>
+      <div class="section-sub">R32 matchups · auto-fill power rating · find the edge</div>
     </div>
   </div>
 
   <div class="alert">
-    <strong>📈 EDGE WINDOW:</strong> First-round sportsbooks price 32 games rapidly. Model edges of ≥2.5 points vs Vegas spread appear frequently. This is when your model has maximum value. Total edges appear when tempo mismatch is extreme.
+    <strong>📈 HOW TO USE:</strong> Pick Team A and Team B from the dropdowns — power rating, tempo, and offensive efficiency auto-fill from the model. Enter the Vegas spread or total, then hit Calculate. Edges of <strong>+2.5 pts on spreads</strong> or <strong>+4 pts on totals</strong> are actionable.
   </div>
 
-  <div class="grid-2" style="margin-bottom:20px;">
-    <div class="card">
-      <div class="card-title card-title-accent">▮ Spread Calculator</div>
-      <div style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-bottom:14px;">
-        Model Spread ≈ Power Rating Difference × 0.85<br>
-        If Model Spread vs Vegas ≥ 2.5pts → edge
+  <div class="card" style="margin-bottom:20px;">
+    <div class="card-title card-title-accent">▮ Select Matchup</div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;">
+      <div style="flex:1;min-width:200px;">
+        <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:6px;">TEAM A (Favorite / Higher Seed)</label>
+        <select id="pickTeamA" onchange="autoFillTeam('A')" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;">
+          <option value="">-- Select Team --</option>
+        </select>
       </div>
-      <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
-        <div style="flex:1;min-width:140px;">
-          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">TEAM A POWER RTG</label>
-          <input type="number" id="teamARtg" value="93" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;">
-        </div>
-        <div style="flex:1;min-width:140px;">
-          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">TEAM B POWER RTG</label>
-          <input type="number" id="teamBRtg" value="86" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;">
-        </div>
-        <div style="flex:1;min-width:140px;">
-          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">VEGAS SPREAD (A)</label>
-          <input type="number" id="vegasSpread" value="-4.5" step="0.5" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;">
-        </div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:22px;color:var(--muted);padding-bottom:6px;">VS</div>
+      <div style="flex:1;min-width:200px;">
+        <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:6px;">TEAM B (Underdog / Lower Seed)</label>
+        <select id="pickTeamB" onchange="autoFillTeam('B')" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;">
+          <option value="">-- Select Team --</option>
+        </select>
       </div>
-      <button class="sim-btn" onclick="calcSpread()" style="font-size:13px;padding:10px 20px;">CALCULATE EDGE</button>
-      <div id="spreadResult" style="margin-top:14px;"></div>
+      <div><button class="sim-btn" onclick="calcBoth()" style="font-size:14px;padding:11px 24px;">RUN BOTH CALCS</button></div>
     </div>
-
-    <div class="card">
-      <div class="card-title card-title-accent">▮ Total Calculator</div>
-      <div style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-bottom:14px;">
-        Projected Total = (TempoA + TempoB)/2 × efficiency matchup<br>
-        If Model vs Vegas ≥ 4pts → edge
+    <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;" id="teamPreviewRow">
+      <div id="previewA" style="flex:1;min-width:220px;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:12px 16px;display:none;">
+        <div id="previewAName" style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;color:var(--accent);margin-bottom:8px;"></div>
+        <div id="previewAStats" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);line-height:2;"></div>
       </div>
-      <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
-        <div style="flex:1;min-width:120px;">
-          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">TEAM A TEMPO</label>
-          <input type="number" id="tempoA" value="70" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;">
-        </div>
-        <div style="flex:1;min-width:120px;">
-          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">TEAM B TEMPO</label>
-          <input type="number" id="tempoB" value="68" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;">
-        </div>
-        <div style="flex:1;min-width:120px;">
-          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">A OFF EFF</label>
-          <input type="number" id="offEffA" value="118" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;">
-        </div>
-        <div style="flex:1;min-width:120px;">
-          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">VEGAS O/U</label>
-          <input type="number" id="vegasTotal" value="142" step="0.5" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;">
-        </div>
+      <div style="display:flex;align-items:center;justify-content:center;flex:0;padding:0 8px;" id="previewVs">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:28px;color:var(--border-bright);">VS</div>
       </div>
-      <button class="sim-btn" onclick="calcTotal()" style="font-size:13px;padding:10px 20px;">CALCULATE EDGE</button>
-      <div id="totalResult" style="margin-top:14px;"></div>
-    </div>
-  </div>
-</div>
-
-<!-- =================== TAB: MODEL BUILDER =================== -->
-<div id="tab-model" class="section">
-  <div class="section-header">
-    <div>
-      <div class="section-title">GAER Model Builder</div>
-      <div class="section-sub">adjust weights · recalculate power ratings · export rankings</div>
+      <div id="previewB" style="flex:1;min-width:220px;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:12px 16px;display:none;">
+        <div id="previewBName" style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;color:var(--cinderella);margin-bottom:8px;"></div>
+        <div id="previewBStats" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);line-height:2;"></div>
+      </div>
     </div>
   </div>
 
   <div class="grid-2">
     <div class="card">
-      <div class="card-title card-title-accent">▮ Power Rating Formula Weights</div>
-      <div style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-bottom:16px;">Weights auto-normalize to 100%. Adjust to see impact on rankings.</div>
-      <div id="weightSliders"></div>
-      <div style="margin-top:14px;padding:10px;background:var(--bg);border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);" id="weightTotal"></div>
-      <button class="sim-btn" onclick="recalcModel()" style="width:100%;margin-top:14px;font-size:14px;padding:11px;">RECALCULATE MODEL</button>
+      <div class="card-title card-title-accent">▮ Spread Calculator</div>
+      <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:130px;">
+          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">TEAM A POWER RTG</label>
+          <input type="number" id="teamARtg" value="" placeholder="auto-fill" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--accent);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;">
+        </div>
+        <div style="flex:1;min-width:130px;">
+          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">TEAM B POWER RTG</label>
+          <input type="number" id="teamBRtg" value="" placeholder="auto-fill" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--cinderella);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;">
+        </div>
+        <div style="flex:1;min-width:130px;">
+          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">VEGAS SPREAD (A)</label>
+          <input type="number" id="vegasSpread" value="" placeholder="-4.5" step="0.5" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;">
+        </div>
+      </div>
+      <button class="sim-btn" onclick="calcSpread()" style="font-size:13px;padding:10px 20px;">CALCULATE SPREAD EDGE</button>
+      <div id="spreadResult" style="margin-top:14px;"></div>
     </div>
     <div class="card">
-      <div class="card-title card-title-accent">▮ Step-by-Step Model Structure</div>
-      <div style="font-size:13px;line-height:2;color:var(--muted);">
-        <div style="color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;">STEP 1 — Team Strength</div>
-        <div>KenPom Net Rating · NET · Quad-1 Win % · SOS · Seed Adj</div>
-        <div style="color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;margin-top:8px;">STEP 2 — Matchup Adjustments</div>
-        <div>3pt matchup · Turnover pressure · Rebounding · Tempo conflict · FT rate</div>
-        <div style="color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;margin-top:8px;">STEP 3 — Volatility Layer</div>
-        <div>High 3PA → +variance · Slow tempo → –variance · Experience multiplier</div>
-        <div style="color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;margin-top:8px;">STEP 4 — Coach Adjustment</div>
-        <div>Tournament wins above expectation (Izzo +12%, Self +10%, Hurley rising)</div>
-        <div style="color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;margin-top:8px;">STEP 5 — Monte Carlo</div>
-        <div>25,000 simulations → advancement probabilities → bracket optimization</div>
+      <div class="card-title card-title-accent">▮ Total Calculator</div>
+      <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:110px;">
+          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">TEAM A TEMPO</label>
+          <input type="number" id="tempoA" value="" placeholder="auto-fill" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--accent);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;">
+        </div>
+        <div style="flex:1;min-width:110px;">
+          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">TEAM B TEMPO</label>
+          <input type="number" id="tempoB" value="" placeholder="auto-fill" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--cinderella);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;">
+        </div>
+        <div style="flex:1;min-width:110px;">
+          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">A OFF EFF</label>
+          <input type="number" id="offEffA" value="" placeholder="auto-fill" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--accent);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;">
+        </div>
+        <div style="flex:1;min-width:110px;">
+          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">B OFF EFF</label>
+          <input type="number" id="offEffB" value="" placeholder="auto-fill" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--cinderella);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;">
+        </div>
+        <div style="flex:1;min-width:110px;">
+          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">VEGAS O/U</label>
+          <input type="number" id="vegasTotal" value="" placeholder="142" step="0.5" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;">
+        </div>
       </div>
-    </div>
-  </div>
-
-  <div class="card" style="margin-top:20px;">
-    <div class="card-title card-title-accent">▮ Variables to Add Before Bracket Locks (Tomorrow)</div>
-    <div class="grid-3" style="margin-top:8px;">
-      <div>
-        <div style="color:var(--accent2);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;margin-bottom:8px;">SHOOTING PROFILE</div>
-        <div style="font-size:12px;color:var(--muted);line-height:1.9;">3PA / FGA ratio<br>Opponent 3PT defense<br>FG% at rim<br>Defensive rim FG%</div>
-      </div>
-      <div>
-        <div style="color:var(--accent2);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;margin-bottom:8px;">POSSESSION CONTROL</div>
-        <div style="font-size:12px;color:var(--muted);line-height:1.9;">Turnover % forced<br>Opp turnover %<br>ORB %<br>Opponent DRB%</div>
-      </div>
-      <div>
-        <div style="color:var(--accent2);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;margin-bottom:8px;">PROFILE FACTORS</div>
-        <div style="font-size:12px;color:var(--muted);line-height:1.9;">Roster avg age<br>Minutes continuity<br>FTA / FGA rate<br>Team FT%</div>
-      </div>
+      <button class="sim-btn" onclick="calcTotal()" style="font-size:13px;padding:10px 20px;">CALCULATE TOTAL EDGE</button>
+      <div id="totalResult" style="margin-top:14px;"></div>
     </div>
   </div>
 </div>
 
-<!-- =================== TAB: BRACKET ENTRY =================== -->
+<!-- =================== TAB: MY BRACKET =================== -->
 <div id="tab-bracket" class="section">
   <div class="section-header">
     <div>
-      <div class="section-title">🏀 Live Bracket Entry</div>
-      <div class="section-sub">Enter tonight's real bracket → powers the Monte Carlo with actual matchups</div>
+      <div class="section-title">My Bracket</div>
+      <div class="section-sub">generated from Monte Carlo simulation · most likely winner each game · R32 through champion</div>
     </div>
-    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-      <button class="sim-btn" style="font-size:12px;padding:8px 16px;background:var(--accent2);color:#000;" onclick="lockBracketAndSimulate()">🔒 LOCK & RUN SIM</button>
-      <button class="sim-btn" style="font-size:12px;padding:8px 16px;background:#1e2330;color:var(--muted);" onclick="resetBracket()">↺ RESET</button>
-    </div>
-  </div>
-
-  <div class="alert" id="bracketAlert">
-    <strong>⚡ SELECTION SUNDAY MODE:</strong> The real bracket drops tonight at 6pm ET on CBS. As teams are announced, type them in below by region and seed. Once all 4 regions are set, click <strong>LOCK & RUN SIM</strong> to fire the Monte Carlo on the real matchups. Use the AI Analyze button on any game for instant scouting.
-  </div>
-
-  <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;align-items:center;">
-    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">QUICK FILL SEED ORDER: 1 vs 16 · 8 vs 9 · 5 vs 12 · 4 vs 13 · 6 vs 11 · 3 vs 14 · 7 vs 10 · 2 vs 15</div>
-    <button class="sim-btn" style="font-size:11px;padding:5px 12px;background:#1e2330;color:var(--accent2);margin-left:auto;" onclick="loadSampleBracket()">Load Tonight's Projected Field</button>
-  </div>
-
-  <div class="grid-2" id="bracketRegions">
-    <!-- 4 regions rendered by JS -->
-  </div>
-
-  <div id="bracketSimResults" style="display:none;margin-top:24px;">
-    <div class="card">
-      <div class="card-title card-title-accent">▮ Real Bracket Simulation Results</div>
-      <div class="grid-2" style="margin-bottom:16px;" id="bracketSimSummary"></div>
-      <div class="grid-2">
-        <div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:12px;letter-spacing:2px;color:var(--muted);margin-bottom:10px;">CHAMPIONSHIP ODDS</div>
-          <div id="bracketChampProbs"></div>
-        </div>
-        <div>
-          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:12px;letter-spacing:2px;color:var(--muted);margin-bottom:10px;">FINAL FOUR ODDS</div>
-          <div id="bracketFF4Probs"></div>
-        </div>
-      </div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <button class="sim-btn" style="font-size:12px;padding:8px 16px;background:var(--panel);border:1px solid var(--border);color:var(--muted);" onclick="printBracketPDF()">🖨 SAVE / PRINT PDF</button>
     </div>
   </div>
 
-  <!-- AI Matchup Analysis Panel -->
-  <div id="aiAnalysisPanel" style="display:none;position:fixed;top:0;right:0;width:380px;height:100vh;background:var(--panel);border-left:2px solid var(--accent);z-index:200;overflow-y:auto;padding:20px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);">🤖 AI MATCHUP SCOUT</div>
-      <button onclick="document.getElementById('aiAnalysisPanel').style.display='none'" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;">✕</button>
-    </div>
-    <div id="aiMatchupTitle" style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;margin-bottom:16px;color:var(--text);"></div>
-    <div id="aiMatchupContent" style="font-family:'Barlow',sans-serif;font-size:13px;line-height:1.8;color:var(--text);">
-      <div style="color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:12px;">Loading analysis...</div>
+  <div id="bracketNotice" class="alert">
+    <strong>👆 Run the Monte Carlo Sim first</strong>, then come back here. Your bracket auto-generates from that simulation — every team that advanced, all the way to the champion.
+  </div>
+
+  <div id="bracketContainer" style="overflow-x:auto;">
+    <div style="color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:13px;text-align:center;padding:60px 0;">
+      Run the Monte Carlo Sim, then your bracket appears here.
     </div>
   </div>
 </div>
@@ -1071,103 +714,137 @@
 
 <script>
 // ============================================================
-//  DATA — 2026 projected field (pre-Selection Sunday)
+//  ROUND OF 32 — OFFICIAL 2026 NCAA BRACKET
+//  All 32 remaining teams with their actual R32 matchups
+//  Updated: March 21, 2026
 // ============================================================
+
+// R32 bracket structure: each region has 4 matchups
+// format: [teamA_seed, teamA_name, teamB_seed, teamB_name]
+const R32_BRACKET = {
+  East: [
+    [1, "Duke",        9,  "TCU"],
+    [4, "Kansas",      5,  "St. John's"],
+    [3, "Michigan St.",6,  "Louisville"],
+    [2, "UConn",       7,  "UCLA"],
+  ],
+  South: [
+    [1, "Florida",     9,  "Iowa"],
+    [4, "Nebraska",    5,  "Vanderbilt"],
+    [3, "Illinois",    11, "VCU"],
+    [2, "Houston",     10, "Texas A&M"],
+  ],
+  West: [
+    [1, "Arizona",     9,  "Utah St."],
+    [4, "Arkansas",    12, "High Point"],
+    [3, "Gonzaga",     11, "NC State"],
+    [2, "Purdue",      7,  "Miami (FL)"],
+  ],
+  Midwest: [
+    [1, "Michigan",    9,  "Saint Louis"],
+    [4, "Alabama",     5,  "Texas Tech"],
+    [3, "Virginia",    6,  "Tennessee"],
+    [2, "Iowa St.",    7,  "Kentucky"],
+  ],
+};
+
+// 32 remaining teams — full stats
 const TEAMS = [
-  // seed, name, gaer, kenpom, net, sos, q1w, q1l, tempo, orb, tov, threeRate, ftRate, exp, coachBonus, coachName
-  {seed:1,  name:"Duke",          conf:"ACC",   gaer:53.68, kenpom:1,  net:1,  sos:8,  q1w:14,q1l:4,  tempo:71, orb:31, tov:18, threeRate:.38, ftRate:.36, exp:"High",   coachBonus:0,    coachName:"Scheyer"},
-  {seed:1,  name:"Michigan",      conf:"B10",   gaer:52.44, kenpom:2,  net:2,  sos:6,  q1w:13,q1l:4,  tempo:68, orb:32, tov:16, threeRate:.35, ftRate:.38, exp:"High",   coachBonus:0.08, coachName:"Juwan Howard"},
-  {seed:1,  name:"Arizona",       conf:"B12",   gaer:50.27, kenpom:3,  net:3,  sos:4,  q1w:12,q1l:5,  tempo:73, orb:33, tov:17, threeRate:.37, ftRate:.34, exp:"Med",    coachBonus:0,    coachName:"Lloyd"},
-  {seed:1,  name:"Florida",       conf:"SEC",   gaer:47.92, kenpom:5,  net:5,  sos:5,  q1w:11,q1l:5,  tempo:66, orb:35, tov:14, threeRate:.31, ftRate:.42, exp:"High",   coachBonus:0,    coachName:"Golden"},
-  {seed:2,  name:"Houston",       conf:"B12",   gaer:44.10, kenpom:6,  net:6,  sos:7,  q1w:10,q1l:5,  tempo:63, orb:34, tov:22, threeRate:.32, ftRate:.41, exp:"Med",    coachBonus:0,    coachName:"Sampson"},
-  {seed:2,  name:"UConn",         conf:"BigE",  gaer:41.56, kenpom:4,  net:4,  sos:9,  q1w:12,q1l:6,  tempo:70, orb:30, tov:15, threeRate:.36, ftRate:.35, exp:"High",   coachBonus:0.09, coachName:"Hurley"},
-  {seed:2,  name:"Illinois",      conf:"B10",   gaer:40.80, kenpom:8,  net:8,  sos:10, q1w:10,q1l:6,  tempo:67, orb:29, tov:16, threeRate:.34, ftRate:.37, exp:"Med",    coachBonus:0,    coachName:"Underwood"},
-  {seed:2,  name:"Michigan St",   conf:"B10",   gaer:39.20, kenpom:9,  net:9,  sos:11, q1w:9, q1l:6,  tempo:65, orb:31, tov:17, threeRate:.33, ftRate:.40, exp:"High",   coachBonus:0.12, coachName:"Izzo ⭐"},
-  {seed:3,  name:"Kansas",        conf:"B12",   gaer:37.50, kenpom:10, net:11, sos:3,  q1w:9, q1l:7,  tempo:71, orb:28, tov:16, threeRate:.36, ftRate:.35, exp:"Med",    coachBonus:0.10, coachName:"Self ⭐"},
-  {seed:3,  name:"Purdue",        conf:"B10",   gaer:36.80, kenpom:11, net:10, sos:12, q1w:8, q1l:7,  tempo:64, orb:35, tov:15, threeRate:.33, ftRate:.38, exp:"High",   coachBonus:0.07, coachName:"Painter"},
-  {seed:3,  name:"Iowa State",    conf:"B12",   gaer:35.60, kenpom:7,  net:7,  sos:2,  q1w:11,q1l:6,  tempo:69, orb:27, tov:18, threeRate:.38, ftRate:.33, exp:"Med",    coachBonus:0,    coachName:"Otzelberger"},
-  {seed:3,  name:"Nebraska",      conf:"B10",   gaer:34.90, kenpom:14, net:14, sos:13, q1w:8, q1l:8,  tempo:68, orb:30, tov:16, threeRate:.36, ftRate:.36, exp:"High",   coachBonus:0,    coachName:"Hoiberg"},
-  {seed:4,  name:"Gonzaga",       conf:"WCC",   gaer:33.50, kenpom:12, net:12, sos:20, q1w:7, q1l:6,  tempo:74, orb:33, tov:14, threeRate:.37, ftRate:.37, exp:"High",   coachBonus:0.08, coachName:"Few"},
-  {seed:4,  name:"Texas Tech",    conf:"B12",   gaer:32.80, kenpom:15, net:15, sos:14, q1w:8, q1l:8,  tempo:63, orb:32, tov:20, threeRate:.34, ftRate:.40, exp:"Med",    coachBonus:0,    coachName:"Grant"},
-  {seed:4,  name:"N Carolina",    conf:"ACC",   gaer:32.10, kenpom:13, net:13, sos:15, q1w:7, q1l:8,  tempo:72, orb:31, tov:17, threeRate:.37, ftRate:.34, exp:"Med",    coachBonus:0.06, coachName:"Hubert Davis"},
-  {seed:4,  name:"Vanderbilt",    conf:"SEC",   gaer:31.40, kenpom:16, net:16, sos:16, q1w:7, q1l:7,  tempo:67, orb:29, tov:16, threeRate:.35, ftRate:.36, exp:"High",   coachBonus:0,    coachName:"Stackhouse"},
-  {seed:5,  name:"St. John's",    conf:"BigE",  gaer:30.20, kenpom:17, net:17, sos:18, q1w:7, q1l:8,  tempo:70, orb:28, tov:18, threeRate:.38, ftRate:.34, exp:"Med",    coachBonus:0.11, coachName:"Pitino ⭐"},
-  {seed:5,  name:"Louisville",    conf:"ACC",   gaer:29.80, kenpom:18, net:18, sos:19, q1w:6, q1l:8,  tempo:69, orb:30, tov:17, threeRate:.36, ftRate:.35, exp:"Med",    coachBonus:0,    coachName:"Kenny Payne"},
-  {seed:5,  name:"Tennessee",     conf:"SEC",   gaer:29.20, kenpom:19, net:19, sos:17, q1w:6, q1l:9,  tempo:65, orb:33, tov:21, threeRate:.31, ftRate:.43, exp:"Med",    coachBonus:0.07, coachName:"Barnes"},
-  {seed:5,  name:"Alabama",       conf:"SEC",   gaer:28.60, kenpom:20, net:20, sos:21, q1w:6, q1l:9,  tempo:75, orb:28, tov:19, threeRate:.42, ftRate:.31, exp:"Low",    coachBonus:0,    coachName:"Oats"},
-  {seed:6,  name:"Arkansas",      conf:"SEC",   gaer:27.40, kenpom:22, net:22, sos:22, q1w:5, q1l:9,  tempo:74, orb:35, tov:23, threeRate:.33, ftRate:.41, exp:"Low",    coachBonus:0,    coachName:"Calipari"},
-  {seed:6,  name:"Kentucky",      conf:"SEC",   gaer:26.80, kenpom:21, net:21, sos:23, q1w:5, q1l:10, tempo:72, orb:30, tov:18, threeRate:.36, ftRate:.36, exp:"Low",    coachBonus:0,    coachName:"Gillispie"},
-  {seed:6,  name:"Iowa",          conf:"B10",   gaer:26.20, kenpom:24, net:24, sos:24, q1w:5, q1l:10, tempo:68, orb:29, tov:17, threeRate:.37, ftRate:.34, exp:"High",   coachBonus:0,    coachName:"McCaffery"},
-  {seed:6,  name:"BYU",           conf:"B12",   gaer:25.60, kenpom:23, net:23, sos:25, q1w:5, q1l:10, tempo:66, orb:31, tov:15, threeRate:.35, ftRate:.38, exp:"High",   coachBonus:0,    coachName:"Pope"},
-  {seed:7,  name:"Clemson",       conf:"ACC",   gaer:24.80, kenpom:26, net:26, sos:26, q1w:4, q1l:10, tempo:67, orb:30, tov:17, threeRate:.36, ftRate:.35, exp:"Med",    coachBonus:0,    coachName:"Brownell"},
-  {seed:7,  name:"Villanova",     conf:"BigE",  gaer:24.20, kenpom:27, net:27, sos:27, q1w:4, q1l:11, tempo:65, orb:28, tov:15, threeRate:.42, ftRate:.33, exp:"High",   coachBonus:0,    coachName:"Wojciechowski"},
-  {seed:7,  name:"NC State",      conf:"ACC",   gaer:23.60, kenpom:28, net:28, sos:28, q1w:4, q1l:11, tempo:70, orb:27, tov:18, threeRate:.38, ftRate:.32, exp:"Med",    coachBonus:0,    coachName:"Keatts"},
-  {seed:7,  name:"Auburn",        conf:"SEC",   gaer:23.00, kenpom:25, net:25, sos:29, q1w:4, q1l:11, tempo:73, orb:29, tov:19, threeRate:.39, ftRate:.30, exp:"Low",    coachBonus:0,    coachName:"Pearl"},
-  {seed:8,  name:"Texas A&M",     conf:"SEC",   gaer:22.40, kenpom:30, net:30, sos:30, q1w:4, q1l:12, tempo:67, orb:30, tov:16, threeRate:.34, ftRate:.38, exp:"Med",    coachBonus:0,    coachName:"Buzz Williams"},
-  {seed:8,  name:"Indiana",       conf:"B10",   gaer:21.80, kenpom:31, net:31, sos:31, q1w:3, q1l:11, tempo:71, orb:28, tov:17, threeRate:.37, ftRate:.35, exp:"Med",    coachBonus:0,    coachName:"Woodson"},
-  {seed:8,  name:"Utah State",    conf:"MWC",   gaer:21.20, kenpom:29, net:29, sos:40, q1w:3, q1l:8,  tempo:64, orb:34, tov:14, threeRate:.33, ftRate:.40, exp:"High",   coachBonus:0,    coachName:"Odom"},
-  {seed:8,  name:"Wisconsin",     conf:"B10",   gaer:20.60, kenpom:32, net:32, sos:32, q1w:3, q1l:11, tempo:62, orb:31, tov:13, threeRate:.34, ftRate:.39, exp:"High",   coachBonus:0,    coachName:"Gard"},
-  {seed:9,  name:"UCF",           conf:"B12",   gaer:19.80, kenpom:35, net:35, sos:33, q1w:3, q1l:12, tempo:69, orb:27, tov:18, threeRate:.37, ftRate:.33, exp:"Med",    coachBonus:0,    coachName:"Dawkins"},
-  {seed:9,  name:"SMU",           conf:"ACC",   gaer:19.20, kenpom:36, net:36, sos:34, q1w:2, q1l:11, tempo:70, orb:26, tov:17, threeRate:.38, ftRate:.32, exp:"Low",    coachBonus:0,    coachName:"Jankovich"},
-  {seed:9,  name:"Georgia",       conf:"SEC",   gaer:18.60, kenpom:37, net:37, sos:35, q1w:2, q1l:12, tempo:68, orb:28, tov:18, threeRate:.36, ftRate:.34, exp:"Med",    coachBonus:0,    coachName:"White"},
-  {seed:10, name:"Saint Mary's",  conf:"WCC",   gaer:18.00, kenpom:33, net:33, sos:45, q1w:2, q1l:7,  tempo:61, orb:32, tov:12, threeRate:.32, ftRate:.38, exp:"High",   coachBonus:0.05, coachName:"Randy Bennett"},
-  {seed:10, name:"Texas",         conf:"SEC",   gaer:17.40, kenpom:38, net:38, sos:36, q1w:2, q1l:12, tempo:72, orb:27, tov:18, threeRate:.38, ftRate:.32, exp:"Med",    coachBonus:0,    coachName:"Turner"},
-  {seed:10, name:"UCLA",          conf:"B10",   gaer:16.80, kenpom:40, net:40, sos:37, q1w:2, q1l:13, tempo:70, orb:27, tov:17, threeRate:.37, ftRate:.33, exp:"Med",    coachBonus:0,    coachName:"Mick Cronin"},
-  {seed:11, name:"VCU",           conf:"A10",   gaer:15.60, kenpom:34, net:34, sos:50, q1w:1, q1l:8,  tempo:74, orb:36, tov:25, threeRate:.30, ftRate:.44, exp:"High",   coachBonus:0,    coachName:"Rhoades"},
-  {seed:11, name:"Ohio State",    conf:"B10",   gaer:15.00, kenpom:42, net:42, sos:38, q1w:2, q1l:13, tempo:69, orb:28, tov:17, threeRate:.37, ftRate:.33, exp:"Med",    coachBonus:0,    coachName:"Holtmann"},
-  {seed:12, name:"Akron",         conf:"MAC",   gaer:12.40, kenpom:55, net:55, sos:80, q1w:0, q1l:3,  tempo:68, orb:29, tov:16, threeRate:.40, ftRate:.33, exp:"High",   coachBonus:0,    coachName:"Barnes"},
-  {seed:12, name:"Belmont",       conf:"MVC",   gaer:11.80, kenpom:58, net:58, sos:85, q1w:0, q1l:2,  tempo:72, orb:27, tov:15, threeRate:.43, ftRate:.31, exp:"High",   coachBonus:0,    coachName:"Casey Alexander"},
-  {seed:13, name:"N Dakota St",   conf:"Sum",   gaer:8.60,  kenpom:80, net:82, sos:120,q1w:0, q1l:1,  tempo:66, orb:31, tov:14, threeRate:.35, ftRate:.36, exp:"High",   coachBonus:0,    coachName:"Richman"},
-  {seed:13, name:"Northern Iowa", conf:"MVC",   gaer:8.20,  kenpom:82, net:85, sos:115,q1w:0, q1l:1,  tempo:63, orb:33, tov:13, threeRate:.33, ftRate:.38, exp:"High",   coachBonus:0,    coachName:"Jacobson"},
-  {seed:14, name:"Wright State",  conf:"Hor",   gaer:5.40,  kenpom:105,net:110,sos:150,q1w:0, q1l:0,  tempo:67, orb:28, tov:15, threeRate:.38, ftRate:.34, exp:"Med",    coachBonus:0,    coachName:"Scott Nagy"},
-  {seed:14, name:"Sam Houston",   conf:"CUSA",  gaer:5.20,  kenpom:108,net:112,sos:155,q1w:0, q1l:0,  tempo:72, orb:30, tov:17, threeRate:.40, ftRate:.31, exp:"Med",    coachBonus:0,    coachName:"Lon Kruger"},
-  {seed:15, name:"Queens (ASUN)", conf:"ASUN",  gaer:3.80,  kenpom:130,net:135,sos:180,q1w:0, q1l:0,  tempo:70, orb:26, tov:18, threeRate:.41, ftRate:.30, exp:"Med",    coachBonus:0,    coachName:"Bret Burchard"},
-  {seed:15, name:"UMBC (AEC)",    conf:"AEC",   gaer:3.40,  kenpom:135,net:138,sos:185,q1w:0, q1l:0,  tempo:68, orb:27, tov:17, threeRate:.39, ftRate:.31, exp:"Med",    coachBonus:0,    coachName:"Odom"},
-  {seed:16, name:"LIU (NEC)",     conf:"NEC",   gaer:1.80,  kenpom:160,net:165,sos:210,q1w:0, q1l:0,  tempo:71, orb:25, tov:20, threeRate:.42, ftRate:.28, exp:"Low",    coachBonus:0,    coachName:""},
-  {seed:16, name:"Lehigh",        conf:"Pat",   gaer:1.60,  kenpom:165,net:168,sos:215,q1w:0, q1l:0,  tempo:67, orb:27, tov:16, threeRate:.38, ftRate:.30, exp:"Med",    coachBonus:0,    coachName:""},
+  // ---- EAST ----
+  {seed:1,  name:"Duke",        conf:"ACC",  region:"East",    kenpom:1,  net:1,  sos:8,  q1w:14,q1l:4,  tempo:71, orb:31, tov:18, threeRate:.38, ftRate:.36, exp:"High", coachBonus:0,    coachName:"Scheyer", r32opp:"TCU"},
+  {seed:9,  name:"TCU",         conf:"B12",  region:"East",    kenpom:38, net:38, sos:33, q1w:3, q1l:11, tempo:70, orb:27, tov:17, threeRate:.37, ftRate:.33, exp:"Med",  coachBonus:0,    coachName:"Dixon",   r32opp:"Duke"},
+  {seed:4,  name:"Kansas",      conf:"B12",  region:"East",    kenpom:10, net:11, sos:3,  q1w:9, q1l:7,  tempo:71, orb:28, tov:16, threeRate:.36, ftRate:.35, exp:"Med",  coachBonus:0.10, coachName:"Self ⭐",  r32opp:"St. John's"},
+  {seed:5,  name:"St. John's",  conf:"BigE", region:"East",    kenpom:17, net:17, sos:18, q1w:7, q1l:8,  tempo:70, orb:28, tov:18, threeRate:.38, ftRate:.34, exp:"Med",  coachBonus:0.11, coachName:"Pitino ⭐",r32opp:"Kansas"},
+  {seed:3,  name:"Michigan St.",conf:"B10",  region:"East",    kenpom:9,  net:9,  sos:11, q1w:9, q1l:6,  tempo:65, orb:31, tov:17, threeRate:.33, ftRate:.40, exp:"High", coachBonus:0.12, coachName:"Izzo ⭐",  r32opp:"Louisville"},
+  {seed:6,  name:"Louisville",  conf:"ACC",  region:"East",    kenpom:18, net:18, sos:19, q1w:6, q1l:8,  tempo:69, orb:30, tov:17, threeRate:.36, ftRate:.35, exp:"Med",  coachBonus:0,    coachName:"Payne",   r32opp:"Michigan St."},
+  {seed:2,  name:"UConn",       conf:"BigE", region:"East",    kenpom:4,  net:4,  sos:9,  q1w:12,q1l:6,  tempo:70, orb:30, tov:15, threeRate:.36, ftRate:.35, exp:"High", coachBonus:0.09, coachName:"Hurley",  r32opp:"UCLA"},
+  {seed:7,  name:"UCLA",        conf:"B10",  region:"East",    kenpom:40, net:40, sos:37, q1w:2, q1l:13, tempo:70, orb:27, tov:17, threeRate:.37, ftRate:.33, exp:"Med",  coachBonus:0,    coachName:"Cronin",  r32opp:"UConn"},
+
+  // ---- SOUTH ----
+  {seed:1,  name:"Florida",     conf:"SEC",  region:"South",   kenpom:5,  net:5,  sos:5,  q1w:11,q1l:5,  tempo:66, orb:35, tov:14, threeRate:.31, ftRate:.42, exp:"High", coachBonus:0,    coachName:"Golden",  r32opp:"Iowa"},
+  {seed:9,  name:"Iowa",        conf:"B10",  region:"South",   kenpom:24, net:24, sos:24, q1w:5, q1l:10, tempo:68, orb:29, tov:17, threeRate:.37, ftRate:.34, exp:"High", coachBonus:0,    coachName:"McCaffery",r32opp:"Florida"},
+  {seed:4,  name:"Nebraska",    conf:"B10",  region:"South",   kenpom:14, net:14, sos:13, q1w:8, q1l:8,  tempo:68, orb:30, tov:16, threeRate:.36, ftRate:.36, exp:"High", coachBonus:0,    coachName:"Hoiberg", r32opp:"Vanderbilt"},
+  {seed:5,  name:"Vanderbilt",  conf:"SEC",  region:"South",   kenpom:16, net:16, sos:16, q1w:7, q1l:7,  tempo:67, orb:29, tov:16, threeRate:.35, ftRate:.36, exp:"High", coachBonus:0,    coachName:"Stackhouse",r32opp:"Nebraska"},
+  {seed:3,  name:"Illinois",    conf:"B10",  region:"South",   kenpom:8,  net:8,  sos:10, q1w:10,q1l:6,  tempo:67, orb:29, tov:16, threeRate:.34, ftRate:.37, exp:"Med",  coachBonus:0,    coachName:"Underwood",r32opp:"VCU"},
+  {seed:11, name:"VCU",         conf:"A10",  region:"South",   kenpom:34, net:34, sos:50, q1w:1, q1l:8,  tempo:74, orb:36, tov:25, threeRate:.30, ftRate:.44, exp:"High", coachBonus:0,    coachName:"Rhoades", r32opp:"Illinois"},
+  {seed:2,  name:"Houston",     conf:"B12",  region:"South",   kenpom:6,  net:6,  sos:7,  q1w:10,q1l:5,  tempo:63, orb:34, tov:22, threeRate:.32, ftRate:.41, exp:"Med",  coachBonus:0,    coachName:"Sampson", r32opp:"Texas A&M"},
+  {seed:10, name:"Texas A&M",   conf:"SEC",  region:"South",   kenpom:30, net:30, sos:30, q1w:4, q1l:12, tempo:67, orb:30, tov:16, threeRate:.34, ftRate:.38, exp:"Med",  coachBonus:0,    coachName:"B.Williams",r32opp:"Houston"},
+
+  // ---- WEST ----
+  {seed:1,  name:"Arizona",     conf:"B12",  region:"West",    kenpom:3,  net:3,  sos:4,  q1w:12,q1l:5,  tempo:73, orb:33, tov:17, threeRate:.37, ftRate:.34, exp:"Med",  coachBonus:0,    coachName:"Lloyd",   r32opp:"Utah St."},
+  {seed:9,  name:"Utah St.",    conf:"MWC",  region:"West",    kenpom:29, net:29, sos:40, q1w:3, q1l:8,  tempo:64, orb:34, tov:14, threeRate:.33, ftRate:.40, exp:"High", coachBonus:0,    coachName:"Odom",    r32opp:"Arizona"},
+  {seed:4,  name:"Arkansas",    conf:"SEC",  region:"West",    kenpom:22, net:22, sos:22, q1w:5, q1l:9,  tempo:74, orb:35, tov:23, threeRate:.33, ftRate:.41, exp:"Low",  coachBonus:0,    coachName:"Calipari",r32opp:"High Point"},
+  {seed:12, name:"High Point",  conf:"BSth", region:"West",    kenpom:90, net:93, sos:135,q1w:0, q1l:1,  tempo:72, orb:27, tov:16, threeRate:.41, ftRate:.31, exp:"Med",  coachBonus:0,    coachName:"",        r32opp:"Arkansas"},
+  {seed:3,  name:"Gonzaga",     conf:"WCC",  region:"West",    kenpom:12, net:12, sos:20, q1w:7, q1l:6,  tempo:74, orb:33, tov:14, threeRate:.37, ftRate:.37, exp:"High", coachBonus:0.08, coachName:"Few",     r32opp:"NC State"},
+  {seed:11, name:"NC State",    conf:"ACC",  region:"West",    kenpom:45, net:46, sos:35, q1w:2, q1l:11, tempo:69, orb:27, tov:18, threeRate:.38, ftRate:.32, exp:"Med",  coachBonus:0,    coachName:"Wade",    r32opp:"Gonzaga"},
+  {seed:2,  name:"Purdue",      conf:"B10",  region:"West",    kenpom:11, net:10, sos:12, q1w:8, q1l:7,  tempo:64, orb:35, tov:15, threeRate:.33, ftRate:.38, exp:"High", coachBonus:0.07, coachName:"Painter", r32opp:"Miami (FL)"},
+  {seed:7,  name:"Miami (FL)",  conf:"ACC",  region:"West",    kenpom:36, net:37, sos:34, q1w:3, q1l:11, tempo:70, orb:26, tov:17, threeRate:.38, ftRate:.32, exp:"Low",  coachBonus:0,    coachName:"Lucas",   r32opp:"Purdue"},
+
+  // ---- MIDWEST ----
+  {seed:1,  name:"Michigan",    conf:"B10",  region:"Midwest", kenpom:2,  net:2,  sos:6,  q1w:13,q1l:4,  tempo:68, orb:32, tov:16, threeRate:.35, ftRate:.38, exp:"High", coachBonus:0.04, coachName:"Dusty May",r32opp:"Saint Louis"},
+  {seed:9,  name:"Saint Louis", conf:"A10",  region:"Midwest", kenpom:46, net:46, sos:55, q1w:1, q1l:9,  tempo:66, orb:30, tov:15, threeRate:.34, ftRate:.36, exp:"High", coachBonus:0,    coachName:"Steele",  r32opp:"Michigan"},
+  {seed:4,  name:"Alabama",     conf:"SEC",  region:"Midwest", kenpom:20, net:20, sos:21, q1w:6, q1l:9,  tempo:75, orb:28, tov:19, threeRate:.42, ftRate:.31, exp:"Low",  coachBonus:0,    coachName:"Oats",    r32opp:"Texas Tech"},
+  {seed:5,  name:"Texas Tech",  conf:"B12",  region:"Midwest", kenpom:15, net:15, sos:14, q1w:8, q1l:8,  tempo:63, orb:32, tov:20, threeRate:.34, ftRate:.40, exp:"Med",  coachBonus:0,    coachName:"Grant",   r32opp:"Alabama"},
+  {seed:3,  name:"Virginia",    conf:"ACC",  region:"Midwest", kenpom:13, net:13, sos:15, q1w:8, q1l:7,  tempo:58, orb:30, tov:13, threeRate:.34, ftRate:.38, exp:"High", coachBonus:0,    coachName:"London",  r32opp:"Tennessee"},
+  {seed:6,  name:"Tennessee",   conf:"SEC",  region:"Midwest", kenpom:19, net:19, sos:17, q1w:6, q1l:9,  tempo:65, orb:33, tov:21, threeRate:.31, ftRate:.43, exp:"Med",  coachBonus:0.07, coachName:"Barnes",  r32opp:"Virginia"},
+  {seed:2,  name:"Iowa St.",    conf:"B12",  region:"Midwest", kenpom:7,  net:7,  sos:2,  q1w:11,q1l:6,  tempo:69, orb:27, tov:18, threeRate:.38, ftRate:.33, exp:"Med",  coachBonus:0,    coachName:"Otzelberger",r32opp:"Kentucky"},
+  {seed:7,  name:"Kentucky",    conf:"SEC",  region:"Midwest", kenpom:21, net:21, sos:23, q1w:5, q1l:10, tempo:72, orb:30, tov:18, threeRate:.36, ftRate:.36, exp:"Low",  coachBonus:0,    coachName:"",        r32opp:"Iowa St."},
 ];
 
 // ---- compute power rating ----
-const WEIGHTS = { kenpom: 0.45, net: 0.20, q1: 0.15, sos: 0.10, seed: 0.10 };
 const modelWeights = { kenpom: 45, net: 20, q1: 15, sos: 10, seed: 10 };
 
 function computePower(t, w) {
-  const kpScore = Math.max(0, (200 - t.kenpom) / 2);
-  const netScore = Math.max(0, (200 - t.net) / 2);
-  const q1Score = t.q1w / (t.q1w + t.q1l + 0.01) * 100;
-  const sosScore = Math.max(0, (200 - t.sos) / 2);
-  const seedAdj = [0,3,2,1,0,-1,-2,-3,-4,-5,-5,-5,-7,-8,-9,-10,-12][Math.min(t.seed,16)] || -12;
-  const raw = (w.kenpom/100)*kpScore + (w.net/100)*netScore + (w.q1/100)*q1Score + (w.sos/100)*sosScore + (w.seed/100)*((seedAdj+12)/15*100);
-  return Math.min(100, Math.max(50, raw * 0.9 + t.coachBonus * 100 * 0.3));
+  const kpScore  = Math.max(0, 100 - (t.kenpom - 1) * (100/60));
+  const netScore = Math.max(0, 100 - (t.net   - 1) * (100/60));
+  const q1Score  = t.q1w / (t.q1w + t.q1l + 0.01) * 100;
+  const sosScore = Math.max(0, 100 - (t.sos   - 1) * (100/249));
+  const raw = (w.kenpom/100)*kpScore + (w.net/100)*netScore + (w.q1/100)*q1Score + (w.sos/100)*sosScore;
+  const seedBoost = 15 - (t.seed - 1) * (38/15);
+  const coachPts = t.coachBonus * 18;
+  const power = (raw / 100) * 28 + 38 + seedBoost + coachPts;
+  return Math.min(85, Math.max(10, power));
 }
 
 function getTier(power, seed) {
-  if (power >= 88 && seed <= 2) return 'title';
-  if (power >= 80 && seed <= 5) return 'elite';
-  if (power >= 72 && seed <= 8) return 'sleeper';
+  if (power >= 60 && seed <= 2) return 'title';
+  if (power >= 52 && seed <= 5) return 'elite';
+  if (power >= 42 && seed <= 8) return 'sleeper';
   return 'cinderella';
 }
 
-function seedWinProb(seedA, seedB, powerA, powerB) {
-  const diff = powerA - powerB;
-  // logistic
-  return 1 / (1 + Math.exp(-diff * 0.15));
-}
-
-// initialize power ratings
 TEAMS.forEach(t => { t.power = computePower(t, modelWeights); });
 
-// ---- WIN PROBABILITY (for matchup) ----
+// ---- WIN PROBABILITY ENGINE ----
+function getProfileMult(team) {
+  let mult = 1.0;
+  if (team.tempo <= 63) mult *= 1.12;
+  if (team.tempo >= 72) mult *= 0.94;
+  if (team.threeRate >= 0.42) mult *= Math.random() > 0.5 ? 1.18 : 0.76;
+  if (team.threeRate <= 0.33) mult *= 1.06;
+  if (team.tov >= 22) mult *= 1.10;
+  if (team.ftRate >= 0.40) mult *= 1.07;
+  if (team.exp === 'High') mult *= 1.11;
+  if (team.exp === 'Low')  mult *= 0.84;
+  if (team.orb >= 34) mult *= 1.08;
+  if (team.coachBonus >= 0.09) mult *= 1.12;
+  else if (team.coachBonus >= 0.05) mult *= 1.06;
+  return mult;
+}
+
 function winProb(teamA, teamB) {
-  let pwr = seedWinProb(teamA.seed, teamB.seed, teamA.power, teamB.power);
-  // 3pt volatility adjustment
-  if (teamA.threeRate > 0.42) pwr = pwr * 0.95 + (Math.random() > 0.5 ? 0.05 : -0.05);
-  // upset weight from slider
+  const powerDiff = teamA.power - teamB.power;
+  let pwr = 1 / (1 + Math.exp(-powerDiff * 0.10));
+  const multA = getProfileMult(teamA);
+  const multB = getProfileMult(teamB);
+  pwr += (multA - 1.0) * 0.15 - (multB - 1.0) * 0.15;
+  pwr += (Math.random() - 0.5) * 0.08;
+  const tempoDiff = Math.abs(teamA.tempo - teamB.tempo);
+  if (tempoDiff >= 10) pwr += (Math.random() - 0.5) * 0.10;
   const upsetW = parseFloat(document.getElementById('upsetWeight')?.value || 1);
-  if (upsetW !== 1.0 && teamA.seed > teamB.seed) {
-    pwr = pwr * (2 - upsetW);
-  }
-  return Math.max(0.05, Math.min(0.95, pwr));
+  if (upsetW > 1.0) { const s = (upsetW - 1.0) / 2.0; pwr = pwr + (0.5 - pwr) * s; }
+  else if (upsetW < 1.0) { pwr = 0.5 + (pwr - 0.5) / upsetW; }
+  return Math.max(0.03, Math.min(0.97, pwr));
 }
 
 // ---- SEED BADGE ----
@@ -1175,34 +852,61 @@ function seedBadge(s) {
   const cls = s<=1?'seed-1':s<=2?'seed-2':s<=3?'seed-3':s<=4?'seed-4':'seed-low';
   return `<span class="seed-badge ${cls}">${s}</span>`;
 }
-
-// ---- TIER BADGE ----
 function tierBadge(tier) {
   const map = {title:'🔴 Title Contender',elite:'🟠 Elite',sleeper:'🔵 Sleeper',cinderella:'🟢 Cinderella'};
   const cls = {title:'tier-title',elite:'tier-elite',sleeper:'tier-sleeper',cinderella:'tier-cinderella'};
   return `<span class="tier ${cls[tier]}">${map[tier]}</span>`;
 }
-
-// ---- COLOR BAR ----
 function powerBar(val) {
-  const pct = ((val-50)/50*100).toFixed(0);
-  const cls = val>=88?'bar-elite':val>=80?'bar-good':val>=72?'bar-avg':'bar-bubble';
+  const pct = Math.max(0, Math.min(100, ((val-50)/35*100))).toFixed(0);
+  const cls = val>=70?'bar-elite':val>=62?'bar-good':val>=55?'bar-avg':'bar-bubble';
   return `<div class="bar-wrap"><div class="bar-fill ${cls}" style="width:${pct}%"></div></div>`;
+}
+
+// ---- R32 MATCHUP CARDS ----
+function renderMatchups() {
+  ['East','South','West','Midwest'].forEach(region => {
+    const matchups = R32_BRACKET[region];
+    const container = document.getElementById(region.toLowerCase()+'-matchups');
+    if (!container) return;
+    container.innerHTML = matchups.map(([seedA, nameA, seedB, nameB]) => {
+      const tA = TEAMS.find(t => t.name === nameA && t.region === region);
+      const tB = TEAMS.find(t => t.name === nameB && t.region === region);
+      const pA = tA ? tA.power.toFixed(1) : '—';
+      const pB = tB ? tB.power.toFixed(1) : '—';
+      const fav = (tA && tB) ? (tA.power >= tB.power ? nameA : nameB) : nameA;
+      return `
+        <div style="border:1px solid var(--border);border-radius:5px;padding:12px 14px;margin-bottom:10px;background:var(--bg);">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              ${seedBadge(seedA)}
+              <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;">${nameA}</span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--accent2);">${pA}</span>
+            </div>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:14px;color:var(--muted);">VS</div>
+            <div style="display:flex;align-items:center;gap:8px;flex-direction:row-reverse;">
+              ${seedBadge(seedB)}
+              <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;">${nameB}</span>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--cinderella);">${pB}</span>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">
+            Model Favorite: <span style="color:var(--accent3);font-weight:700;">${fav}</span>
+            ${(tA && tB && Math.abs(tA.power - tB.power) < 5) ? '· <span style="color:var(--good);">CLOSE GAME</span>' : ''}
+          </div>
+        </div>`;
+    }).join('');
+  });
 }
 
 // ==== RANKINGS TABLE ====
 let sortKey = 'seed', sortDir = 1, tierFilter = 'all', searchFilter = '';
-let displayTeams = [...TEAMS];
 
 function renderRankings() {
   const tbody = document.getElementById('rankingsBody');
   let teams = [...TEAMS];
-
-  // filter
   if (tierFilter !== 'all') teams = teams.filter(t => getTier(t.power, t.seed) === tierFilter);
   if (searchFilter) teams = teams.filter(t => t.name.toLowerCase().includes(searchFilter.toLowerCase()));
-
-  // sort
   teams.sort((a,b) => {
     let va = a[sortKey], vb = b[sortKey];
     if (sortKey === 'power') { va = a.power; vb = b.power; }
@@ -1212,8 +916,7 @@ function renderRankings() {
     if (typeof va === 'string') return va.localeCompare(vb) * sortDir;
     return (va - vb) * sortDir;
   });
-
-  tbody.innerHTML = teams.map((t,i) => {
+  tbody.innerHTML = teams.map(t => {
     const tier = getTier(t.power, t.seed);
     const q1pct = (t.q1w/(t.q1w+t.q1l+.01)*100).toFixed(0);
     const champPct = t.champProb ? (t.champProb*100).toFixed(1)+'%' : '—';
@@ -1221,21 +924,19 @@ function renderRankings() {
     return `<tr>
       <td>${seedBadge(t.seed)}<span class="team-name">${t.name}</span><span style="font-size:10px;color:var(--muted);margin-left:6px;">${t.conf}</span></td>
       <td>${t.seed}</td>
-      <td style="color:var(--accent2)">${t.gaer.toFixed(2)}</td>
       <td>
         <div style="min-width:120px;">
-          <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:${t.power>=88?'var(--elite)':t.power>=80?'var(--good)':'var(--avg)'};">${t.power.toFixed(1)}</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:${t.power>=70?'var(--elite)':t.power>=62?'var(--good)':'var(--avg)'};">${t.power.toFixed(1)}</div>
           ${powerBar(t.power)}
         </div>
       </td>
       <td>${t.kenpom}</td>
       <td>${t.net}</td>
-      <td>${t.sos}</td>
       <td>${q1pct}%</td>
       <td style="color:var(--accent);font-weight:700;">${champPct}</td>
       <td style="color:var(--accent2);">${ffPct}</td>
       <td>${tierBadge(tier)}</td>
-      <td><span class="coach-bonus">${t.coachBonus>0?`+${(t.coachBonus*100).toFixed(0)}% (${t.coachName})`:'—'}</span></td>
+      <td style="font-family:'Barlow Condensed',sans-serif;font-size:13px;color:var(--muted);">vs ${t.r32opp}</td>
     </tr>`;
   }).join('');
 }
@@ -1256,8 +957,10 @@ function filterTeams() {
 }
 function runQuickSort() { sortKey='power'; sortDir=-1; renderRankings(); }
 
-// ==== MONTE CARLO SIMULATION ====
+// ==== MONTE CARLO — STARTS FROM R32 ====
 let simRunning = false;
+let lastFF = null;
+let lastSimBracket = null;
 
 function runSimulation() {
   if (simRunning) return;
@@ -1267,7 +970,7 @@ function runSimulation() {
   btn.textContent = '⏳ SIMULATING...';
   document.getElementById('progressWrap').style.display = 'block';
   document.getElementById('progressFill').style.width = '0%';
-  document.getElementById('simStatus').textContent = 'Initializing tournament brackets...';
+  document.getElementById('simStatus').textContent = 'Initializing Round of 32 brackets...';
 
   const N = parseInt(document.getElementById('simCount').value);
   const champCounts = {};
@@ -1276,23 +979,13 @@ function runSimulation() {
   const sweet16Counts = {};
   TEAMS.forEach(t => { champCounts[t.name]=0; ffCounts[t.name]=0; elite8Counts[t.name]=0; sweet16Counts[t.name]=0; });
 
-  let totalFirstRoundUpsets = 0;
+  let totalR32Upsets = 0;
 
-  // split into 4 regions of 16
-  const sortedTeams = [...TEAMS].sort((a,b)=>a.seed-b.seed);
-  // Use top 16 per seed bracket logic (simplified: 4 regions, cycle teams)
-  const regions = [[],[],[],[]];
-  const seedOrder = [1,16,8,9,5,12,4,13,6,11,3,14,7,10,2,15];
-  const teamsByPow = [...TEAMS].sort((a,b) => b.power - a.power);
-
-  // assign to regions in order
-  for(let i=0;i<Math.min(64, TEAMS.length);i++) {
-    regions[i%4].push(teamsByPow[i]);
-  }
-
-  // ensure each region has 16 teams
-  while(regions.some(r=>r.length<16)) {
-    for(let r=0;r<4;r++) while(regions[r].length<16) regions[r].push({...TEAMS[TEAMS.length-1], name:'Placeholder '+r+regions[r].length});
+  // Get team object by name and region
+  function getTeam(name, region) {
+    return TEAMS.find(t => t.name === name && t.region === region) ||
+           TEAMS.find(t => t.name === name) ||
+           { name, seed:8, power:50, kenpom:30, net:30, sos:30, q1w:3, q1l:8, tempo:68, orb:28, tov:17, threeRate:.36, ftRate:.34, exp:"Med", coachBonus:0, coachName:"", region, r32opp:"" };
   }
 
   function simGame(teamA, teamB) {
@@ -1300,75 +993,110 @@ function runSimulation() {
     return Math.random() < pA ? teamA : teamB;
   }
 
-  function simRegion(regionTeams) {
-    // 8-game first round
-    let roundTeams = [...regionTeams.slice(0,16)];
-    // pair by seed: 1v16, 8v9, 5v12, 4v13, 6v11, 3v14, 7v10, 2v15
-    const pairs = [[0,15],[7,8],[4,11],[3,12],[5,10],[2,13],[6,9],[1,14]];
-    let round = pairs.map(([a,b]) => simGame(roundTeams[a], roundTeams[b]));
-    let firstRoundUpsets = 0;
-    pairs.forEach(([a,b]) => {
-      const winner = simGame(roundTeams[a], roundTeams[b]);
-      if(winner.seed > Math.min(roundTeams[a].seed, roundTeams[b].seed)) firstRoundUpsets++;
+  // Simulate a region starting from R32
+  // matchups = [[seedA,nameA,seedB,nameB], ...]
+  function simRegion(regionName, captureRounds) {
+    const matchups = R32_BRACKET[regionName];
+    let r32upsets = 0;
+
+    // Round of 32 (4 games)
+    const r32games = matchups.map(([sA, nA, sB, nB]) => {
+      const tA = getTeam(nA, regionName);
+      const tB = getTeam(nB, regionName);
+      const w = simGame(tA, tB);
+      if (w.seed > Math.min(sA, sB)) r32upsets++;
+      return { teamA: tA, teamB: tB, winner: w };
     });
-    // R2
-    const r2 = [];
-    for(let i=0;i<8;i+=2) r2.push(simGame(round[i],round[i+1]));
-    // Sweet 16
-    const s16 = [simGame(r2[0],r2[1]), simGame(r2[2],r2[3])];
-    s16.forEach(t => { if(sweet16Counts[t.name]!==undefined) sweet16Counts[t.name]++; });
+
+    // Sweet 16: winners of games [0vs1, 2vs3]
+    const r32winners = r32games.map(g => g.winner);
+    const s16games = [
+      { teamA: r32winners[0], teamB: r32winners[1], winner: simGame(r32winners[0], r32winners[1]) },
+      { teamA: r32winners[2], teamB: r32winners[3], winner: simGame(r32winners[2], r32winners[3]) },
+    ];
+    s16games.forEach(g => { if (sweet16Counts[g.winner.name] !== undefined) sweet16Counts[g.winner.name]++; });
+
     // Elite 8
-    const e8 = simGame(s16[0],s16[1]);
-    if(elite8Counts[e8.name]!==undefined) elite8Counts[e8.name]++;
-    return { winner: e8, upsets: firstRoundUpsets };
+    const e8game = { teamA: s16games[0].winner, teamB: s16games[1].winner, winner: simGame(s16games[0].winner, s16games[1].winner) };
+    if (elite8Counts[e8game.winner.name] !== undefined) elite8Counts[e8game.winner.name]++;
+
+    return {
+      winner: e8game.winner,
+      upsets: r32upsets,
+      rounds: captureRounds ? [r32games, s16games, [e8game]] : null
+    };
   }
+
+  lastFF = null;
+  lastSimBracket = null;
 
   let sim = 0;
   const chunk = Math.ceil(N/100);
 
   function runChunk() {
     const end = Math.min(sim + chunk, N);
-    for(let i=sim;i<end;i++) {
-      const regionWinners = regions.map(r => simRegion(r));
-      regionWinners.forEach(r => { if(ffCounts[r.winner.name]!==undefined) ffCounts[r.winner.name]++; });
-      totalFirstRoundUpsets += regionWinners.reduce((s,r)=>s+r.upsets,0);
-      // FF games
-      const ff1 = simGame(regionWinners[0].winner, regionWinners[1].winner);
-      const ff2 = simGame(regionWinners[2].winner, regionWinners[3].winner);
+    for (let i = sim; i < end; i++) {
+      const isLast = (i === end - 1 && end >= N);
+      const regionNames = ['East','South','West','Midwest'];
+      const regionResults = regionNames.map(r => simRegion(r, isLast));
+
+      regionResults.forEach(r => { if (ffCounts[r.winner.name] !== undefined) ffCounts[r.winner.name]++; });
+      totalR32Upsets += regionResults.reduce((s,r) => s + r.upsets, 0);
+
+      // Final Four: East vs South, West vs Midwest
+      const ff1 = simGame(regionResults[0].winner, regionResults[1].winner);
+      const ff2 = simGame(regionResults[2].winner, regionResults[3].winner);
       const champ = simGame(ff1, ff2);
-      if(champCounts[champ.name]!==undefined) champCounts[champ.name]++;
+      if (champCounts[champ.name] !== undefined) champCounts[champ.name]++;
+
+      if (isLast) {
+        lastFF = {
+          ff1Left: regionResults[0].winner,
+          ff1Right: regionResults[1].winner,
+          ff2Left: regionResults[2].winner,
+          ff2Right: regionResults[3].winner,
+          champGame1Winner: ff1,
+          champGame2Winner: ff2,
+          champion: champ,
+        };
+        lastSimBracket = {
+          regions: {
+            East:    regionResults[0].rounds,
+            South:   regionResults[1].rounds,
+            West:    regionResults[2].rounds,
+            Midwest: regionResults[3].rounds,
+          },
+          ff: [
+            { teamA: regionResults[0].winner, teamB: regionResults[1].winner, winner: ff1 },
+            { teamA: regionResults[2].winner, teamB: regionResults[3].winner, winner: ff2 },
+          ],
+          champGame: { teamA: ff1, teamB: ff2, winner: champ },
+        };
+      }
     }
     sim = end;
     const pct = (sim/N*100).toFixed(0);
     document.getElementById('progressFill').style.width = pct+'%';
     document.getElementById('simStatus').textContent = `Running simulation ${sim.toLocaleString()} / ${N.toLocaleString()} ...`;
-
-    if(sim < N) {
-      requestAnimationFrame(runChunk);
-    } else {
-      finishSim(champCounts, ffCounts, elite8Counts, sweet16Counts, N, totalFirstRoundUpsets);
-    }
+    if (sim < N) { requestAnimationFrame(runChunk); }
+    else { finishSim(champCounts, ffCounts, elite8Counts, sweet16Counts, N, totalR32Upsets, lastFF); }
   }
   requestAnimationFrame(runChunk);
 }
 
-function finishSim(champCounts, ffCounts, elite8Counts, sweet16Counts, N, totalUpsets) {
-  // store probs on teams
+function finishSim(champCounts, ffCounts, elite8Counts, sweet16Counts, N, totalUpsets, lastFF) {
   TEAMS.forEach(t => {
     t.champProb = (champCounts[t.name]||0)/N;
-    t.ffProb = (ffCounts[t.name]||0)/N;
-    t.e8Prob = (elite8Counts[t.name]||0)/N;
-    t.s16Prob = (sweet16Counts[t.name]||0)/N;
+    t.ffProb    = (ffCounts[t.name]||0)/N;
+    t.e8Prob    = (elite8Counts[t.name]||0)/N;
+    t.s16Prob   = (sweet16Counts[t.name]||0)/N;
   });
 
-  // sort by champ prob
   const sortedChamp = [...TEAMS].sort((a,b) => b.champProb - a.champProb).slice(0,12);
-  const sortedFF = [...TEAMS].sort((a,b) => b.ffProb - a.ffProb).slice(0,12);
-
+  const sortedFF    = [...TEAMS].sort((a,b) => b.ffProb - a.ffProb).slice(0,12);
   const maxChamp = sortedChamp[0].champProb;
-  const maxFF = sortedFF[0].ffProb;
+  const maxFF    = sortedFF[0].ffProb;
 
-  // champion probs
   document.getElementById('champProbs').innerHTML = sortedChamp.map(t => `
     <div class="prob-row">
       ${seedBadge(t.seed)}
@@ -1391,82 +1119,73 @@ function finishSim(champCounts, ffCounts, elite8Counts, sweet16Counts, N, totalU
     </div>
   `).join('');
 
-  // summary stats
   const topChamp = sortedChamp[0];
-  const surpriseTeams = [...TEAMS].filter(t=>t.seed>=8).sort((a,b)=>b.champProb-a.champProb);
-  const surprisePct = surpriseTeams.length > 0 ? (surpriseTeams[0].champProb*100).toFixed(1)+'%' : '0%';
+  const surpriseTeams = [...TEAMS].filter(t=>t.seed>=7).sort((a,b)=>b.champProb-a.champProb);
   document.getElementById('sumSims').textContent = N.toLocaleString();
   document.getElementById('sumUpsets').textContent = (totalUpsets/N).toFixed(1);
   document.getElementById('sumTopChamp').textContent = (topChamp.champProb*100).toFixed(1)+'%';
-  document.getElementById('sumSurprise').textContent = surprisePct;
+  document.getElementById('sumSurprise').textContent = surpriseTeams.length > 0 ? (surpriseTeams[0].champProb*100).toFixed(1)+'%' : '0%';
 
-  // Final Four bracket
-  const ff4 = [...TEAMS].sort((a,b)=>b.ffProb-a.ffProb).slice(0,4);
-  const champTeam = [...TEAMS].sort((a,b)=>b.champProb-a.champProb)[0];
-  document.getElementById('ff4Bracket').innerHTML = `
+  const ff = lastFF;
+  document.getElementById('ff4Bracket').innerHTML = ff ? `
+    <div style="margin-bottom:12px;padding:8px 12px;background:rgba(0,229,160,.06);border:1px solid rgba(0,229,160,.2);border-radius:5px;font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--accent2);">
+      ⚡ Last simulation run result. Hit <strong>Run Again</strong> to generate a different bracket.
+    </div>
     <div class="ff-bracket">
       <div class="ff-col">
         <div class="ff-game">
-          <div class="ff-team winner">${seedBadge(ff4[0].seed)} ${ff4[0].name} <span>${(ff4[0].ffProb*100).toFixed(0)}%</span></div>
-          <div class="ff-team">${seedBadge(ff4[2].seed)} ${ff4[2].name} <span>${(ff4[2].ffProb*100).toFixed(0)}%</span></div>
+          <div class="ff-team ${ff.champGame1Winner.name===ff.ff1Left.name?'winner':''}">
+            ${seedBadge(ff.ff1Left.seed)} ${ff.ff1Left.name}
+            <span>${(ff.ff1Left.champProb*100).toFixed(1)}% title</span>
+          </div>
+          <div class="ff-team ${ff.champGame1Winner.name===ff.ff1Right.name?'winner':''}">
+            ${seedBadge(ff.ff1Right.seed)} ${ff.ff1Right.name}
+            <span>${(ff.ff1Right.champProb*100).toFixed(1)}% title</span>
+          </div>
         </div>
+        <div style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;text-align:center;margin-top:4px;">EAST vs SOUTH</div>
       </div>
       <div class="ff-center">
         <div class="ff-trophy">🏆</div>
-        <div class="ff-champ-name">${champTeam.name}</div>
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">${(champTeam.champProb*100).toFixed(1)}% TITLE</div>
+        <div class="ff-champ-name">${ff.champion.name}</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">[${ff.champion.seed}] ${(ff.champion.champProb*100).toFixed(1)}% title prob</div>
       </div>
       <div class="ff-col">
         <div class="ff-game">
-          <div class="ff-team winner">${seedBadge(ff4[1].seed)} ${ff4[1].name} <span>${(ff4[1].ffProb*100).toFixed(0)}%</span></div>
-          <div class="ff-team">${seedBadge(ff4[3].seed)} ${ff4[3].name} <span>${(ff4[3].ffProb*100).toFixed(0)}%</span></div>
+          <div class="ff-team ${ff.champGame2Winner.name===ff.ff2Left.name?'winner':''}">
+            ${seedBadge(ff.ff2Left.seed)} ${ff.ff2Left.name}
+            <span>${(ff.ff2Left.champProb*100).toFixed(1)}% title</span>
+          </div>
+          <div class="ff-team ${ff.champGame2Winner.name===ff.ff2Right.name?'winner':''}">
+            ${seedBadge(ff.ff2Right.seed)} ${ff.ff2Right.name}
+            <span>${(ff.ff2Right.champProb*100).toFixed(1)}% title</span>
+          </div>
         </div>
+        <div style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;text-align:center;margin-top:4px;">WEST vs MIDWEST</div>
       </div>
     </div>
-  `;
+  ` : '<div style="color:var(--muted);font-size:12px;text-align:center;padding:20px;">No simulation run yet.</div>';
 
-  // update rankings with probs
   renderRankings();
+  generateBracket();
 
-  // re-enable
   simRunning = false;
   const btn = document.getElementById('simBtn');
   btn.disabled = false;
   btn.textContent = '▶ RUN AGAIN';
-  document.getElementById('simStatus').textContent = `✅ Simulation complete — ${N.toLocaleString()} tournaments simulated.`;
+  document.getElementById('simStatus').textContent = `✅ Complete — ${N.toLocaleString()} tournaments simulated from Round of 32.`;
 }
 
 // ==== UPSETS ====
 function renderUpsets() {
-  const factors = [
-    {label:"3-Point Dependency Volatility", desc:"Teams >45% 3PA rate + opponent top-20 3PT D → +12% upset probability. Hot shooting wins titles; cold shooting ends seasons.", icon:"🎯"},
-    {label:"Turnover Pressure", desc:"Teams top-25 in forcing turnovers overrepresented in Sweet 16. Tournament environments magnify ball-pressure defense.", icon:"💥"},
-    {label:"Free Throw Rate", desc:"FTA rate top-20 + FT% >74% = ~9% higher close-game win rate. Tournaments end in the bonus.", icon:"🎽"},
-    {label:"Experience / Age", desc:"Upperclass teams ~28% Sweet 16 rate vs ~17% for freshman-heavy rosters. Biggest coaching edge.", icon:"📚"},
-    {label:"Coach Tournament Skill", desc:"Izzo +12%, Self +10%, Pitino +11%, Hurley rising. Persistent, measurable, often ignored.", icon:"🏅"},
-    {label:"Tempo Conflict", desc:"Fast team vs very slow team becomes a coin flip. Virginia's 2018 run built on this principle.", icon:"⏱️"},
-    {label:"Rebounding Differential", desc:"ORB% dominance = extra possessions = variance reduction. Arizona historically elite here.", icon:"💪"},
-    {label:"Travel / Geographic Edge", desc:"Teams playing <400 miles from campus perform ~3% better in early rounds.", icon:"✈️"},
-  ];
-  document.getElementById('upsetFactors').innerHTML = factors.map(f => `
-    <div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">
-      <div style="font-size:20px;flex-shrink:0;">${f.icon}</div>
-      <div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;margin-bottom:3px;">${f.label}</div>
-        <div style="font-size:12px;color:var(--muted);line-height:1.5;">${f.desc}</div>
-      </div>
-    </div>
-  `).join('');
-
-  // watchlist: mid seeds with good upset profile
-  const watchlist = TEAMS.filter(t => t.seed >= 9 && t.seed <= 14).map(t => {
+  const watchlist = TEAMS.filter(t => t.seed >= 7).map(t => {
     let score = 0;
-    if(t.threeRate < 0.38) score += 2;
-    if(t.tov >= 20) score += 2;
-    if(t.exp === 'High') score += 2;
-    if(t.orb >= 33) score += 2;
-    if(t.ftRate >= 0.38) score += 2;
-    if(t.coachBonus > 0) score += 3;
+    if (t.threeRate < 0.38) score += 2;
+    if (t.tov >= 20) score += 2;
+    if (t.exp === 'High') score += 2;
+    if (t.orb >= 33) score += 2;
+    if (t.ftRate >= 0.38) score += 2;
+    if (t.coachBonus > 0) score += 3;
     return { ...t, upsetScore: score };
   }).sort((a,b) => b.upsetScore - a.upsetScore).slice(0,8);
 
@@ -1474,33 +1193,30 @@ function renderUpsets() {
     <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
       <div>${seedBadge(t.seed)}<span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;">${t.name}</span></div>
       <div style="display:flex;gap:8px;align-items:center;">
-        <div style="font-size:11px;color:var(--muted);">${t.exp} exp · ${(t.orb)}% ORB</div>
+        <div style="font-size:11px;color:var(--muted);">vs ${t.r32opp} · ${t.exp} exp</div>
         <div style="background:rgba(0,229,160,.1);border:1px solid rgba(0,229,160,.3);color:var(--accent2);font-family:'IBM Plex Mono',monospace;font-size:11px;padding:2px 8px;border-radius:3px;">UPSET RTG ${t.upsetScore}/13</div>
       </div>
     </div>
   `).join('');
 
-  // EV table
   const evData = [
-    {scenario:'1-seed wins (as expected)', prob:95, pickPct:95, verdict:'No Edge — field pick'},
-    {scenario:'2-seed beats 1 (Sweet 16)', prob:40, pickPct:20, verdict:'High EV — undervalued'},
-    {scenario:'12-seed upsets 5-seed', prob:35, pickPct:15, verdict:'HIGH EV — target pick'},
-    {scenario:'11-seed upsets 6-seed', prob:37, pickPct:18, verdict:'HIGH EV — target pick'},
-    {scenario:'10-seed upsets 7-seed', prob:40, pickPct:22, verdict:'HIGH EV — target pick'},
-    {scenario:'8-seed to Final Four', prob:4, pickPct:8, verdict:'Negative EV — avoid'},
-    {scenario:'1-seed wins title (chalk)', prob:30, pickPct:65, verdict:'Low EV — overbet'},
-    {scenario:'Correctly picked champion', prob:14, pickPct:6, verdict:'MAX EV — game-changer'},
+    {scenario:'1-seed wins (as expected)',   prob:87, pickPct:90, verdict:'No Edge'},
+    {scenario:'9-seed beats 1-seed (R32)',   prob:28, pickPct:12, verdict:'HIGH EV'},
+    {scenario:'10-seed beats 2-seed (R32)',  prob:22, pickPct:10, verdict:'HIGH EV'},
+    {scenario:'11-seed beats 3-seed (R32)',  prob:30, pickPct:14, verdict:'HIGH EV'},
+    {scenario:'12-seed beats 4-seed (R32)',  prob:38, pickPct:20, verdict:'HIGH EV'},
+    {scenario:'Correctly picked champion',   prob:14, pickPct:6,  verdict:'MAX EV'},
+    {scenario:'1-seed wins title (chalk)',   prob:30, pickPct:65, verdict:'Low EV'},
   ];
   document.getElementById('evTable').innerHTML = evData.map(r => {
     const ev = (r.prob/r.pickPct).toFixed(2);
     const evNum = parseFloat(ev);
     const evColor = evNum >= 1.5 ? 'var(--accent2)' : evNum < 1.0 ? 'var(--accent)' : 'var(--avg)';
     return `<tr>
-      <td style="text-align:left;font-size:13px;">${r.scenario}</td>
+      <td style="text-align:left;font-size:12px;">${r.scenario}</td>
       <td>${r.prob}%</td>
       <td>${r.pickPct}%</td>
       <td style="color:${evColor};font-family:'IBM Plex Mono',monospace;font-weight:700;">${ev}x</td>
-      <td style="text-align:left;font-size:12px;color:var(--muted);">${r.verdict}</td>
     </tr>`;
   }).join('');
 }
@@ -1509,20 +1225,18 @@ function renderUpsets() {
 function renderChampionProfiles() {
   const candidates = TEAMS.filter(t => t.seed <= 4).map(t => {
     let score = 0; let checks = [];
-    if(t.kenpom <= 10) { score++; checks.push('KenPom ≤10 ✓'); } else checks.push(`KenPom ${t.kenpom} ✗`);
-    if(t.kenpom <= 20) { score++; } // AdjO proxy
-    if(t.net <= 20) { score++; checks.push('NET ≤20 ✓'); } else checks.push(`NET ${t.net} ✗`);
-    if(t.seed <= 3) { score++; checks.push('Seed ≤3 ✓'); } else checks.push(`Seed ${t.seed} ✗`);
-    if(t.gaer >= 40) { score++; checks.push('GAER elite ✓'); } else checks.push(`GAER ${t.gaer.toFixed(0)}`);
-    if(t.exp === 'High') { score++; checks.push('High exp ✓'); } else checks.push('Med/Low exp');
-    if(t.threeRate < 0.38) { score++; checks.push('Low 3pt dep ✓'); } else checks.push('High 3pt dep ⚠️');
-    if(t.ftRate >= 0.36) { score++; checks.push('FT rate ✓'); } else checks.push('FT rate low');
-    if(t.coachBonus > 0) { score++; checks.push(`Coach edge ✓`); }
+    if (t.kenpom <= 10) { score++; checks.push('KenPom ≤10 ✓'); } else checks.push(`KenPom ${t.kenpom} ✗`);
+    if (t.net <= 20) { score++; checks.push('NET ≤20 ✓'); } else checks.push(`NET ${t.net} ✗`);
+    if (t.seed <= 3) { score++; checks.push('Seed ≤3 ✓'); } else checks.push(`Seed ${t.seed} ✗`);
+    if (t.exp === 'High') { score++; checks.push('High exp ✓'); } else checks.push('Med/Low exp');
+    if (t.threeRate < 0.38) { score++; checks.push('Low 3pt dep ✓'); } else checks.push('High 3pt dep ⚠️');
+    if (t.ftRate >= 0.36) { score++; checks.push('FT rate ✓'); } else checks.push('FT rate low');
+    if (t.coachBonus > 0) { score++; checks.push(`Coach edge ✓`); }
     return { ...t, champScore: score, champChecks: checks };
   }).sort((a,b) => b.champScore - a.champScore);
 
   document.getElementById('champProfiles').innerHTML = candidates.map(t => {
-    const pct = (t.champScore / 9 * 100).toFixed(0);
+    const pct = (t.champScore / 7 * 100).toFixed(0);
     const color = pct >= 80 ? 'var(--accent)' : pct >= 65 ? 'var(--good)' : 'var(--avg)';
     return `
     <div style="display:flex;gap:16px;align-items:center;padding:14px 0;border-bottom:1px solid var(--border);">
@@ -1534,7 +1248,7 @@ function renderChampionProfiles() {
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
           ${seedBadge(t.seed)}
           <span style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;">${t.name}</span>
-          <span style="color:var(--muted);font-size:12px;">${t.conf}</span>
+          <span style="color:var(--muted);font-size:12px;">${t.conf} · ${t.region}</span>
           ${t.champProb ? `<span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--accent);margin-left:auto;">SIM: ${(t.champProb*100).toFixed(1)}% title</span>` : ''}
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:6px;">
@@ -1545,428 +1259,104 @@ function renderChampionProfiles() {
   }).join('');
 }
 
-// ==== BETTING CALCS ====
+// ==== BETTING DROPDOWNS ====
+function populateBettingDropdowns() {
+  const sorted = [...TEAMS].sort((a,b) => a.seed - b.seed || a.name.localeCompare(b.name));
+  const makeOptions = () => sorted.map(t =>
+    `<option value="${t.name}">[${t.seed}] ${t.name} (${t.region})</option>`
+  ).join('');
+  const selA = document.getElementById('pickTeamA');
+  const selB = document.getElementById('pickTeamB');
+  if (selA) selA.innerHTML = '<option value="">-- Select Team --</option>' + makeOptions();
+  if (selB) selB.innerHTML = '<option value="">-- Select Team --</option>' + makeOptions();
+}
+
+function autoFillTeam(side) {
+  const name = document.getElementById('pickTeam'+side).value;
+  const t = TEAMS.find(x => x.name === name);
+  if (!t) return;
+  const offEff = Math.max(98, Math.round(123 - t.kenpom * 0.22));
+  if (side === 'A') {
+    document.getElementById('teamARtg').value = t.power.toFixed(1);
+    document.getElementById('tempoA').value = t.tempo;
+    document.getElementById('offEffA').value = offEff;
+    document.getElementById('previewAName').textContent = `[${t.seed}] ${t.name}`;
+    document.getElementById('previewAStats').innerHTML =
+      `Power Rating: <span style="color:var(--accent)">${t.power.toFixed(1)}</span><br>` +
+      `Tempo: <span style="color:var(--accent)">${t.tempo}</span> poss/40min<br>` +
+      `Off Efficiency: <span style="color:var(--accent)">${offEff}</span><br>` +
+      `KenPom: <span style="color:var(--accent)">#${t.kenpom}</span>   NET: <span style="color:var(--accent)">#${t.net}</span><br>` +
+      `R32 Opp: <span style="color:var(--accent)">${t.r32opp}</span>   Region: <span style="color:var(--accent)">${t.region}</span>`;
+    document.getElementById('previewA').style.display = 'block';
+  } else {
+    document.getElementById('teamBRtg').value = t.power.toFixed(1);
+    document.getElementById('tempoB').value = t.tempo;
+    document.getElementById('offEffB').value = offEff;
+    document.getElementById('previewBName').textContent = `[${t.seed}] ${t.name}`;
+    document.getElementById('previewBStats').innerHTML =
+      `Power Rating: <span style="color:var(--cinderella)">${t.power.toFixed(1)}</span><br>` +
+      `Tempo: <span style="color:var(--cinderella)">${t.tempo}</span> poss/40min<br>` +
+      `Off Efficiency: <span style="color:var(--cinderella)">${offEff}</span><br>` +
+      `KenPom: <span style="color:var(--cinderella)">#${t.kenpom}</span>   NET: <span style="color:var(--cinderella)">#${t.net}</span><br>` +
+      `R32 Opp: <span style="color:var(--cinderella)">${t.r32opp}</span>   Region: <span style="color:var(--cinderella)">${t.region}</span>`;
+    document.getElementById('previewB').style.display = 'block';
+  }
+  document.getElementById('previewVs').style.display = 'flex';
+}
+
+function calcBoth() { calcSpread(); calcTotal(); }
+
 function calcSpread() {
   const pA = parseFloat(document.getElementById('teamARtg').value);
   const pB = parseFloat(document.getElementById('teamBRtg').value);
   const vegas = parseFloat(document.getElementById('vegasSpread').value);
-  const modelSpread = -(pA - pB) * 0.85;
-  const edge = modelSpread - vegas;
-  const edgeAbs = Math.abs(edge).toFixed(1);
-  const isEdge = Math.abs(edge) >= 2.5;
+  if (isNaN(pA) || isNaN(pB)) {
+    document.getElementById('spreadResult').innerHTML = `<div style="padding:10px;background:rgba(255,75,31,.08);border:1px solid rgba(255,75,31,.3);border-radius:4px;font-size:12px;color:var(--accent);">⚠️ Select both teams from the dropdown first.</div>`;
+    return;
+  }
+  const modelSpread = -(pA - pB) * 0.45;
+  const winPct = Math.round(1 / (1 + Math.exp(-(pA - pB) * 0.08)) * 100);
+  const hasVegas = !isNaN(vegas);
+  const edge = hasVegas ? modelSpread - vegas : null;
+  const isEdge = hasVegas && Math.abs(edge) >= 2.5;
   document.getElementById('spreadResult').innerHTML = `
     <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px;">
       <div class="stat-box" style="flex:1;min-width:100px;"><div class="val" style="font-size:24px;">${modelSpread.toFixed(1)}</div><div class="lbl">Model Spread</div></div>
-      <div class="stat-box" style="flex:1;min-width:100px;"><div class="val" style="font-size:24px;">${vegas}</div><div class="lbl">Vegas Spread</div></div>
-      <div class="stat-box" style="flex:1;min-width:100px;border-color:${isEdge?'var(--accent2)':'var(--border)'}"><div class="val" style="font-size:24px;color:${isEdge?'var(--accent2)':'var(--muted)'};">${edge>=0?'+':''}${edge.toFixed(1)}</div><div class="lbl">EDGE</div></div>
+      <div class="stat-box" style="flex:1;min-width:100px;border-color:var(--accent2);"><div class="val" style="font-size:24px;color:var(--accent2);">${winPct}%</div><div class="lbl">Team A Win %</div></div>
+      ${hasVegas ? `<div class="stat-box" style="flex:1;min-width:100px;"><div class="val" style="font-size:24px;">${vegas}</div><div class="lbl">Vegas Spread</div></div>
+      <div class="stat-box" style="flex:1;min-width:100px;border-color:${isEdge?'var(--accent2)':'var(--border)'}"><div class="val" style="font-size:24px;color:${isEdge?'var(--accent2)':'var(--muted)'};">${edge>=0?'+':''}${edge.toFixed(1)}</div><div class="lbl">EDGE</div></div>` : ''}
     </div>
-    <div style="margin-top:10px;padding:10px;border-radius:4px;background:${isEdge?'rgba(0,229,160,.08)':'rgba(255,75,31,.08)'};border:1px solid ${isEdge?'rgba(0,229,160,.3)':'rgba(255,75,31,.2)'}; font-size:13px;color:${isEdge?'var(--accent2)':'var(--muted)'};">
-      ${isEdge ? `✅ <strong>EDGE DETECTED: ${edgeAbs} point advantage.</strong> Bet Team ${edge < 0 ? 'A' : 'B'}.` : `❌ No edge (need ≥2.5 pts). Vegas line is fair.`}
-    </div>
+    ${hasVegas ? `<div style="margin-top:10px;padding:10px;border-radius:4px;background:${isEdge?'rgba(0,229,160,.08)':'rgba(255,75,31,.08)'};border:1px solid ${isEdge?'rgba(0,229,160,.3)':'rgba(255,75,31,.2)'}; font-size:13px;color:${isEdge?'var(--accent2)':'var(--muted)'};">
+      ${isEdge ? `✅ <strong>EDGE DETECTED: ${Math.abs(edge).toFixed(1)} pts.</strong> Bet Team ${edge < 0 ? 'A' : 'B'}.` : `❌ No edge (need ≥2.5 pts). Vegas line is fair.`}
+    </div>` : ''}
   `;
 }
+
 function calcTotal() {
   const tA = parseFloat(document.getElementById('tempoA').value);
   const tB = parseFloat(document.getElementById('tempoB').value);
-  const offEff = parseFloat(document.getElementById('offEffA').value);
+  const offEffA = parseFloat(document.getElementById('offEffA').value);
+  const offEffB = parseFloat(document.getElementById('offEffB').value);
   const vegas = parseFloat(document.getElementById('vegasTotal').value);
-  const avgTempo = (tA+tB)/2;
-  const projTotal = (avgTempo * 2 * offEff / 100).toFixed(0);
-  const edge = projTotal - vegas;
-  const isEdge = Math.abs(edge) >= 4;
+  if (isNaN(tA) || isNaN(tB) || isNaN(offEffA) || isNaN(offEffB)) {
+    document.getElementById('totalResult').innerHTML = `<div style="padding:10px;background:rgba(255,75,31,.08);border:1px solid rgba(255,75,31,.3);border-radius:4px;font-size:12px;color:var(--accent);">⚠️ Select both teams from the dropdown first.</div>`;
+    return;
+  }
+  const avgTempo = (tA + tB) / 2;
+  const projTotal = Math.round(avgTempo * (offEffA / 100) + avgTempo * (offEffB / 100));
+  const hasVegas = !isNaN(vegas);
+  const edge = hasVegas ? projTotal - vegas : null;
+  const isEdge = hasVegas && Math.abs(edge) >= 4;
   document.getElementById('totalResult').innerHTML = `
     <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px;">
       <div class="stat-box" style="flex:1;min-width:100px;"><div class="val" style="font-size:24px;">${projTotal}</div><div class="lbl">Model Total</div></div>
-      <div class="stat-box" style="flex:1;min-width:100px;"><div class="val" style="font-size:24px;">${vegas}</div><div class="lbl">Vegas O/U</div></div>
-      <div class="stat-box" style="flex:1;min-width:100px;border-color:${isEdge?'var(--accent2)':'var(--border)'}"><div class="val" style="font-size:24px;color:${isEdge?'var(--accent2)':'var(--muted)'};">${edge>=0?'+':''}${edge.toFixed(0)}</div><div class="lbl">EDGE</div></div>
+      ${hasVegas ? `<div class="stat-box" style="flex:1;min-width:100px;"><div class="val" style="font-size:24px;">${vegas}</div><div class="lbl">Vegas O/U</div></div>
+      <div class="stat-box" style="flex:1;min-width:100px;border-color:${isEdge?'var(--accent2)':'var(--border)'}"><div class="val" style="font-size:24px;color:${isEdge?'var(--accent2)':'var(--muted)'};">${edge>=0?'+':''}${edge.toFixed(0)}</div><div class="lbl">EDGE</div></div>` : ''}
     </div>
-    <div style="margin-top:10px;padding:10px;border-radius:4px;background:${isEdge?'rgba(0,229,160,.08)':'rgba(255,75,31,.08)'};border:1px solid ${isEdge?'rgba(0,229,160,.3)':'rgba(255,75,31,.2)'}; font-size:13px;color:${isEdge?'var(--accent2)':'var(--muted)'};">
-      ${isEdge ? `✅ <strong>TOTAL EDGE: ${Math.abs(edge).toFixed(0)} pts.</strong> Play the ${projTotal > vegas ? 'OVER' : 'UNDER'}.` : `❌ No edge on total (need ≥4 pts). Vegas close to fair.`}
-    </div>
+    ${hasVegas ? `<div style="margin-top:10px;padding:10px;border-radius:4px;background:${isEdge?'rgba(0,229,160,.08)':'rgba(255,75,31,.08)'};border:1px solid ${isEdge?'rgba(0,229,160,.3)':'rgba(255,75,31,.2)'}; font-size:13px;color:${isEdge?'var(--accent2)':'var(--muted)'};">
+      ${isEdge ? `✅ <strong>TOTAL EDGE: ${Math.abs(edge).toFixed(0)} pts.</strong> Play the ${projTotal > vegas ? 'OVER' : 'UNDER'}.` : `❌ No edge on total (need ≥4 pts). Vegas is fair.`}
+    </div>` : ''}
   `;
-}
-
-// ==== MODEL BUILDER ====
-function renderWeightSliders() {
-  const keys = [{k:'kenpom',l:'KenPom Net Rating'},{k:'net',l:'NET Ranking'},{k:'q1',l:'Quad-1 Win %'},{k:'sos',l:'SOS'},{k:'seed',l:'Seed Adjustment'}];
-  document.getElementById('weightSliders').innerHTML = keys.map(({k,l}) => `
-    <div style="margin-bottom:14px;">
-      <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
-        <label style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">${l}</label>
-        <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--accent);" id="wlbl-${k}">${modelWeights[k]}%</span>
-      </div>
-      <input type="range" min="0" max="70" value="${modelWeights[k]}" id="wsl-${k}" 
-        style="width:100%;accent-color:var(--accent);"
-        oninput="modelWeights['${k}']=parseInt(this.value);document.getElementById('wlbl-${k}').textContent=this.value+'%';updateWeightTotal()">
-    </div>
-  `).join('');
-  updateWeightTotal();
-}
-
-function updateWeightTotal() {
-  const total = Object.values(modelWeights).reduce((s,v)=>s+v,0);
-  const el = document.getElementById('weightTotal');
-  if (el) {
-    el.textContent = `Total weight: ${total}% ${total===100?'✅ Balanced':'⚠️ Adjust to 100%'}`;
-    el.style.color = total===100?'var(--accent2)':'var(--avg)';
-  }
-}
-
-function recalcModel() {
-  TEAMS.forEach(t => { t.power = computePower(t, modelWeights); });
-  renderRankings();
-  renderChampionProfiles();
-  alert('✅ Model recalculated with new weights. Rankings updated.');
-}
-
-// ==== BRACKET ENTRY SYSTEM ====
-
-const REGION_NAMES = ['East', 'West', 'South', 'Midwest'];
-const SEED_PAIRS = [[1,16],[8,9],[5,12],[4,13],[6,11],[3,14],[7,10],[2,15]];
-
-// bracket state: 4 regions, each has 16 slots keyed by seed
-let bracketData = {
-  regions: [
-    { name:'East',    teams: {} },
-    { name:'West',    teams: {} },
-    { name:'South',   teams: {} },
-    { name:'Midwest', teams: {} },
-  ],
-  locked: false
-};
-
-function renderBracketRegions() {
-  const container = document.getElementById('bracketRegions');
-  container.innerHTML = bracketData.regions.map((region, ri) => `
-    <div class="card">
-      <div class="card-title card-title-accent" style="font-size:14px;margin-bottom:16px;">
-        ▮ ${region.name} Region
-        <span style="margin-left:auto;font-size:10px;color:var(--muted);">${Object.keys(region.teams).length}/16 entered</span>
-      </div>
-      <div style="display:grid;gap:6px;">
-        ${SEED_PAIRS.map(([seedA, seedB]) => `
-          <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);">
-            <div>
-              <div style="display:flex;align-items:center;gap:6px;">
-                ${seedBadge(seedA)}
-                <input 
-                  type="text" 
-                  placeholder="Team name..."
-                  value="${region.teams[seedA] || ''}"
-                  oninput="updateBracketTeam(${ri},${seedA},this.value)"
-                  style="flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:3px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;min-width:0;outline:none;transition:border-color .2s;"
-                  onfocus="this.style.borderColor='var(--accent)'" 
-                  onblur="this.style.borderColor='var(--border)'"
-                >
-              </div>
-            </div>
-            <div>
-              <button 
-                onclick="analyzeMatchup(${ri},${seedA},${seedB})"
-                style="background:rgba(0,229,160,.1);border:1px solid rgba(0,229,160,.3);color:var(--accent2);font-family:'IBM Plex Mono',monospace;font-size:9px;padding:4px 7px;border-radius:3px;cursor:pointer;white-space:nowrap;"
-                title="AI Matchup Analysis">🤖 ANALYZE</button>
-            </div>
-            <div>
-              <div style="display:flex;align-items:center;gap:6px;justify-content:flex-end;">
-                <input 
-                  type="text" 
-                  placeholder="Team name..."
-                  value="${region.teams[seedB] || ''}"
-                  oninput="updateBracketTeam(${ri},${seedB},this.value)"
-                  style="flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:3px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;min-width:0;outline:none;transition:border-color .2s;text-align:right;"
-                  onfocus="this.style.borderColor='var(--accent)'" 
-                  onblur="this.style.borderColor='var(--border)'"
-                >
-                ${seedBadge(seedB)}
-              </div>
-            </div>
-          </div>
-        `).join('')}
-      </div>
-    </div>
-  `).join('');
-}
-
-function updateBracketTeam(regionIdx, seed, name) {
-  bracketData.regions[regionIdx].teams[seed] = name.trim();
-  // update count display
-  const counts = document.querySelectorAll('#bracketRegions .card-title span');
-  if (counts[regionIdx]) {
-    counts[regionIdx].textContent = `${Object.values(bracketData.regions[regionIdx].teams).filter(v=>v).length}/16 entered`;
-  }
-}
-
-function loadSampleBracket() {
-  // Load from the existing TEAMS data as a projected bracket
-  const sorted = [...TEAMS].sort((a,b) => b.power - a.power);
-  const regionNames = ['East','West','South','Midwest'];
-  // Assign top 4 as 1-seeds (one per region), next 4 as 2-seeds, etc.
-  const byRank = sorted.slice(0,64);
-  
-  // Classic S-curve seeding distribution
-  // Seeds 1-4: one per region in order
-  // Within each seed line, rotate regions
-  const seedLines = {};
-  TEAMS.sort((a,b) => a.seed - b.seed || b.power - a.power);
-  
-  let seedCounts = {};
-  bracketData.regions.forEach((r,i) => { r.teams = {}; });
-
-  const teamsForBracket = [...TEAMS].sort((a,b) => a.seed - b.seed);
-  const regionAssign = [0,1,2,3];
-  let assignIdx = 0;
-  
-  teamsForBracket.forEach((t, i) => {
-    const ri = assignIdx % 4;
-    if (!bracketData.regions[ri].teams[t.seed]) {
-      bracketData.regions[ri].teams[t.seed] = t.name;
-      assignIdx++;
-    } else {
-      // find next available region for this seed
-      for (let r=0;r<4;r++) {
-        if (!bracketData.regions[r].teams[t.seed]) {
-          bracketData.regions[r].teams[t.seed] = t.name;
-          break;
-        }
-      }
-    }
-  });
-
-  renderBracketRegions();
-  document.getElementById('bracketAlert').innerHTML = '<strong>✅ PROJECTED FIELD LOADED</strong> — These are pre-Selection Sunday projections. Update team names tonight as the real bracket is announced on CBS at 6pm ET.';
-  document.getElementById('bracketAlert').style.background = 'rgba(0,229,160,.08)';
-  document.getElementById('bracketAlert').style.borderColor = 'rgba(0,229,160,.3)';
-}
-
-function resetBracket() {
-  bracketData.regions.forEach(r => r.teams = {});
-  bracketData.locked = false;
-  document.getElementById('bracketSimResults').style.display = 'none';
-  renderBracketRegions();
-}
-
-// Build team objects from bracket inputs for simulation
-function buildBracketTeams() {
-  const allBracketTeams = [];
-  bracketData.regions.forEach((region, ri) => {
-    for (let seed = 1; seed <= 16; seed++) {
-      const name = region.teams[seed] || `${region.name} Seed ${seed}`;
-      // Try to find matching team in TEAMS array for stats
-      const existing = TEAMS.find(t => 
-        t.name.toLowerCase() === name.toLowerCase() || 
-        name.toLowerCase().includes(t.name.toLowerCase().split(' ')[0])
-      );
-      if (existing) {
-        allBracketTeams.push({ ...existing, region: ri, regionName: region.name, bracketSeed: seed, name: name });
-      } else {
-        // Generate estimated stats from seed
-        const kp = seed * 8 + Math.floor(Math.random()*5);
-        const gaerEst = Math.max(1, 55 - seed*3.5);
-        allBracketTeams.push({
-          seed, name, region: ri, regionName: region.name, bracketSeed: seed,
-          gaer: gaerEst, kenpom: kp, net: kp+1, sos: 20+seed*5,
-          q1w: Math.max(0, 12-seed*1.2|0), q1l: Math.min(15, seed*1.5|0),
-          tempo: 67, orb: 30, tov: 17, threeRate: .36, ftRate: .36,
-          exp: seed<=4?'High':seed<=8?'Med':'Low',
-          coachBonus: 0, coachName: '', power: 0
-        });
-      }
-    }
-  });
-  allBracketTeams.forEach(t => { t.power = computePower(t, modelWeights); });
-  return allBracketTeams;
-}
-
-function lockBracketAndSimulate() {
-  const totalEntered = bracketData.regions.reduce((sum, r) => sum + Object.values(r.teams).filter(v=>v).length, 0);
-  if (totalEntered < 8) {
-    alert('Please enter at least a few teams per region before running the simulation.');
-    return;
-  }
-
-  bracketData.locked = true;
-  const bracketTeams = buildBracketTeams();
-  runBracketSimulation(bracketTeams);
-}
-
-function runBracketSimulation(bracketTeams) {
-  const N = parseInt(document.getElementById('simCount')?.value || 25000);
-  const champCounts = {}, ffCounts = {}, e8Counts = {}, s16Counts = {};
-  bracketTeams.forEach(t => { champCounts[t.name]=0; ffCounts[t.name]=0; e8Counts[t.name]=0; s16Counts[t.name]=0; });
-
-  // Build 4 regions from bracket teams
-  const regions = [0,1,2,3].map(ri => {
-    const rTeams = bracketTeams.filter(t => t.region === ri);
-    // Sort by seed order for pairing
-    const ordered = [];
-    SEED_PAIRS.forEach(([s1,s2]) => {
-      const t1 = rTeams.find(t=>t.bracketSeed===s1) || rTeams[0];
-      const t2 = rTeams.find(t=>t.bracketSeed===s2) || rTeams[1];
-      ordered.push(t1, t2);
-    });
-    return ordered;
-  });
-
-  function simGame(a,b) { return Math.random() < winProbForTeam(a,b) ? a : b; }
-  function winProbForTeam(a,b) {
-    const diff = a.power - b.power;
-    let p = 1/(1+Math.exp(-diff*0.15));
-    if(a.threeRate > 0.42) p = p*0.95 + (Math.random()>0.5?0.03:-0.03);
-    return Math.max(0.05, Math.min(0.95, p));
-  }
-
-  function simRegion(rTeams) {
-    const pairs = [[0,1],[2,3],[4,5],[6,7],[8,9],[10,11],[12,13],[14,15]];
-    let r1 = pairs.map(([a,b]) => simGame(rTeams[a], rTeams[b]));
-    r1.forEach(t => { if(s16Counts[t.name]!==undefined) s16Counts[t.name]++; });
-    let r2 = [[0,1],[2,3],[4,5],[6,7]].map(([a,b]) => simGame(r1[a],r1[b]));
-    let e8 = [simGame(r2[0],r2[1]), simGame(r2[2],r2[3])];
-    e8.forEach(t => { if(e8Counts[t.name]!==undefined) e8Counts[t.name]++; });
-    return simGame(e8[0],e8[1]);
-  }
-
-  let totalUpsets = 0;
-  const chunkSize = Math.ceil(N/50);
-  let sim = 0;
-
-  // Show results panel loading state
-  document.getElementById('bracketSimResults').style.display = 'block';
-  document.getElementById('bracketChampProbs').innerHTML = '<div style="color:var(--muted);font-family:\'IBM Plex Mono\',monospace;font-size:12px;padding:20px 0;">Running ' + N.toLocaleString() + ' simulations...</div>';
-  document.getElementById('bracketFF4Probs').innerHTML = '';
-
-  function runChunk() {
-    const end = Math.min(sim+chunkSize, N);
-    for(let i=sim;i<end;i++) {
-      const ffTeams = regions.map(r => simRegion(r));
-      ffTeams.forEach(t => { if(ffCounts[t.name]!==undefined) ffCounts[t.name]++; });
-      const sf1 = simGame(ffTeams[0], ffTeams[1]);
-      const sf2 = simGame(ffTeams[2], ffTeams[3]);
-      const champ = simGame(sf1, sf2);
-      if(champCounts[champ.name]!==undefined) champCounts[champ.name]++;
-    }
-    sim = end;
-    if(sim < N) { requestAnimationFrame(runChunk); return; }
-    finishBracketSim(bracketTeams, champCounts, ffCounts, e8Counts, s16Counts, N);
-  }
-  requestAnimationFrame(runChunk);
-}
-
-function finishBracketSim(bracketTeams, champCounts, ffCounts, e8Counts, s16Counts, N) {
-  bracketTeams.forEach(t => {
-    t.champProb = (champCounts[t.name]||0)/N;
-    t.ffProb = (ffCounts[t.name]||0)/N;
-  });
-
-  // Also update main TEAMS probs if name matches
-  bracketTeams.forEach(bt => {
-    const match = TEAMS.find(t => t.name === bt.name);
-    if(match) { match.champProb = bt.champProb; match.ffProb = bt.ffProb; }
-  });
-
-  const sorted = [...bracketTeams].sort((a,b) => b.champProb - a.champProb).slice(0,16);
-  const ff4sorted = [...bracketTeams].sort((a,b) => b.ffProb - a.ffProb).slice(0,16);
-  const maxChamp = sorted[0]?.champProb || 0.01;
-  const maxFF = ff4sorted[0]?.ffProb || 0.01;
-
-  document.getElementById('bracketSimSummary').innerHTML = `
-    <div class="stat-box"><div class="val" style="font-size:24px;">${N.toLocaleString()}</div><div class="lbl">Simulations Run</div></div>
-    <div class="stat-box"><div class="val" style="font-size:24px;color:var(--accent2);">${(sorted[0]?.champProb*100||0).toFixed(1)}%</div><div class="lbl">Top Champ Prob (${sorted[0]?.name||'—'})</div></div>
-  `;
-
-  document.getElementById('bracketChampProbs').innerHTML = sorted.map(t => {
-    const pct = (t.champProb*100).toFixed(1);
-    const barW = (t.champProb/maxChamp*100).toFixed(0);
-    const color = t.champProb >= 0.15 ? 'var(--accent)' : t.champProb >= 0.07 ? 'var(--good)' : 'var(--avg)';
-    return `<div class="prob-row">
-      <div class="prob-label">${seedBadge(t.seed)} ${t.name}</div>
-      <div class="prob-pct">${pct}%</div>
-      <div class="prob-bar-wrap"><div class="prob-bar-fill" style="width:${barW}%;background:${color};">${t.regionName}</div></div>
-    </div>`;
-  }).join('');
-
-  document.getElementById('bracketFF4Probs').innerHTML = ff4sorted.map(t => {
-    const pct = (t.ffProb*100).toFixed(1);
-    const barW = (t.ffProb/maxFF*100).toFixed(0);
-    const color = t.ffProb >= 0.35 ? 'var(--accent)' : t.ffProb >= 0.20 ? 'var(--good)' : 'var(--accent2)';
-    return `<div class="prob-row">
-      <div class="prob-label">${seedBadge(t.seed)} ${t.name}</div>
-      <div class="prob-pct">${pct}%</div>
-      <div class="prob-bar-wrap"><div class="prob-bar-fill" style="width:${barW}%;background:${color};">${t.regionName}</div></div>
-    </div>`;
-  }).join('');
-
-  renderRankings(); // refresh main rankings with new probs
-}
-
-// ==== AI MATCHUP ANALYSIS ====
-async function analyzeMatchup(regionIdx, seedA, seedB) {
-  const region = bracketData.regions[regionIdx];
-  const teamA = region.teams[seedA] || `Seed ${seedA}`;
-  const teamB = region.teams[seedB] || `Seed ${seedB}`;
-
-  // Find stats if available
-  const statsA = TEAMS.find(t => t.name.toLowerCase() === teamA.toLowerCase() || teamA.toLowerCase().includes(t.name.toLowerCase().split(' ')[0]));
-  const statsB = TEAMS.find(t => t.name.toLowerCase() === teamB.toLowerCase() || teamB.toLowerCase().includes(t.name.toLowerCase().split(' ')[0]));
-
-  const statsText = (t, seed) => t 
-    ? `KenPom #${t.kenpom}, NET #${t.net}, GAER ${t.gaer.toFixed(1)}, Tempo ${t.tempo}, ORB ${t.orb}%, TOV ${t.tov}%, 3PA Rate ${(t.threeRate*100).toFixed(0)}%, FT Rate ${(t.ftRate*100).toFixed(0)}%, Experience: ${t.exp}${t.coachBonus>0?`, Coach Edge: +${(t.coachBonus*100).toFixed(0)}% (${t.coachName})`:''}` 
-    : `(stats not in database — use known metrics)`;
-
-  const panel = document.getElementById('aiAnalysisPanel');
-  const title = document.getElementById('aiMatchupTitle');
-  const content = document.getElementById('aiMatchupContent');
-
-  panel.style.display = 'block';
-  title.textContent = `#${seedA} ${teamA} vs #${seedB} ${teamB}`;
-  content.innerHTML = `<div style="color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:11px;animation:pulse 1.4s infinite;">⏳ Analyzing matchup...</div>`;
-
-  const prompt = `You are an elite NCAA March Madness analyst with deep knowledge of basketball analytics, KenPom metrics, and tournament history.
-
-Analyze this first-round matchup in the ${region.name} Region:
-
-#${seedA} ${teamA}
-Stats: ${statsText(statsA, seedA)}
-
-vs
-
-#${seedB} ${teamB}  
-Stats: ${statsText(statsB, seedB)}
-
-Provide a sharp, data-driven matchup analysis covering:
-1. **Win probability** for each team (give a number like "62% ${teamA}")
-2. **Key matchup factors** — what decides this game (2-3 bullet points)
-3. **Upset alert** — is there upset potential? Why or why not?
-4. **Bracket pool edge** — is this a high-EV pick for bracket pools?
-5. **The X-factor** — one thing most bracketologists will miss
-
-Be specific, confident, and concise. Use analytics language. Keep total response under 250 words.`;
-
-  try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    const data = await response.json();
-    const text = data.content
-      .filter(b => b.type === 'text')
-      .map(b => b.text)
-      .join('\n');
-
-    // Format markdown-lite
-    content.innerHTML = text
-      .replace(/\*\*(.*?)\*\*/g, '<strong style="color:var(--accent2);">$1</strong>')
-      .replace(/^(\d+\.)/gm, '<br><span style="color:var(--accent);font-weight:700;">$1</span>')
-      .replace(/^[-•]/gm, '<br>•')
-      .replace(/\n/g, '<br>');
-  } catch(e) {
-    content.innerHTML = `<div style="color:var(--accent);">Error fetching analysis. Check API connection.<br><small>${e.message}</small></div>`;
-  }
 }
 
 // ==== TABS ====
@@ -1977,303 +1367,258 @@ document.querySelectorAll('.tab').forEach(tab => {
     tab.classList.add('active');
     document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
     if (tab.dataset.tab === 'champion') renderChampionProfiles();
-    if (tab.dataset.tab === 'bracket' && !document.getElementById('bracketRegions').children.length) {
-      renderBracketRegions();
-    }
+    if (tab.dataset.tab === 'bracket' && TEAMS.some(t => t.champProb > 0)) generateBracket();
   });
 });
 
-// upset weight label
 document.getElementById('upsetWeight').addEventListener('input', function() {
   document.getElementById('upsetVal').textContent = parseFloat(this.value).toFixed(1)+'x';
 });
 
-// ==== ADMIN SYSTEM ====
-const GIST_ID = '51c7790e2cbefaf03d825edbefe20045';
-const GIST_FILENAME = 'bracket2026.json';
-const ADMIN_PASSWORD_HASH = 'aaebfc7365986f2841ed21d1eda7dd28'; // SHA-256[:32] of "gaer2026" — change via JS console: hashStr('newpwd').then(console.log)
+// ==== BRACKET GENERATOR — R32 through Champion ====
+let lastSimBracketGlobal = null;
 
-let adminToken = '';
-let adminUnlocked = false;
-let currentAdminRound = 0;
-
-// Live bracket data synced from Gist
-let liveBracket = {
-  round: 0,
-  roundLabel: 'Pre-Tournament',
-  lastUpdated: null,
-  regions: {
-    East:    { teams: {} },
-    West:    { teams: {} },
-    South:   { teams: {} },
-    Midwest: { teams: {} },
-  },
-  advancing: {
-    // round2 through finals — arrays of advancing team names
-    round2: [], round3: [], round4: [], round5: []
-  },
-  notes: ''
-};
-
-// Simple hash for password check (not cryptographically secure, just prevents casual access)
-async function hashStr(str) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('').slice(0,32);
-}
-
-function openAdminLogin() {
-  document.getElementById('adminLoginOverlay').style.display = 'flex';
-  setTimeout(() => document.getElementById('adminPwdInput').focus(), 100);
-}
-function closeAdminLogin() {
-  document.getElementById('adminLoginOverlay').style.display = 'none';
-  document.getElementById('adminPwdError').style.display = 'none';
-}
-function closeAdminPanel() {
-  document.getElementById('adminPanel').classList.remove('open');
-}
-
-async function checkAdminPwd() {
-  const pwd = document.getElementById('adminPwdInput').value;
-  const token = document.getElementById('adminTokenInput').value.trim();
-  const hash = await hashStr(pwd);
-  
-  if (hash !== ADMIN_PASSWORD_HASH) {
-    document.getElementById('adminPwdError').style.display = 'block';
+function generateBracket() {
+  const hasProbs = TEAMS.some(t => t.champProb > 0);
+  if (!hasProbs) {
+    document.getElementById('bracketNotice').innerHTML =
+      '<strong>⚠️ Run the Monte Carlo Sim first!</strong> Go to the Monte Carlo Sim tab, hit Run, then come back here.';
+    document.getElementById('bracketNotice').style.borderColor = 'var(--accent)';
     return;
   }
-  if (!token.startsWith('ghp_') && !token.startsWith('github_pat_')) {
-    document.getElementById('adminPwdError').style.display = 'block';
-    document.getElementById('adminPwdError').textContent = '❌ Invalid GitHub token format';
+  document.getElementById('bracketNotice').style.display = 'none';
+
+  if (lastSimBracket && lastSimBracket.regions.East) {
+    renderBracket(lastSimBracket.regions, lastSimBracket.ff, lastSimBracket.champGame);
     return;
   }
 
-  adminToken = token;
-  adminUnlocked = true;
-  closeAdminLogin();
-  document.getElementById('adminPanel').classList.add('open');
-  document.getElementById('adminPwdInput').value = '';
-  renderAdminRound();
-  fetchFromGist(true);
-}
-
-// ==== GIST READ/WRITE ====
-async function fetchFromGist(showStatus = false) {
-  try {
-    const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
-      headers: adminUnlocked && adminToken 
-        ? { Authorization: `token ${adminToken}`, Accept: 'application/vnd.github.v3+json' }
-        : { Accept: 'application/vnd.github.v3+json' }
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    const file = data.files[GIST_FILENAME];
-    if (file && file.content) {
-      const parsed = JSON.parse(file.content);
-      liveBracket = { ...liveBracket, ...parsed };
-      applyLiveBracket();
-      if (showStatus) setGistStatus(true, `Loaded · ${new Date().toLocaleTimeString()}`);
-    } else {
-      if (showStatus) setGistStatus(false, 'File not found in Gist — save to create it');
-    }
-  } catch(e) {
-    if (showStatus) setGistStatus(false, `Error: ${e.message}`);
+  // Fallback deterministic bracket
+  function getTeam(name, region) {
+    return TEAMS.find(t => t.name === name && t.region === region) || TEAMS.find(t => t.name === name) || { name, seed:8, power:50, champProb:0, region };
   }
-}
+  function bestWinner(a, b) { return a.power >= b.power ? a : b; }
 
-async function saveToGist() {
-  if (!adminToken) return;
-  document.getElementById('adminSaveStatus').textContent = '⏳ Saving...';
-  
-  // Collect admin form data into liveBracket
-  collectAdminFormData();
-
-  try {
-    const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
-      method: 'PATCH',
-      headers: {
-        Authorization: `token ${adminToken}`,
-        Accept: 'application/vnd.github.v3+json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        files: {
-          [GIST_FILENAME]: {
-            content: JSON.stringify({ ...liveBracket, lastUpdated: new Date().toISOString() }, null, 2)
-          }
-        }
-      })
+  const allRegions = {};
+  ['East','South','West','Midwest'].forEach(region => {
+    const matchups = R32_BRACKET[region];
+    const r32 = matchups.map(([sA,nA,sB,nB]) => {
+      const tA = getTeam(nA, region), tB = getTeam(nB, region);
+      return { teamA: tA, teamB: tB, winner: bestWinner(tA, tB) };
     });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    document.getElementById('adminSaveStatus').textContent = `✅ Saved at ${new Date().toLocaleTimeString()}`;
-    setGistStatus(true, `Saved · ${new Date().toLocaleTimeString()}`);
-    applyLiveBracket();
-  } catch(e) {
-    document.getElementById('adminSaveStatus').textContent = `❌ Save failed: ${e.message}`;
-  }
-}
-
-function setGistStatus(ok, msg) {
-  const dot = document.getElementById('gistStatusDot');
-  const txt = document.getElementById('gistStatusText');
-  if (dot) { dot.className = 'status-dot-admin' + (ok ? ' live' : ''); }
-  if (txt) txt.textContent = msg;
-}
-
-// Apply live bracket data to the app
-function applyLiveBracket() {
-  // Push region teams into bracketData
-  Object.entries(liveBracket.regions).forEach(([rName, rData]) => {
-    const ri = bracketData.regions.findIndex(r => r.name === rName);
-    if (ri >= 0) bracketData.regions[ri].teams = { ...rData.teams };
+    const r32w = r32.map(g => g.winner);
+    const s16 = [
+      { teamA: r32w[0], teamB: r32w[1], winner: bestWinner(r32w[0], r32w[1]) },
+      { teamA: r32w[2], teamB: r32w[3], winner: bestWinner(r32w[2], r32w[3]) },
+    ];
+    const e8 = { teamA: s16[0].winner, teamB: s16[1].winner, winner: bestWinner(s16[0].winner, s16[1].winner) };
+    allRegions[region] = [r32, s16, [e8]];
   });
 
-  // Update header
-  const roundLabels = ['Pre-Tournament','First Round','Sweet 16','Elite 8','Final Four','Championship'];
-  const label = liveBracket.roundLabel || roundLabels[liveBracket.round] || 'In Progress';
-  const headerRound = document.getElementById('headerRound');
-  if (headerRound) headerRound.textContent = `📍 CURRENT ROUND: ${label.toUpperCase()}`;
-
-  // Update bracket alert
-  const bracketAlert = document.getElementById('bracketAlert');
-  if (bracketAlert && liveBracket.notes) {
-    bracketAlert.innerHTML = `<strong>📡 LIVE DATA:</strong> ${liveBracket.notes}`;
-    bracketAlert.style.background = 'rgba(0,229,160,.08)';
-    bracketAlert.style.borderColor = 'rgba(0,229,160,.3)';
-  }
-
-  // Re-render bracket UI if on bracket tab
-  if (document.getElementById('tab-bracket')?.classList.contains('active')) {
-    renderBracketRegions();
-  }
-
-  // Show advancing teams in bracket sim results if data exists
-  if (liveBracket.round > 0) {
-    showAdvancingTeams();
-  }
+  const ff = [
+    { teamA: allRegions['East'][2][0].winner, teamB: allRegions['South'][2][0].winner },
+    { teamA: allRegions['West'][2][0].winner, teamB: allRegions['Midwest'][2][0].winner },
+  ];
+  ff[0].winner = bestWinner(ff[0].teamA, ff[0].teamB);
+  ff[1].winner = bestWinner(ff[1].teamA, ff[1].teamB);
+  const champGame = { teamA: ff[0].winner, teamB: ff[1].winner };
+  champGame.winner = bestWinner(champGame.teamA, champGame.teamB);
+  renderBracket(allRegions, ff, champGame);
 }
 
-function showAdvancingTeams() {
-  const advancing = liveBracket.advancing;
-  const roundLabels = {round2:'Sweet 16',round3:'Elite 8',round4:'Final Four',round5:'Championship Game'};
-  let html = '';
-  ['round2','round3','round4','round5'].forEach(r => {
-    const teams = advancing[r] || [];
-    if (!teams.length) return;
-    html += `<div style="margin-bottom:14px;">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:11px;letter-spacing:2px;color:var(--muted);margin-bottom:8px;">${roundLabels[r]}</div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;">
-        ${teams.map(t => `<span style="background:rgba(0,229,160,.1);border:1px solid rgba(0,229,160,.25);color:var(--accent2);font-family:'IBM Plex Mono',monospace;font-size:11px;padding:3px 10px;border-radius:3px;">${t}</span>`).join('')}
-      </div>
+function renderBracket(allRegions, ff, champGame) {
+  const container = document.getElementById('bracketContainer');
+
+  function teamEl(team, isWinner, isChamp) {
+    if (!team) return `<div class="bracket-team" style="opacity:.3;">TBD</div>`;
+    const cls = isChamp ? 'champion' : (isWinner ? 'winner' : '');
+    const prob = team.champProb ? `<span class="bprob">${(team.champProb*100).toFixed(0)}%</span>` : '';
+    return `<div class="bracket-team ${cls}">
+      <span class="bseed">${team.seed}</span>
+      <span style="overflow:hidden;text-overflow:ellipsis;">${team.name}</span>
+      ${prob}
     </div>`;
-  });
-  if (html) {
-    document.getElementById('bracketSimResults').style.display = 'block';
-    document.getElementById('bracketSimSummary').innerHTML = `
-      <div style="grid-column:1/-1;">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:12px;letter-spacing:2px;color:var(--muted);margin-bottom:12px;">ADVANCING TEAMS — LIVE</div>
-        ${html}
-      </div>`;
   }
-}
 
-// ==== ADMIN ROUND EDITOR ====
-const ROUND_CONFIG = [
-  { key: 'regions', label: 'First Round — Enter All 68 Teams by Region' },
-  { key: 'round2',  label: 'Sweet 16 — 16 Advancing Teams' },
-  { key: 'round3',  label: 'Elite 8 — 8 Advancing Teams' },
-  { key: 'round4',  label: 'Final Four — 4 Teams' },
-  { key: 'round5',  label: 'Championship — 2 Teams' },
-];
+  function gameEl(game) {
+    const aWin = game.winner && game.winner.name === game.teamA.name;
+    return `<div class="bracket-game">
+      ${teamEl(game.teamA, aWin, false)}
+      ${teamEl(game.teamB, !aWin, false)}
+    </div>`;
+  }
 
-function switchAdminRound(idx, el) {
-  currentAdminRound = idx;
-  document.querySelectorAll('.round-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  renderAdminRound();
-}
-
-function renderAdminRound() {
-  const container = document.getElementById('adminRoundContent');
-  if (currentAdminRound === 0) {
-    // Region entry
-    container.innerHTML = `
-      <div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-bottom:14px;">Enter team names by seed for each region. Use tonight's CBS bracket.</div>
-      ${['East','West','South','Midwest'].map(rName => {
-        const rData = liveBracket.regions[rName] || { teams: {} };
-        return `<div style="margin-bottom:16px;">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;color:var(--accent3);margin-bottom:8px;">${rName} Region</div>
-          ${[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16].map(s => `
-            <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
-              <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);width:22px;text-align:right;">${s}</span>
-              <input type="text" class="admin-input" style="margin:0;flex:1;padding:5px 8px;font-size:12px;" 
-                placeholder="Team name..." 
-                value="${rData.teams[s] || ''}"
-                data-region="${rName}" data-seed="${s}"
-                oninput="updateLiveBracketTeam('${rName}',${s},this.value)">
-            </div>`).join('')}
-        </div>`;
-      }).join('')}
-      <div style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-top:8px;">💡 Tip: After entering all teams, hit Save & Push. Users will see the bracket immediately.</div>
-    `;
-  } else {
-    const roundKey = ['','round2','round3','round4','round5'][currentAdminRound];
-    const counts = [0,16,8,4,2];
-    const count = counts[currentAdminRound];
-    const existing = liveBracket.advancing[roundKey] || [];
-    container.innerHTML = `
-      <div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-bottom:14px;">Enter the ${count} teams advancing to this round.</div>
-      ${Array.from({length: count}, (_,i) => `
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);width:16px;">${i+1}</span>
-          <input type="text" class="admin-input" style="margin:0;flex:1;padding:5px 8px;font-size:12px;"
-            placeholder="Team name..."
-            value="${existing[i] || ''}"
-            data-roundkey="${roundKey}" data-idx="${i}"
-            oninput="updateAdvancing('${roundKey}',${i},this.value)">
-        </div>`).join('')}
-      <div style="margin-top:12px;">
-        <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">ADMIN NOTES (shown to users)</label>
-        <textarea class="admin-input" rows="3" style="resize:vertical;" 
-          placeholder="e.g. Sweet 16 updated — Duke leads East bracket..."
-          oninput="liveBracket.notes=this.value">${liveBracket.notes||''}</textarea>
+  // For left regions: R32 -> S16 -> E8 (left to right)
+  // For right regions: E8 -> S16 -> R32 (left to right, reversed)
+  function regionLeft(regionName) {
+    const rounds = allRegions[regionName]; // [r32games, s16games, [e8game]]
+    const labels = ['R32','S16','E8'];
+    return rounds.map((round, ri) => `
+      <div class="bracket-col">
+        <div class="round-label">${labels[ri]}</div>
+        ${round.map((game, gi) => gameEl(game) + (gi < round.length-1 ? '<div class="bracket-spacer"></div>' : '')).join('')}
       </div>
-    `;
-    // Update round marker
-    liveBracket.round = currentAdminRound;
-    liveBracket.roundLabel = ROUND_CONFIG[currentAdminRound].label.split('—')[0].trim();
+    `).join('');
   }
+
+  function regionRight(regionName) {
+    const rounds = [...allRegions[regionName]].reverse(); // E8 -> S16 -> R32
+    const labels = ['E8','S16','R32'];
+    return rounds.map((round, ri) => `
+      <div class="bracket-col">
+        <div class="round-label">${labels[ri]}</div>
+        ${round.map((game, gi) => gameEl(game) + (gi < round.length-1 ? '<div class="bracket-spacer"></div>' : '')).join('')}
+      </div>
+    `).join('');
+  }
+
+  const html = `
+    <div style="margin-bottom:12px;display:flex;gap:24px;justify-content:center;flex-wrap:wrap;">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;color:var(--muted);">
+        <span style="color:var(--accent);margin-right:6px;">■</span>WINNER  
+        <span style="color:var(--accent3);margin-right:6px;">■</span>CHAMPION  
+        <span style="color:var(--accent2);font-family:'IBM Plex Mono',monospace;font-size:10px;">%</span> = TITLE PROB
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr auto 1fr 1fr;gap:4px;min-width:1050px;">
+
+      <div>
+        <div class="round-label" style="text-align:center;color:var(--accent2);font-size:10px;letter-spacing:2px;">EAST REGION</div>
+        <div style="display:flex;">${regionLeft('East')}</div>
+      </div>
+      <div>
+        <div class="round-label" style="text-align:center;color:var(--accent2);font-size:10px;letter-spacing:2px;">SOUTH REGION</div>
+        <div style="display:flex;">${regionLeft('South')}</div>
+      </div>
+
+      <div class="bracket-center-col" style="min-width:150px;">
+        <div class="round-label">FINAL FOUR</div>
+        <div class="bracket-game" style="margin-bottom:8px;">
+          ${teamEl(ff[0].teamA, ff[0].winner && ff[0].winner.name===ff[0].teamA.name, false)}
+          ${teamEl(ff[0].teamB, ff[0].winner && ff[0].winner.name===ff[0].teamB.name, false)}
+        </div>
+        <div class="bracket-champ-box">
+          <div class="trophy">🏆</div>
+          <div class="champ-name">${champGame.winner ? champGame.winner.name : '?'}</div>
+          <div class="champ-prob">[${champGame.winner ? champGame.winner.seed : '?'}] ${champGame.winner && champGame.winner.champProb ? (champGame.winner.champProb*100).toFixed(1)+'%' : ''} title</div>
+        </div>
+        <div class="bracket-game" style="margin-top:8px;">
+          ${teamEl(ff[1].teamA, ff[1].winner && ff[1].winner.name===ff[1].teamA.name, false)}
+          ${teamEl(ff[1].teamB, ff[1].winner && ff[1].winner.name===ff[1].teamB.name, false)}
+        </div>
+        <div class="round-label">FINAL FOUR</div>
+      </div>
+
+      <div>
+        <div class="round-label" style="text-align:center;color:var(--accent2);font-size:10px;letter-spacing:2px;">WEST REGION</div>
+        <div style="display:flex;">${regionRight('West')}</div>
+      </div>
+      <div>
+        <div class="round-label" style="text-align:center;color:var(--accent2);font-size:10px;letter-spacing:2px;">MIDWEST REGION</div>
+        <div style="display:flex;">${regionRight('Midwest')}</div>
+      </div>
+
+    </div>
+
+    <div style="margin-top:20px;padding:14px 18px;background:rgba(255,214,0,.06);border:1px solid rgba(255,214,0,.2);border-radius:6px;font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;line-height:1.7;">
+      🏀 Bracket generated from Monte Carlo simulation. Run the sim again for a different result. % = championship probability from simulation.
+    </div>
+  `;
+  container.innerHTML = html;
 }
 
-function updateLiveBracketTeam(region, seed, value) {
-  if (!liveBracket.regions[region]) liveBracket.regions[region] = { teams: {} };
-  liveBracket.regions[region].teams[seed] = value.trim();
-  // Also keep bracketData in sync
-  const ri = bracketData.regions.findIndex(r => r.name === region);
-  if (ri >= 0) bracketData.regions[ri].teams[seed] = value.trim();
+function printBracketPDF() {
+  if (!lastSimBracket || !lastSimBracket.regions.East) {
+    alert('Run the Monte Carlo Sim first, then come back here to print.');
+    return;
+  }
+  const sb = lastSimBracket;
+  const champ = sb.champGame.winner;
+
+  function teamLine(team, isWinner) {
+    if (!team) return `<div class="bl empty">TBD</div>`;
+    return `<div class="bl${isWinner?' win':''}"><span class="sd">${team.seed}</span>${team.name}</div>`;
+  }
+
+  function regionRound(rounds, roundIdx) {
+    if (!rounds || !rounds[roundIdx]) return '<div></div>';
+    return `<div class="rcol">${rounds[roundIdx].map(g => `
+      <div class="game">
+        ${teamLine(g.teamA, g.winner && g.winner.name === g.teamA.name)}
+        ${teamLine(g.teamB, g.winner && g.winner.name === g.teamB.name)}
+      </div>`).join('<div class="sp"></div>')}</div>`;
+  }
+
+  const E = sb.regions.East, S = sb.regions.South, W = sb.regions.West, Mw = sb.regions.Midwest;
+  const ff = sb.ff;
+
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Dave's Bracket Madness 2026</title>
+<style>
+  @page { size: 11in 8.5in landscape; margin: 6mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial Narrow, Arial, sans-serif; font-size: 7px; background: #fff; color: #111; height: 100vh; display: flex; flex-direction: column; }
+  .header { display: flex; justify-content: space-between; align-items: center; padding: 0 4px 5px; border-bottom: 2px solid #e8390e; margin-bottom: 5px; flex-shrink: 0; }
+  .htitle { font-size: 15px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; }
+  .htitle span { color: #e8390e; }
+  .hchamp { text-align: center; }
+  .hchamp .tr { font-size: 22px; }
+  .hchamp .cn { font-size: 12px; font-weight: 900; color: #e8390e; }
+  .hchamp .cl { font-size: 6px; color: #888; }
+  .hmeta { font-size: 6.5px; color: #999; text-align: right; line-height: 1.7; }
+  .wrap { display: grid; grid-template-columns: 1fr 1fr 54px 1fr 1fr; gap: 3px; flex: 1; min-height: 0; }
+  .region { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+  .rl { font-size: 7.5px; font-weight: 900; color: #e8390e; grid-column: span 3; text-align: center; letter-spacing: 1px; padding-bottom: 2px; text-transform: uppercase; }
+  .rcol { display: flex; flex-direction: column; justify-content: space-around; }
+  .game { display: flex; flex-direction: column; gap: 1px; margin: 1px 0; }
+  .sp { flex: 1; }
+  .bl { display: flex; align-items: center; gap: 2px; padding: 1.5px 3px; border: 0.5px solid #ddd; border-radius: 1px; background: #f8f8f8; font-size: 6.5px; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-height: 12px; }
+  .bl.win { background: #fff0ee; border-color: #e8390e; font-weight: 700; color: #c02800; }
+  .bl.empty { color: #ccc; border-color: #eee; }
+  .sd { display: inline-flex; align-items: center; justify-content: center; background: #444; color: #fff; font-size: 5.5px; font-weight: 700; min-width: 11px; height: 11px; border-radius: 1px; flex-shrink: 0; padding: 0 1px; }
+  .bl.win .sd { background: #e8390e; }
+  .center { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; text-align: center; padding: 2px; }
+  .ffg { width: 100%; }
+  .trophy { font-size: 24px; }
+  .cname { font-size: 10px; font-weight: 900; color: #e8390e; }
+  .clbl { font-size: 5.5px; color: #aaa; letter-spacing: 0.5px; }
+  .fflbl { font-size: 5.5px; color: #aaa; text-transform: uppercase; letter-spacing: 0.5px; }
+  @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+</style></head><body>
+<div class="header">
+  <div class="htitle">Dave's <span>Bracket Madness</span> 2026 — Round of 32</div>
+  <div class="hchamp"><div class="tr">🏆</div><div class="cn">${champ ? champ.name : '?'}</div><div class="cl">SEED ${champ ? champ.seed : '?'} CHAMPION</div></div>
+  <div class="hmeta">Dave's Bracket Madness 2026<br>Round of 32 · Simulation Result</div>
+</div>
+<div class="wrap">
+  <div class="region"><div class="rl">EAST</div>${regionRound(E,0)}${regionRound(E,1)}${regionRound(E,2)}</div>
+  <div class="region"><div class="rl">SOUTH</div>${regionRound(S,0)}${regionRound(S,1)}${regionRound(S,2)}</div>
+  <div class="center">
+    <div class="fflbl">Final Four</div>
+    <div class="ffg">${teamLine(ff&&ff[0]?ff[0].teamA:null, ff&&ff[0]&&ff[0].winner&&ff[0].winner.name===(ff[0].teamA||{}).name)}${teamLine(ff&&ff[0]?ff[0].teamB:null, ff&&ff[0]&&ff[0].winner&&ff[0].winner.name===(ff[0].teamB||{}).name)}</div>
+    <div class="trophy">🏆</div>
+    <div class="cname">${champ ? champ.name : '?'}</div>
+    <div class="clbl">[${champ ? champ.seed : '?'}] CHAMP</div>
+    <div class="ffg">${teamLine(ff&&ff[1]?ff[1].teamA:null, ff&&ff[1]&&ff[1].winner&&ff[1].winner.name===(ff[1].teamA||{}).name)}${teamLine(ff&&ff[1]?ff[1].teamB:null, ff&&ff[1]&&ff[1].winner&&ff[1].winner.name===(ff[1].teamB||{}).name)}</div>
+    <div class="fflbl">Final Four</div>
+  </div>
+  <div class="region"><div class="rl">WEST</div>${regionRound(W,2)}${regionRound(W,1)}${regionRound(W,0)}</div>
+  <div class="region"><div class="rl">MIDWEST</div>${regionRound(Mw,2)}${regionRound(Mw,1)}${regionRound(Mw,0)}</div>
+</div>
+<scr\u0069pt>window.onload = function(){ window.print(); }<\/scr\u0069pt>
+</body></html>`;
+
+  const win = window.open('', '_blank', 'width=1200,height=750');
+  if (win) { win.document.write(html); win.document.close(); }
+  else alert('Please allow popups to use the Print/PDF feature.');
 }
 
-function updateAdvancing(roundKey, idx, value) {
-  if (!liveBracket.advancing[roundKey]) liveBracket.advancing[roundKey] = [];
-  liveBracket.advancing[roundKey][idx] = value.trim();
-}
-
-function collectAdminFormData() {
-  // Already updated live via oninput handlers — nothing extra needed
-}
-
-// ==== AUTO-FETCH ON LOAD (public read, no token needed) ====
-window.addEventListener('load', () => {
-  setTimeout(() => fetchFromGist(false), 800);
-  // Re-fetch every 5 minutes to stay current
-  setInterval(() => fetchFromGist(false), 5 * 60 * 1000);
-});
-
-// ==== INIT ====
+// ---- INIT ----
+renderMatchups();
 renderRankings();
 renderUpsets();
-renderWeightSliders();
-
+renderChampionProfiles();
+populateBettingDropdowns();
 </script>
 </body>
 </html>
