@@ -640,52 +640,40 @@
     </div>
   </div>
 
-  <!-- RESULTS: full width combined output -->
+  <!-- ONE UNIFIED BLOCK -->
   <div id="bettingResults" style="display:none;">
+    <div class="card" style="margin-bottom:20px;">
 
-    <div class="grid-2" style="margin-bottom:20px;">
-      <!-- SPREAD -->
-      <div class="card">
-        <div class="card-title card-title-accent">▮ Spread</div>
-        <div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-bottom:14px;line-height:1.7;">
-          Model: <span style="color:var(--accent3)">(AdjEM_A − AdjEM_B) × avgTempo / 100</span> · σ=11 · Neutral floor
-        </div>
-        <div id="spreadStats" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;"></div>
-        <div style="margin-bottom:14px;">
-          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">VEGAS SPREAD (Team A favored = negative, e.g. -5.5)</label>
-          <div style="display:flex;gap:8px;">
-            <input type="number" id="vegasSpread" placeholder="-5.5" step="0.5" style="flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;">
-            <button class="sim-btn" onclick="calcSpread()" style="font-size:12px;padding:8px 16px;">CHECK EDGE</button>
+      <!-- Big three-panel display: scores + fav by X + total -->
+      <div id="projDisplay" style="display:flex;gap:0;margin-bottom:24px;border:1px solid var(--border);border-radius:6px;overflow:hidden;"></div>
+
+      <!-- Optional Vegas edge check -->
+      <div style="display:flex;gap:20px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:200px;">
+          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:6px;">VEGAS SPREAD — optional</label>
+          <div style="display:flex;gap:8px;margin-bottom:8px;">
+            <input type="number" id="vegasSpread" placeholder="-5.5" step="0.5" style="flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:700;">
+            <button class="sim-btn" onclick="calcSpread()" style="font-size:12px;padding:8px 16px;">CHECK</button>
           </div>
+          <div id="spreadResult"></div>
         </div>
-        <div id="spreadResult"></div>
+        <div style="flex:1;min-width:200px;">
+          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:6px;">VEGAS OVER/UNDER — optional</label>
+          <div style="display:flex;gap:8px;margin-bottom:8px;">
+            <input type="number" id="vegasTotal" placeholder="142.5" step="0.5" style="flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:15px;font-weight:700;">
+            <button class="sim-btn" onclick="calcTotal()" style="font-size:12px;padding:8px 16px;">CHECK</button>
+          </div>
+          <div id="totalResult"></div>
+        </div>
       </div>
 
-      <!-- TOTAL -->
-      <div class="card">
-        <div class="card-title card-title-accent">▮ Over / Under</div>
-        <div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-bottom:14px;line-height:1.7;">
-          Model: <span style="color:var(--accent3)">(AdjO_A + AdjO_B) × avgTempo / 100</span> · Both offenses vs avg defense
-        </div>
-        <div id="totalStats" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;"></div>
-        <div style="margin-bottom:14px;">
-          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">VEGAS OVER/UNDER</label>
-          <div style="display:flex;gap:8px;">
-            <input type="number" id="vegasTotal" placeholder="142.5" step="0.5" style="flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;">
-            <button class="sim-btn" onclick="calcTotal()" style="font-size:12px;padding:8px 16px;">CHECK EDGE</button>
-          </div>
-        </div>
-        <div id="totalResult"></div>
-      </div>
     </div>
 
-    <!-- PROB DISTRIBUTION VISUAL -->
     <div class="card">
-      <div class="card-title card-title-accent">▮ Win Probability Distribution — Normal CDF (σ = 11)</div>
+      <div class="card-title card-title-accent">▮ Win Probability Distribution</div>
       <canvas id="probChart" height="90" style="width:100%;margin-top:8px;"></canvas>
       <div id="probChartLegend" style="display:flex;gap:24px;justify-content:center;margin-top:10px;font-family:'IBM Plex Mono',monospace;font-size:11px;flex-wrap:wrap;"></div>
     </div>
-
   </div>
 
   <div id="bettingPlaceholder" style="padding:60px 0;text-align:center;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:13px;">
@@ -1505,21 +1493,32 @@ function calcBoth() {
   const winProbA = kenpomWinProb(modelSpread);
   const winProbB = 1 - winProbA;
 
-  // Win prob display only — no raw model numbers
-  document.getElementById('spreadStats').innerHTML =
-    statBox(`${(winProbA*100).toFixed(0)}%`, `${nameA} win prob`, 'var(--accent)') +
-    statBox(`${(winProbB*100).toFixed(0)}%`, `${nameB} win prob`, 'var(--cinderella)');
-
-  // Projected scores only — no totals, no formulas
   const avgT = (tA.adjT + tB.adjT) / 2;
   const sA = (avgT * (tA.adjO + tB.adjD - 100) / 100).toFixed(1);
   const sB = (avgT * (tB.adjO + tA.adjD - 100) / 100).toFixed(1);
-  document.getElementById('totalStats').innerHTML =
-    statBox(sA, `${nameA} proj pts`, 'var(--accent)') +
-    statBox(sB, `${nameB} proj pts`, 'var(--cinderella)');
+  const projTotal = (parseFloat(sA) + parseFloat(sB)).toFixed(1);
+  const projMargin = Math.abs(modelSpread).toFixed(1);
+  const favName = modelSpread >= 0 ? nameA : nameB;
+  const dogName = modelSpread >= 0 ? nameB : nameA;
+  const favScore = modelSpread >= 0 ? sA : sB;
+  const dogScore = modelSpread >= 0 ? sB : sA;
 
-  document.getElementById('spreadResult').innerHTML = `<div style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">Enter the Vegas line above to get the pick.</div>`;
-  document.getElementById('totalResult').innerHTML = `<div style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">Enter the Vegas O/U above to get the pick.</div>`;
+  const panel = (top, bot, col, bg) =>
+    `<div style="flex:1;padding:22px 16px;background:${bg};text-align:center;min-width:0;">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:44px;line-height:1;color:${col};">${top}</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:var(--muted);margin-top:8px;letter-spacing:.5px;">${bot}</div>
+    </div>`;
+  const div = `<div style="width:1px;background:var(--border);flex-shrink:0;"></div>`;
+
+  document.getElementById('projDisplay').innerHTML =
+    panel(`${favScore} – ${dogScore}`, 'projected score', 'var(--text)', 'var(--bg)') +
+    div +
+    panel(`${favName} by ${projMargin}`, '&nbsp;', 'var(--accent)', 'rgba(255,75,31,.06)') +
+    div +
+    panel(projTotal, 'projected total', 'var(--accent3)', 'rgba(255,214,0,.04)');
+
+  document.getElementById('spreadResult').innerHTML = `<div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">Enter Vegas spread to check edge.</div>`;
+  document.getElementById('totalResult').innerHTML = `<div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">Enter Vegas O/U to check edge.</div>`;
 
   requestAnimationFrame(() => drawProbChart(modelSpread, nameA, nameB));
 }
@@ -1560,12 +1559,8 @@ function calcSpread() {
     : `— No play. Signal too weak. &nbsp; ${stars}`;
 
   document.getElementById('spreadResult').innerHTML = `
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
-      ${statBox(`${(winProbA*100).toFixed(0)}%`, `${nameA} win prob`, 'var(--accent2)')}
-      ${statBox(`${(100-winProbA*100).toFixed(0)}%`, `${nameB} win prob`, 'var(--cinderella)')}
-    </div>
-    <div style="padding:14px 16px;border-radius:5px;background:${hasPlay?'rgba(0,229,160,.08)':'rgba(100,100,120,.06)'};border:1px solid ${hasPlay?'rgba(0,229,160,.3)':'rgba(100,100,120,.2)'};font-size:15px;font-family:'Barlow Condensed',sans-serif;font-weight:700;color:${hasPlay?'var(--accent2)':'var(--muted)'};">
-      ${verdict}
+    <div style="padding:18px 20px;border-radius:5px;background:${hasPlay?'rgba(0,229,160,.08)':'rgba(100,100,120,.06)'};border:1px solid ${hasPlay?'rgba(0,229,160,.3)':'rgba(100,100,120,.2)'};">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:26px;color:${hasPlay?'var(--accent2)':'var(--muted)'};">${verdict}</div>
     </div>`;
 }
 
@@ -1596,18 +1591,9 @@ function calcTotal() {
     ? `✅ <strong>${pick}</strong> &nbsp; ${stars}`
     : `— No play. Signal too weak. &nbsp; ${stars}`;
 
-  // Proj scores shown cleanly, no formulas
-  const avgTempo = (tA.adjT + tB.adjT) / 2;
-  const scoreA = (avgTempo * (tA.adjO + tB.adjD - 100) / 100).toFixed(1);
-  const scoreB = (avgTempo * (tB.adjO + tA.adjD - 100) / 100).toFixed(1);
-
   document.getElementById('totalResult').innerHTML = `
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
-      ${statBox(scoreA, `${nameA} proj pts`, 'var(--accent)')}
-      ${statBox(scoreB, `${nameB} proj pts`, 'var(--cinderella)')}
-    </div>
-    <div style="padding:14px 16px;border-radius:5px;background:${hasPlay?'rgba(0,229,160,.08)':'rgba(100,100,120,.06)'};border:1px solid ${hasPlay?'rgba(0,229,160,.3)':'rgba(100,100,120,.2)'};font-size:15px;font-family:'Barlow Condensed',sans-serif;font-weight:700;color:${hasPlay?'var(--accent2)':'var(--muted)'};">
-      ${verdict}
+    <div style="padding:18px 20px;border-radius:5px;background:${hasPlay?'rgba(0,229,160,.08)':'rgba(100,100,120,.06)'};border:1px solid ${hasPlay?'rgba(0,229,160,.3)':'rgba(100,100,120,.2)'};">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:26px;color:${hasPlay?'var(--accent2)':'var(--muted)'};">${verdict}</div>
     </div>`;
 }
 
