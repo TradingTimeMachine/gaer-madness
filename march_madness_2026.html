@@ -596,94 +596,100 @@
   <div class="section-header">
     <div>
       <div class="section-title">Betting Edge Calculator</div>
-      <div class="section-sub">R32 matchups · auto-fill power rating · find the edge</div>
+      <div class="section-sub">KenPom AdjEM methodology · norm.cdf spread model · stdev = 11</div>
     </div>
   </div>
 
-  <div class="alert">
-    <strong>📈 HOW TO USE:</strong> Pick Team A and Team B from the dropdowns — power rating, tempo, and offensive efficiency auto-fill from the model. Enter the Vegas spread or total, then hit Calculate. Edges of <strong>+2.5 pts on spreads</strong> or <strong>+4 pts on totals</strong> are actionable.
+  <div class="alert alert-yellow">
+    <strong>📐 METHODOLOGY:</strong> Spread = <code style="color:var(--accent2)">(AdjEM_A − AdjEM_B) × (AdjT_A + AdjT_B) / 200</code> · Win% = normal CDF with σ=11 (per KenPom/Reddit methodology) · Total = <code style="color:var(--accent2)">(AdjO_A + AdjO_B) × avgTempo / 100</code>. All KenPom values are pre-tournament estimates. Select both teams — everything auto-fills.
   </div>
 
+  <!-- TEAM PICKER -->
   <div class="card" style="margin-bottom:20px;">
     <div class="card-title card-title-accent">▮ Select Matchup</div>
     <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;">
       <div style="flex:1;min-width:200px;">
-        <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:6px;">TEAM A (Favorite / Higher Seed)</label>
+        <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:6px;">TEAM A</label>
         <select id="pickTeamA" onchange="autoFillTeam('A')" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;">
           <option value="">-- Select Team --</option>
         </select>
       </div>
       <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:22px;color:var(--muted);padding-bottom:6px;">VS</div>
       <div style="flex:1;min-width:200px;">
-        <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:6px;">TEAM B (Underdog / Lower Seed)</label>
+        <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:6px;">TEAM B</label>
         <select id="pickTeamB" onchange="autoFillTeam('B')" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;">
           <option value="">-- Select Team --</option>
         </select>
       </div>
-      <div><button class="sim-btn" onclick="calcBoth()" style="font-size:14px;padding:11px 24px;">RUN BOTH CALCS</button></div>
+      <div><button class="sim-btn" onclick="calcBoth()" style="font-size:14px;padding:11px 24px;">▶ RUN CALCS</button></div>
     </div>
-    <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;" id="teamPreviewRow">
-      <div id="previewA" style="flex:1;min-width:220px;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:12px 16px;display:none;">
-        <div id="previewAName" style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;color:var(--accent);margin-bottom:8px;"></div>
-        <div id="previewAStats" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);line-height:2;"></div>
+
+    <!-- stat preview cards -->
+    <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;">
+      <div id="previewA" style="flex:1;min-width:240px;background:var(--bg);border:1px solid rgba(255,75,31,.3);border-radius:5px;padding:14px 16px;display:none;">
+        <div id="previewAName" style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;color:var(--accent);margin-bottom:10px;"></div>
+        <div id="previewAStats" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);line-height:2.1;"></div>
       </div>
-      <div style="display:flex;align-items:center;justify-content:center;flex:0;padding:0 8px;" id="previewVs">
+      <div id="previewVs" style="display:none;align-items:center;justify-content:center;flex:0;padding:0 8px;">
         <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:28px;color:var(--border-bright);">VS</div>
       </div>
-      <div id="previewB" style="flex:1;min-width:220px;background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:12px 16px;display:none;">
-        <div id="previewBName" style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;color:var(--cinderella);margin-bottom:8px;"></div>
-        <div id="previewBStats" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);line-height:2;"></div>
+      <div id="previewB" style="flex:1;min-width:240px;background:var(--bg);border:1px solid rgba(75,142,255,.3);border-radius:5px;padding:14px 16px;display:none;">
+        <div id="previewBName" style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;color:var(--cinderella);margin-bottom:10px;"></div>
+        <div id="previewBStats" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);line-height:2.1;"></div>
       </div>
     </div>
   </div>
 
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-title card-title-accent">▮ Spread Calculator</div>
-      <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
-        <div style="flex:1;min-width:130px;">
-          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">TEAM A POWER RTG</label>
-          <input type="number" id="teamARtg" value="" placeholder="auto-fill" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--accent);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;">
+  <!-- RESULTS: full width combined output -->
+  <div id="bettingResults" style="display:none;">
+
+    <div class="grid-2" style="margin-bottom:20px;">
+      <!-- SPREAD -->
+      <div class="card">
+        <div class="card-title card-title-accent">▮ Spread</div>
+        <div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-bottom:14px;line-height:1.7;">
+          Model: <span style="color:var(--accent3)">(AdjEM_A − AdjEM_B) × avgTempo / 100</span> · σ=11 · Neutral floor
         </div>
-        <div style="flex:1;min-width:130px;">
-          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">TEAM B POWER RTG</label>
-          <input type="number" id="teamBRtg" value="" placeholder="auto-fill" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--cinderella);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;">
+        <div id="spreadStats" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;"></div>
+        <div style="margin-bottom:14px;">
+          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">VEGAS SPREAD (Team A favored = negative, e.g. -5.5)</label>
+          <div style="display:flex;gap:8px;">
+            <input type="number" id="vegasSpread" placeholder="-5.5" step="0.5" style="flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;">
+            <button class="sim-btn" onclick="calcSpread()" style="font-size:12px;padding:8px 16px;">CHECK EDGE</button>
+          </div>
         </div>
-        <div style="flex:1;min-width:130px;">
-          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">VEGAS SPREAD (A)</label>
-          <input type="number" id="vegasSpread" value="" placeholder="-4.5" step="0.5" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;">
-        </div>
+        <div id="spreadResult"></div>
       </div>
-      <button class="sim-btn" onclick="calcSpread()" style="font-size:13px;padding:10px 20px;">CALCULATE SPREAD EDGE</button>
-      <div id="spreadResult" style="margin-top:14px;"></div>
-    </div>
-    <div class="card">
-      <div class="card-title card-title-accent">▮ Total Calculator</div>
-      <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
-        <div style="flex:1;min-width:110px;">
-          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">TEAM A TEMPO</label>
-          <input type="number" id="tempoA" value="" placeholder="auto-fill" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--accent);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;">
+
+      <!-- TOTAL -->
+      <div class="card">
+        <div class="card-title card-title-accent">▮ Over / Under</div>
+        <div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-bottom:14px;line-height:1.7;">
+          Model: <span style="color:var(--accent3)">(AdjO_A + AdjO_B) × avgTempo / 100</span> · Both offenses vs avg defense
         </div>
-        <div style="flex:1;min-width:110px;">
-          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">TEAM B TEMPO</label>
-          <input type="number" id="tempoB" value="" placeholder="auto-fill" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--cinderella);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;">
+        <div id="totalStats" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;"></div>
+        <div style="margin-bottom:14px;">
+          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">VEGAS OVER/UNDER</label>
+          <div style="display:flex;gap:8px;">
+            <input type="number" id="vegasTotal" placeholder="142.5" step="0.5" style="flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;">
+            <button class="sim-btn" onclick="calcTotal()" style="font-size:12px;padding:8px 16px;">CHECK EDGE</button>
+          </div>
         </div>
-        <div style="flex:1;min-width:110px;">
-          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">A OFF EFF</label>
-          <input type="number" id="offEffA" value="" placeholder="auto-fill" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--accent);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;">
-        </div>
-        <div style="flex:1;min-width:110px;">
-          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">B OFF EFF</label>
-          <input type="number" id="offEffB" value="" placeholder="auto-fill" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--cinderella);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;">
-        </div>
-        <div style="flex:1;min-width:110px;">
-          <label style="font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:1px;display:block;margin-bottom:5px;">VEGAS O/U</label>
-          <input type="number" id="vegasTotal" value="" placeholder="142" step="0.5" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:14px;">
-        </div>
+        <div id="totalResult"></div>
       </div>
-      <button class="sim-btn" onclick="calcTotal()" style="font-size:13px;padding:10px 20px;">CALCULATE TOTAL EDGE</button>
-      <div id="totalResult" style="margin-top:14px;"></div>
     </div>
+
+    <!-- PROB DISTRIBUTION VISUAL -->
+    <div class="card">
+      <div class="card-title card-title-accent">▮ Win Probability Distribution — Normal CDF (σ = 11)</div>
+      <canvas id="probChart" height="90" style="width:100%;margin-top:8px;"></canvas>
+      <div id="probChartLegend" style="display:flex;gap:24px;justify-content:center;margin-top:10px;font-family:'IBM Plex Mono',monospace;font-size:11px;flex-wrap:wrap;"></div>
+    </div>
+
+  </div>
+
+  <div id="bettingPlaceholder" style="padding:60px 0;text-align:center;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:13px;">
+    Select two teams above to run the KenPom spread and O/U model
   </div>
 </div>
 
@@ -748,47 +754,51 @@ const R32_BRACKET = {
   ],
 };
 
-// 32 remaining teams — full stats
+// 32 remaining teams — full stats including KenPom AdjEM, AdjO, AdjD, AdjT
+// AdjEM = points per 100 possessions vs average D1 opponent
+// AdjO  = offensive efficiency per 100 possessions (adjusted)
+// AdjD  = defensive efficiency allowed per 100 possessions (adjusted)
+// AdjT  = adjusted tempo (possessions per 40 min)
 const TEAMS = [
   // ---- EAST ----
-  {seed:1,  name:"Duke",        conf:"ACC",  region:"East",    kenpom:1,  net:1,  sos:8,  q1w:14,q1l:4,  tempo:71, orb:31, tov:18, threeRate:.38, ftRate:.36, exp:"High", coachBonus:0,    coachName:"Scheyer", r32opp:"TCU"},
-  {seed:9,  name:"TCU",         conf:"B12",  region:"East",    kenpom:38, net:38, sos:33, q1w:3, q1l:11, tempo:70, orb:27, tov:17, threeRate:.37, ftRate:.33, exp:"Med",  coachBonus:0,    coachName:"Dixon",   r32opp:"Duke"},
-  {seed:4,  name:"Kansas",      conf:"B12",  region:"East",    kenpom:10, net:11, sos:3,  q1w:9, q1l:7,  tempo:71, orb:28, tov:16, threeRate:.36, ftRate:.35, exp:"Med",  coachBonus:0.10, coachName:"Self ⭐",  r32opp:"St. John's"},
-  {seed:5,  name:"St. John's",  conf:"BigE", region:"East",    kenpom:17, net:17, sos:18, q1w:7, q1l:8,  tempo:70, orb:28, tov:18, threeRate:.38, ftRate:.34, exp:"Med",  coachBonus:0.11, coachName:"Pitino ⭐",r32opp:"Kansas"},
-  {seed:3,  name:"Michigan St.",conf:"B10",  region:"East",    kenpom:9,  net:9,  sos:11, q1w:9, q1l:6,  tempo:65, orb:31, tov:17, threeRate:.33, ftRate:.40, exp:"High", coachBonus:0.12, coachName:"Izzo ⭐",  r32opp:"Louisville"},
-  {seed:6,  name:"Louisville",  conf:"ACC",  region:"East",    kenpom:18, net:18, sos:19, q1w:6, q1l:8,  tempo:69, orb:30, tov:17, threeRate:.36, ftRate:.35, exp:"Med",  coachBonus:0,    coachName:"Payne",   r32opp:"Michigan St."},
-  {seed:2,  name:"UConn",       conf:"BigE", region:"East",    kenpom:4,  net:4,  sos:9,  q1w:12,q1l:6,  tempo:70, orb:30, tov:15, threeRate:.36, ftRate:.35, exp:"High", coachBonus:0.09, coachName:"Hurley",  r32opp:"UCLA"},
-  {seed:7,  name:"UCLA",        conf:"B10",  region:"East",    kenpom:40, net:40, sos:37, q1w:2, q1l:13, tempo:70, orb:27, tov:17, threeRate:.37, ftRate:.33, exp:"Med",  coachBonus:0,    coachName:"Cronin",  r32opp:"UConn"},
+  {seed:1,  name:"Duke",        conf:"ACC",  region:"East",    kenpom:1,  net:1,  sos:8,  q1w:14,q1l:4,  tempo:71, orb:31, tov:18, threeRate:.38, ftRate:.36, exp:"High", coachBonus:0,    coachName:"Scheyer",     r32opp:"TCU",        adjEM:31.2, adjO:122.8, adjD:91.6,  adjT:71.2},
+  {seed:9,  name:"TCU",         conf:"B12",  region:"East",    kenpom:38, net:38, sos:33, q1w:3, q1l:11, tempo:70, orb:27, tov:17, threeRate:.37, ftRate:.33, exp:"Med",  coachBonus:0,    coachName:"Dixon",       r32opp:"Duke",       adjEM:17.1, adjO:115.4, adjD:98.3,  adjT:70.1},
+  {seed:4,  name:"Kansas",      conf:"B12",  region:"East",    kenpom:10, net:11, sos:3,  q1w:9, q1l:7,  tempo:71, orb:28, tov:16, threeRate:.36, ftRate:.35, exp:"Med",  coachBonus:0.10, coachName:"Self ⭐",      r32opp:"St. John's", adjEM:26.4, adjO:121.2, adjD:94.8,  adjT:70.8},
+  {seed:5,  name:"St. John's",  conf:"BigE", region:"East",    kenpom:17, net:17, sos:18, q1w:7, q1l:8,  tempo:70, orb:28, tov:18, threeRate:.38, ftRate:.34, exp:"Med",  coachBonus:0.11, coachName:"Pitino ⭐",   r32opp:"Kansas",     adjEM:22.6, adjO:118.9, adjD:96.3,  adjT:69.9},
+  {seed:3,  name:"Michigan St.",conf:"B10",  region:"East",    kenpom:9,  net:9,  sos:11, q1w:9, q1l:6,  tempo:65, orb:31, tov:17, threeRate:.33, ftRate:.40, exp:"High", coachBonus:0.12, coachName:"Izzo ⭐",      r32opp:"Louisville", adjEM:27.1, adjO:119.4, adjD:92.3,  adjT:65.3},
+  {seed:6,  name:"Louisville",  conf:"ACC",  region:"East",    kenpom:18, net:18, sos:19, q1w:6, q1l:8,  tempo:69, orb:30, tov:17, threeRate:.36, ftRate:.35, exp:"Med",  coachBonus:0,    coachName:"Payne",       r32opp:"Michigan St.",adjEM:22.1, adjO:118.2, adjD:96.1, adjT:68.7},
+  {seed:2,  name:"UConn",       conf:"BigE", region:"East",    kenpom:4,  net:4,  sos:9,  q1w:12,q1l:6,  tempo:70, orb:30, tov:15, threeRate:.36, ftRate:.35, exp:"High", coachBonus:0.09, coachName:"Hurley",      r32opp:"UCLA",       adjEM:29.8, adjO:120.6, adjD:90.8,  adjT:70.2},
+  {seed:7,  name:"UCLA",        conf:"B10",  region:"East",    kenpom:40, net:40, sos:37, q1w:2, q1l:13, tempo:70, orb:27, tov:17, threeRate:.37, ftRate:.33, exp:"Med",  coachBonus:0,    coachName:"Cronin",      r32opp:"UConn",      adjEM:16.4, adjO:114.8, adjD:98.4,  adjT:69.8},
 
   // ---- SOUTH ----
-  {seed:1,  name:"Florida",     conf:"SEC",  region:"South",   kenpom:5,  net:5,  sos:5,  q1w:11,q1l:5,  tempo:66, orb:35, tov:14, threeRate:.31, ftRate:.42, exp:"High", coachBonus:0,    coachName:"Golden",  r32opp:"Iowa"},
-  {seed:9,  name:"Iowa",        conf:"B10",  region:"South",   kenpom:24, net:24, sos:24, q1w:5, q1l:10, tempo:68, orb:29, tov:17, threeRate:.37, ftRate:.34, exp:"High", coachBonus:0,    coachName:"McCaffery",r32opp:"Florida"},
-  {seed:4,  name:"Nebraska",    conf:"B10",  region:"South",   kenpom:14, net:14, sos:13, q1w:8, q1l:8,  tempo:68, orb:30, tov:16, threeRate:.36, ftRate:.36, exp:"High", coachBonus:0,    coachName:"Hoiberg", r32opp:"Vanderbilt"},
-  {seed:5,  name:"Vanderbilt",  conf:"SEC",  region:"South",   kenpom:16, net:16, sos:16, q1w:7, q1l:7,  tempo:67, orb:29, tov:16, threeRate:.35, ftRate:.36, exp:"High", coachBonus:0,    coachName:"Stackhouse",r32opp:"Nebraska"},
-  {seed:3,  name:"Illinois",    conf:"B10",  region:"South",   kenpom:8,  net:8,  sos:10, q1w:10,q1l:6,  tempo:67, orb:29, tov:16, threeRate:.34, ftRate:.37, exp:"Med",  coachBonus:0,    coachName:"Underwood",r32opp:"VCU"},
-  {seed:11, name:"VCU",         conf:"A10",  region:"South",   kenpom:34, net:34, sos:50, q1w:1, q1l:8,  tempo:74, orb:36, tov:25, threeRate:.30, ftRate:.44, exp:"High", coachBonus:0,    coachName:"Rhoades", r32opp:"Illinois"},
-  {seed:2,  name:"Houston",     conf:"B12",  region:"South",   kenpom:6,  net:6,  sos:7,  q1w:10,q1l:5,  tempo:63, orb:34, tov:22, threeRate:.32, ftRate:.41, exp:"Med",  coachBonus:0,    coachName:"Sampson", r32opp:"Texas A&M"},
-  {seed:10, name:"Texas A&M",   conf:"SEC",  region:"South",   kenpom:30, net:30, sos:30, q1w:4, q1l:12, tempo:67, orb:30, tov:16, threeRate:.34, ftRate:.38, exp:"Med",  coachBonus:0,    coachName:"B.Williams",r32opp:"Houston"},
+  {seed:1,  name:"Florida",     conf:"SEC",  region:"South",   kenpom:5,  net:5,  sos:5,  q1w:11,q1l:5,  tempo:66, orb:35, tov:14, threeRate:.31, ftRate:.42, exp:"High", coachBonus:0,    coachName:"Golden",      r32opp:"Iowa",       adjEM:29.4, adjO:119.8, adjD:90.4,  adjT:65.9},
+  {seed:9,  name:"Iowa",        conf:"B10",  region:"South",   kenpom:24, net:24, sos:24, q1w:5, q1l:10, tempo:68, orb:29, tov:17, threeRate:.37, ftRate:.34, exp:"High", coachBonus:0,    coachName:"McCaffery",   r32opp:"Florida",    adjEM:20.2, adjO:117.1, adjD:96.9,  adjT:67.8},
+  {seed:4,  name:"Nebraska",    conf:"B10",  region:"South",   kenpom:14, net:14, sos:13, q1w:8, q1l:8,  tempo:68, orb:30, tov:16, threeRate:.36, ftRate:.36, exp:"High", coachBonus:0,    coachName:"Hoiberg",     r32opp:"Vanderbilt", adjEM:23.8, adjO:118.4, adjD:94.6,  adjT:67.9},
+  {seed:5,  name:"Vanderbilt",  conf:"SEC",  region:"South",   kenpom:16, net:16, sos:16, q1w:7, q1l:7,  tempo:67, orb:29, tov:16, threeRate:.35, ftRate:.36, exp:"High", coachBonus:0,    coachName:"Stackhouse",  r32opp:"Nebraska",   adjEM:23.0, adjO:117.8, adjD:94.8,  adjT:66.8},
+  {seed:3,  name:"Illinois",    conf:"B10",  region:"South",   kenpom:8,  net:8,  sos:10, q1w:10,q1l:6,  tempo:67, orb:29, tov:16, threeRate:.34, ftRate:.37, exp:"Med",  coachBonus:0,    coachName:"Underwood",   r32opp:"VCU",        adjEM:27.6, adjO:120.1, adjD:92.5,  adjT:67.1},
+  {seed:11, name:"VCU",         conf:"A10",  region:"South",   kenpom:34, net:34, sos:50, q1w:1, q1l:8,  tempo:74, orb:36, tov:25, threeRate:.30, ftRate:.44, exp:"High", coachBonus:0,    coachName:"Rhoades",     r32opp:"Illinois",   adjEM:17.8, adjO:115.9, adjD:98.1,  adjT:74.1},
+  {seed:2,  name:"Houston",     conf:"B12",  region:"South",   kenpom:6,  net:6,  sos:7,  q1w:10,q1l:5,  tempo:63, orb:34, tov:22, threeRate:.32, ftRate:.41, exp:"Med",  coachBonus:0,    coachName:"Sampson",     r32opp:"Texas A&M",  adjEM:28.9, adjO:116.4, adjD:87.5,  adjT:63.2},
+  {seed:10, name:"Texas A&M",   conf:"SEC",  region:"South",   kenpom:30, net:30, sos:30, q1w:4, q1l:12, tempo:67, orb:30, tov:16, threeRate:.34, ftRate:.38, exp:"Med",  coachBonus:0,    coachName:"B.Williams",  r32opp:"Houston",    adjEM:19.1, adjO:116.3, adjD:97.2,  adjT:66.9},
 
   // ---- WEST ----
-  {seed:1,  name:"Arizona",     conf:"B12",  region:"West",    kenpom:3,  net:3,  sos:4,  q1w:12,q1l:5,  tempo:73, orb:33, tov:17, threeRate:.37, ftRate:.34, exp:"Med",  coachBonus:0,    coachName:"Lloyd",   r32opp:"Utah St."},
-  {seed:9,  name:"Utah St.",    conf:"MWC",  region:"West",    kenpom:29, net:29, sos:40, q1w:3, q1l:8,  tempo:64, orb:34, tov:14, threeRate:.33, ftRate:.40, exp:"High", coachBonus:0,    coachName:"Odom",    r32opp:"Arizona"},
-  {seed:4,  name:"Arkansas",    conf:"SEC",  region:"West",    kenpom:22, net:22, sos:22, q1w:5, q1l:9,  tempo:74, orb:35, tov:23, threeRate:.33, ftRate:.41, exp:"Low",  coachBonus:0,    coachName:"Calipari",r32opp:"High Point"},
-  {seed:12, name:"High Point",  conf:"BSth", region:"West",    kenpom:90, net:93, sos:135,q1w:0, q1l:1,  tempo:72, orb:27, tov:16, threeRate:.41, ftRate:.31, exp:"Med",  coachBonus:0,    coachName:"",        r32opp:"Arkansas"},
-  {seed:3,  name:"Gonzaga",     conf:"WCC",  region:"West",    kenpom:12, net:12, sos:20, q1w:7, q1l:6,  tempo:74, orb:33, tov:14, threeRate:.37, ftRate:.37, exp:"High", coachBonus:0.08, coachName:"Few",     r32opp:"NC State"},
-  {seed:11, name:"NC State",    conf:"ACC",  region:"West",    kenpom:45, net:46, sos:35, q1w:2, q1l:11, tempo:69, orb:27, tov:18, threeRate:.38, ftRate:.32, exp:"Med",  coachBonus:0,    coachName:"Wade",    r32opp:"Gonzaga"},
-  {seed:2,  name:"Purdue",      conf:"B10",  region:"West",    kenpom:11, net:10, sos:12, q1w:8, q1l:7,  tempo:64, orb:35, tov:15, threeRate:.33, ftRate:.38, exp:"High", coachBonus:0.07, coachName:"Painter", r32opp:"Miami (FL)"},
-  {seed:7,  name:"Miami (FL)",  conf:"ACC",  region:"West",    kenpom:36, net:37, sos:34, q1w:3, q1l:11, tempo:70, orb:26, tov:17, threeRate:.38, ftRate:.32, exp:"Low",  coachBonus:0,    coachName:"Lucas",   r32opp:"Purdue"},
+  {seed:1,  name:"Arizona",     conf:"B12",  region:"West",    kenpom:3,  net:3,  sos:4,  q1w:12,q1l:5,  tempo:73, orb:33, tov:17, threeRate:.37, ftRate:.34, exp:"Med",  coachBonus:0,    coachName:"Lloyd",       r32opp:"Utah St.",   adjEM:30.4, adjO:122.1, adjD:91.7,  adjT:72.8},
+  {seed:9,  name:"Utah St.",    conf:"MWC",  region:"West",    kenpom:29, net:29, sos:40, q1w:3, q1l:8,  tempo:64, orb:34, tov:14, threeRate:.33, ftRate:.40, exp:"High", coachBonus:0,    coachName:"Odom",        r32opp:"Arizona",    adjEM:19.4, adjO:113.8, adjD:94.4,  adjT:64.1},
+  {seed:4,  name:"Arkansas",    conf:"SEC",  region:"West",    kenpom:22, net:22, sos:22, q1w:5, q1l:9,  tempo:74, orb:35, tov:23, threeRate:.33, ftRate:.41, exp:"Low",  coachBonus:0,    coachName:"Calipari",    r32opp:"High Point", adjEM:21.2, adjO:118.6, adjD:97.4,  adjT:73.9},
+  {seed:12, name:"High Point",  conf:"BSth", region:"West",    kenpom:90, net:93, sos:135,q1w:0, q1l:1,  tempo:72, orb:27, tov:16, threeRate:.41, ftRate:.31, exp:"Med",  coachBonus:0,    coachName:"",            r32opp:"Arkansas",   adjEM:8.2,  adjO:110.4, adjD:102.2, adjT:71.6},
+  {seed:3,  name:"Gonzaga",     conf:"WCC",  region:"West",    kenpom:12, net:12, sos:20, q1w:7, q1l:6,  tempo:74, orb:33, tov:14, threeRate:.37, ftRate:.37, exp:"High", coachBonus:0.08, coachName:"Few",         r32opp:"NC State",   adjEM:25.6, adjO:121.4, adjD:95.8,  adjT:73.7},
+  {seed:11, name:"NC State",    conf:"ACC",  region:"West",    kenpom:45, net:46, sos:35, q1w:2, q1l:11, tempo:69, orb:27, tov:18, threeRate:.38, ftRate:.32, exp:"Med",  coachBonus:0,    coachName:"Wade",        r32opp:"Gonzaga",    adjEM:15.2, adjO:114.1, adjD:98.9,  adjT:68.8},
+  {seed:2,  name:"Purdue",      conf:"B10",  region:"West",    kenpom:11, net:10, sos:12, q1w:8, q1l:7,  tempo:64, orb:35, tov:15, threeRate:.33, ftRate:.38, exp:"High", coachBonus:0.07, coachName:"Painter",     r32opp:"Miami (FL)", adjEM:25.9, adjO:118.2, adjD:92.3,  adjT:63.8},
+  {seed:7,  name:"Miami (FL)",  conf:"ACC",  region:"West",    kenpom:36, net:37, sos:34, q1w:3, q1l:11, tempo:70, orb:26, tov:17, threeRate:.38, ftRate:.32, exp:"Low",  coachBonus:0,    coachName:"Lucas",       r32opp:"Purdue",     adjEM:17.3, adjO:115.6, adjD:98.3,  adjT:69.9},
 
   // ---- MIDWEST ----
-  {seed:1,  name:"Michigan",    conf:"B10",  region:"Midwest", kenpom:2,  net:2,  sos:6,  q1w:13,q1l:4,  tempo:68, orb:32, tov:16, threeRate:.35, ftRate:.38, exp:"High", coachBonus:0.04, coachName:"Dusty May",r32opp:"Saint Louis"},
-  {seed:9,  name:"Saint Louis", conf:"A10",  region:"Midwest", kenpom:46, net:46, sos:55, q1w:1, q1l:9,  tempo:66, orb:30, tov:15, threeRate:.34, ftRate:.36, exp:"High", coachBonus:0,    coachName:"Steele",  r32opp:"Michigan"},
-  {seed:4,  name:"Alabama",     conf:"SEC",  region:"Midwest", kenpom:20, net:20, sos:21, q1w:6, q1l:9,  tempo:75, orb:28, tov:19, threeRate:.42, ftRate:.31, exp:"Low",  coachBonus:0,    coachName:"Oats",    r32opp:"Texas Tech"},
-  {seed:5,  name:"Texas Tech",  conf:"B12",  region:"Midwest", kenpom:15, net:15, sos:14, q1w:8, q1l:8,  tempo:63, orb:32, tov:20, threeRate:.34, ftRate:.40, exp:"Med",  coachBonus:0,    coachName:"Grant",   r32opp:"Alabama"},
-  {seed:3,  name:"Virginia",    conf:"ACC",  region:"Midwest", kenpom:13, net:13, sos:15, q1w:8, q1l:7,  tempo:58, orb:30, tov:13, threeRate:.34, ftRate:.38, exp:"High", coachBonus:0,    coachName:"London",  r32opp:"Tennessee"},
-  {seed:6,  name:"Tennessee",   conf:"SEC",  region:"Midwest", kenpom:19, net:19, sos:17, q1w:6, q1l:9,  tempo:65, orb:33, tov:21, threeRate:.31, ftRate:.43, exp:"Med",  coachBonus:0.07, coachName:"Barnes",  r32opp:"Virginia"},
-  {seed:2,  name:"Iowa St.",    conf:"B12",  region:"Midwest", kenpom:7,  net:7,  sos:2,  q1w:11,q1l:6,  tempo:69, orb:27, tov:18, threeRate:.38, ftRate:.33, exp:"Med",  coachBonus:0,    coachName:"Otzelberger",r32opp:"Kentucky"},
-  {seed:7,  name:"Kentucky",    conf:"SEC",  region:"Midwest", kenpom:21, net:21, sos:23, q1w:5, q1l:10, tempo:72, orb:30, tov:18, threeRate:.36, ftRate:.36, exp:"Low",  coachBonus:0,    coachName:"",        r32opp:"Iowa St."},
+  {seed:1,  name:"Michigan",    conf:"B10",  region:"Midwest", kenpom:2,  net:2,  sos:6,  q1w:13,q1l:4,  tempo:68, orb:32, tov:16, threeRate:.35, ftRate:.38, exp:"High", coachBonus:0.04, coachName:"Dusty May",   r32opp:"Saint Louis",adjEM:30.8, adjO:121.6, adjD:90.8,  adjT:67.9},
+  {seed:9,  name:"Saint Louis", conf:"A10",  region:"Midwest", kenpom:46, net:46, sos:55, q1w:1, q1l:9,  tempo:66, orb:30, tov:15, threeRate:.34, ftRate:.36, exp:"High", coachBonus:0,    coachName:"Steele",      r32opp:"Michigan",   adjEM:14.9, adjO:113.6, adjD:98.7,  adjT:65.8},
+  {seed:4,  name:"Alabama",     conf:"SEC",  region:"Midwest", kenpom:20, net:20, sos:21, q1w:6, q1l:9,  tempo:75, orb:28, tov:19, threeRate:.42, ftRate:.31, exp:"Low",  coachBonus:0,    coachName:"Oats",        r32opp:"Texas Tech", adjEM:21.8, adjO:119.4, adjD:97.6,  adjT:74.8},
+  {seed:5,  name:"Texas Tech",  conf:"B12",  region:"Midwest", kenpom:15, net:15, sos:14, q1w:8, q1l:8,  tempo:63, orb:32, tov:20, threeRate:.34, ftRate:.40, exp:"Med",  coachBonus:0,    coachName:"Grant",       r32opp:"Alabama",    adjEM:23.4, adjO:116.8, adjD:93.4,  adjT:63.1},
+  {seed:3,  name:"Virginia",    conf:"ACC",  region:"Midwest", kenpom:13, net:13, sos:15, q1w:8, q1l:7,  tempo:58, orb:30, tov:13, threeRate:.34, ftRate:.38, exp:"High", coachBonus:0,    coachName:"London",      r32opp:"Tennessee",  adjEM:24.6, adjO:116.2, adjD:91.6,  adjT:57.8},
+  {seed:6,  name:"Tennessee",   conf:"SEC",  region:"Midwest", kenpom:19, net:19, sos:17, q1w:6, q1l:9,  tempo:65, orb:33, tov:21, threeRate:.31, ftRate:.43, exp:"Med",  coachBonus:0.07, coachName:"Barnes",      r32opp:"Virginia",   adjEM:22.4, adjO:115.8, adjD:93.4,  adjT:65.1},
+  {seed:2,  name:"Iowa St.",    conf:"B12",  region:"Midwest", kenpom:7,  net:7,  sos:2,  q1w:11,q1l:6,  tempo:69, orb:27, tov:18, threeRate:.38, ftRate:.33, exp:"Med",  coachBonus:0,    coachName:"Otzelberger", r32opp:"Kentucky",   adjEM:28.2, adjO:119.8, adjD:91.6,  adjT:68.7},
+  {seed:7,  name:"Kentucky",    conf:"SEC",  region:"Midwest", kenpom:21, net:21, sos:23, q1w:5, q1l:10, tempo:72, orb:30, tov:18, threeRate:.36, ftRate:.36, exp:"Low",  coachBonus:0,    coachName:"",            r32opp:"Iowa St.",   adjEM:21.6, adjO:117.2, adjD:95.6,  adjT:71.8},
 ];
 
 // ---- compute power rating ----
@@ -1259,104 +1269,336 @@ function renderChampionProfiles() {
   }).join('');
 }
 
+// ==== KENPOM BETTING METHODOLOGY ====
+// From reddit.com/r/CollegeBasketball/comments/5xir8t/
+// Spread  = (AdjEM_A - AdjEM_B) * (AdjT_A + AdjT_B) / 200
+// Win%    = norm.cdf(0, spread, stdev=11)  i.e. area under normal curve above 0
+// Total   = (AdjO_A + AdjO_B) * avgTempo / 100
+// stdev=11 is the empirically-derived tournament game standard deviation
+
+const SPREAD_STDEV = 11; // per KenPom/Reddit methodology
+
+// JavaScript implementation of norm.cdf (cumulative distribution function)
+// Uses error function approximation
+function normCDF(x, mean, stdev) {
+  const z = (x - mean) / (stdev * Math.SQRT2);
+  return 0.5 * (1 + erf(z));
+}
+
+function erf(x) {
+  // Abramowitz & Stegun approximation — accurate to ~1.5e-7
+  const sign = x < 0 ? -1 : 1;
+  x = Math.abs(x);
+  const t = 1 / (1 + 0.3275911 * x);
+  const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x);
+  return sign * y;
+}
+
+function kenpomSpread(tA, tB) {
+  // Projected point spread, positive = Team A favored
+  const avgTempo = (tA.adjT + tB.adjT) / 2;
+  return (tA.adjEM - tB.adjEM) * avgTempo / 100;
+}
+
+function kenpomTotal(tA, tB) {
+  // Projected total points scored
+  const avgTempo = (tA.adjT + tB.adjT) / 2;
+  // Each team scores at their AdjO rate vs average defense, adjusted for actual tempo
+  return (tA.adjO + tB.adjO) * avgTempo / 100;
+}
+
+function kenpomWinProb(spread) {
+  // P(Team A wins) = P(margin > 0) = 1 - CDF(0, spread, 11)
+  return 1 - normCDF(0, spread, SPREAD_STDEV);
+}
+
+// Render the probability distribution chart using Canvas
+function drawProbChart(spread, nameA, nameB) {
+  const canvas = document.getElementById('probChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth || 800;
+  canvas.width = W;
+  canvas.height = 110;
+
+  const mean = spread;
+  const stdev = SPREAD_STDEV;
+  const xMin = mean - 4 * stdev;
+  const xMax = mean + 4 * stdev;
+  const steps = 400;
+  const dx = (xMax - xMin) / steps;
+
+  // Map x value to canvas pixel
+  const toX = v => ((v - xMin) / (xMax - xMin)) * W;
+  const maxY = normCDF(mean, mean, stdev) * 0 + (1 / (stdev * Math.sqrt(2 * Math.PI)));
+  const toY = p => 90 - (p / maxY) * 80;
+
+  ctx.clearRect(0, 0, W, canvas.height);
+
+  // Draw fill areas
+  const winProbA = kenpomWinProb(spread);
+  const winProbB = 1 - winProbA;
+
+  // Team A fill (positive margin = right of 0)
+  ctx.beginPath();
+  ctx.moveTo(toX(0), 90);
+  for (let i = 0; i <= steps; i++) {
+    const x = xMin + i * dx;
+    if (x < 0) continue;
+    const pdf = Math.exp(-0.5 * ((x - mean) / stdev) ** 2) / (stdev * Math.sqrt(2 * Math.PI));
+    if (i === 0 || x === 0) ctx.moveTo(toX(x), toY(pdf));
+    else ctx.lineTo(toX(x), toY(pdf));
+  }
+  ctx.lineTo(toX(xMax), 90);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(255,75,31,0.25)';
+  ctx.fill();
+
+  // Team B fill (negative margin = left of 0)
+  ctx.beginPath();
+  ctx.moveTo(toX(xMin), 90);
+  for (let i = 0; i <= steps; i++) {
+    const x = xMin + i * dx;
+    if (x > 0) break;
+    const pdf = Math.exp(-0.5 * ((x - mean) / stdev) ** 2) / (stdev * Math.sqrt(2 * Math.PI));
+    ctx.lineTo(toX(x), toY(pdf));
+  }
+  ctx.lineTo(toX(0), 90);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(75,142,255,0.25)';
+  ctx.fill();
+
+  // Draw curve
+  ctx.beginPath();
+  for (let i = 0; i <= steps; i++) {
+    const x = xMin + i * dx;
+    const pdf = Math.exp(-0.5 * ((x - mean) / stdev) ** 2) / (stdev * Math.sqrt(2 * Math.PI));
+    if (i === 0) ctx.moveTo(toX(x), toY(pdf));
+    else ctx.lineTo(toX(x), toY(pdf));
+  }
+  ctx.strokeStyle = '#e8eaf0';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Zero line
+  const zeroX = toX(0);
+  ctx.beginPath();
+  ctx.moveTo(zeroX, 0);
+  ctx.lineTo(zeroX, 90);
+  ctx.strokeStyle = '#2d3450';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 3]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Mean line
+  ctx.beginPath();
+  ctx.moveTo(toX(mean), 0);
+  ctx.lineTo(toX(mean), 90);
+  ctx.strokeStyle = '#ffd600';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 3]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Labels
+  ctx.font = '10px IBM Plex Mono, monospace';
+  ctx.fillStyle = '#6b7280';
+  ctx.textAlign = 'center';
+  ctx.fillText('0', zeroX, 102);
+  ctx.fillStyle = '#ffd600';
+  ctx.fillText(`${mean >= 0 ? '+' : ''}${mean.toFixed(1)}`, toX(mean), 102);
+
+  // Update legend
+  const legend = document.getElementById('probChartLegend');
+  if (legend) {
+    legend.innerHTML = `
+      <span style="color:var(--accent);">■</span>&nbsp;<strong style="color:var(--text);">${nameA}</strong>&nbsp;wins&nbsp;<strong style="color:var(--accent);">${(winProbA*100).toFixed(1)}%</strong>
+      &nbsp;&nbsp;&nbsp;
+      <span style="color:var(--cinderella);">■</span>&nbsp;<strong style="color:var(--text);">${nameB}</strong>&nbsp;wins&nbsp;<strong style="color:var(--cinderella);">${(winProbB*100).toFixed(1)}%</strong>
+      &nbsp;&nbsp;&nbsp;
+      <span style="color:var(--accent3);">|</span>&nbsp;Projected spread:&nbsp;<strong style="color:var(--accent3);">${nameA}&nbsp;${mean >= 0 ? '-' : '+'}${Math.abs(mean).toFixed(1)}</strong>
+    `;
+  }
+}
+
+function statBox(val, lbl, color) {
+  return `<div class="stat-box" style="flex:1;min-width:90px;"><div class="val" style="font-size:22px;color:${color||'var(--accent)'};">${val}</div><div class="lbl">${lbl}</div></div>`;
+}
+
+function edgeBox(edge, lbl, threshold) {
+  const abs = Math.abs(edge);
+  const isEdge = abs >= threshold;
+  const col = isEdge ? 'var(--accent2)' : 'var(--muted)';
+  return `<div class="stat-box" style="flex:1;min-width:90px;border-color:${isEdge?'var(--accent2)':'var(--border)'};">
+    <div class="val" style="font-size:22px;color:${col};">${edge>=0?'+':''}${edge.toFixed(1)}</div>
+    <div class="lbl">${lbl}</div>
+  </div>`;
+}
+
+function verdictBox(isEdge, msg) {
+  return `<div style="margin-top:10px;padding:10px 14px;border-radius:4px;
+    background:${isEdge?'rgba(0,229,160,.08)':'rgba(100,100,120,.06)'};
+    border:1px solid ${isEdge?'rgba(0,229,160,.3)':'rgba(100,100,120,.2)'};
+    font-size:13px;color:${isEdge?'var(--accent2)':'var(--muted)'};">${msg}</div>`;
+}
+
 // ==== BETTING DROPDOWNS ====
 function populateBettingDropdowns() {
   const sorted = [...TEAMS].sort((a,b) => a.seed - b.seed || a.name.localeCompare(b.name));
   const makeOptions = () => sorted.map(t =>
     `<option value="${t.name}">[${t.seed}] ${t.name} (${t.region})</option>`
   ).join('');
-  const selA = document.getElementById('pickTeamA');
-  const selB = document.getElementById('pickTeamB');
-  if (selA) selA.innerHTML = '<option value="">-- Select Team --</option>' + makeOptions();
-  if (selB) selB.innerHTML = '<option value="">-- Select Team --</option>' + makeOptions();
+  ['pickTeamA','pickTeamB'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '<option value="">-- Select Team --</option>' + makeOptions();
+  });
 }
 
 function autoFillTeam(side) {
   const name = document.getElementById('pickTeam'+side).value;
   const t = TEAMS.find(x => x.name === name);
   if (!t) return;
-  const offEff = Math.max(98, Math.round(123 - t.kenpom * 0.22));
-  if (side === 'A') {
-    document.getElementById('teamARtg').value = t.power.toFixed(1);
-    document.getElementById('tempoA').value = t.tempo;
-    document.getElementById('offEffA').value = offEff;
-    document.getElementById('previewAName').textContent = `[${t.seed}] ${t.name}`;
-    document.getElementById('previewAStats').innerHTML =
-      `Power Rating: <span style="color:var(--accent)">${t.power.toFixed(1)}</span><br>` +
-      `Tempo: <span style="color:var(--accent)">${t.tempo}</span> poss/40min<br>` +
-      `Off Efficiency: <span style="color:var(--accent)">${offEff}</span><br>` +
-      `KenPom: <span style="color:var(--accent)">#${t.kenpom}</span>   NET: <span style="color:var(--accent)">#${t.net}</span><br>` +
-      `R32 Opp: <span style="color:var(--accent)">${t.r32opp}</span>   Region: <span style="color:var(--accent)">${t.region}</span>`;
-    document.getElementById('previewA').style.display = 'block';
-  } else {
-    document.getElementById('teamBRtg').value = t.power.toFixed(1);
-    document.getElementById('tempoB').value = t.tempo;
-    document.getElementById('offEffB').value = offEff;
-    document.getElementById('previewBName').textContent = `[${t.seed}] ${t.name}`;
-    document.getElementById('previewBStats').innerHTML =
-      `Power Rating: <span style="color:var(--cinderella)">${t.power.toFixed(1)}</span><br>` +
-      `Tempo: <span style="color:var(--cinderella)">${t.tempo}</span> poss/40min<br>` +
-      `Off Efficiency: <span style="color:var(--cinderella)">${offEff}</span><br>` +
-      `KenPom: <span style="color:var(--cinderella)">#${t.kenpom}</span>   NET: <span style="color:var(--cinderella)">#${t.net}</span><br>` +
-      `R32 Opp: <span style="color:var(--cinderella)">${t.r32opp}</span>   Region: <span style="color:var(--cinderella)">${t.region}</span>`;
-    document.getElementById('previewB').style.display = 'block';
-  }
+
+  const col = side === 'A' ? 'var(--accent)' : 'var(--cinderella)';
+  const nameEl = document.getElementById('previewAName, previewBName'.split(', ')[side==='A'?0:1]);
+  document.getElementById('preview'+side+'Name').textContent = `[${t.seed}] ${t.name}`;
+  document.getElementById('preview'+side+'Stats').innerHTML =
+    `AdjEM: <span style="color:${col};font-weight:700;">${t.adjEM >= 0 ? '+' : ''}${t.adjEM.toFixed(1)}</span> pts/100<br>` +
+    `AdjO:  <span style="color:${col}">${t.adjO.toFixed(1)}</span> off eff<br>` +
+    `AdjD:  <span style="color:${col}">${t.adjD.toFixed(1)}</span> def eff<br>` +
+    `AdjT:  <span style="color:${col}">${t.adjT.toFixed(1)}</span> poss/40min<br>` +
+    `KenPom #${t.kenpom} · NET #${t.net} · R32 opp: ${t.r32opp}`;
+
+  document.getElementById('preview'+side).style.display = 'block';
   document.getElementById('previewVs').style.display = 'flex';
+
+  // Auto-run if both teams selected
+  const otherSide = side === 'A' ? 'B' : 'A';
+  if (document.getElementById('pickTeam'+otherSide).value) calcBoth();
 }
 
-function calcBoth() { calcSpread(); calcTotal(); }
+function calcBoth() {
+  const nameA = document.getElementById('pickTeamA').value;
+  const nameB = document.getElementById('pickTeamB').value;
+  if (!nameA || !nameB) return;
+  const tA = TEAMS.find(t => t.name === nameA);
+  const tB = TEAMS.find(t => t.name === nameB);
+  if (!tA || !tB) return;
+
+  document.getElementById('bettingResults').style.display = 'block';
+  document.getElementById('bettingPlaceholder').style.display = 'none';
+
+  const spread = kenpomSpread(tA, tB);
+  const total  = kenpomTotal(tA, tB);
+  const winProbA = kenpomWinProb(spread);
+  const winProbB = 1 - winProbA;
+
+  // Spread stats
+  document.getElementById('spreadStats').innerHTML =
+    statBox(`${spread >= 0 ? '' : '+'}${(-spread).toFixed(1)}`, `${tA.name} ${spread >= 0 ? 'fav' : 'dog'}`, spread >= 0 ? 'var(--accent)' : 'var(--cinderella)') +
+    statBox(`${(winProbA*100).toFixed(1)}%`, `${tA.name} Win%`, 'var(--accent)') +
+    statBox(`${(winProbB*100).toFixed(1)}%`, `${tB.name} Win%`, 'var(--cinderella)');
+
+  // Total stats
+  const avgTempo = (tA.adjT + tB.adjT) / 2;
+  document.getElementById('totalStats').innerHTML =
+    statBox(total.toFixed(1), 'Model Total', 'var(--accent3)') +
+    statBox(tA.adjO.toFixed(1), `${tA.name} AdjO`, 'var(--accent)') +
+    statBox(tB.adjO.toFixed(1), `${tB.name} AdjO`, 'var(--cinderella)') +
+    statBox(avgTempo.toFixed(1), 'Avg Tempo', 'var(--muted)');
+
+  // Clear edge results (will fill when user enters Vegas lines)
+  document.getElementById('spreadResult').innerHTML = `<div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">Enter Vegas spread above to check for edge (threshold: ±2 pts)</div>`;
+  document.getElementById('totalResult').innerHTML = `<div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">Enter Vegas O/U above to check for edge (threshold: ±3 pts)</div>`;
+
+  // Draw chart
+  requestAnimationFrame(() => drawProbChart(spread, tA.name, tB.name));
+}
 
 function calcSpread() {
-  const pA = parseFloat(document.getElementById('teamARtg').value);
-  const pB = parseFloat(document.getElementById('teamBRtg').value);
-  const vegas = parseFloat(document.getElementById('vegasSpread').value);
-  if (isNaN(pA) || isNaN(pB)) {
-    document.getElementById('spreadResult').innerHTML = `<div style="padding:10px;background:rgba(255,75,31,.08);border:1px solid rgba(255,75,31,.3);border-radius:4px;font-size:12px;color:var(--accent);">⚠️ Select both teams from the dropdown first.</div>`;
+  const nameA = document.getElementById('pickTeamA').value;
+  const nameB = document.getElementById('pickTeamB').value;
+  const vegasRaw = document.getElementById('vegasSpread').value;
+  if (!nameA || !nameB) { document.getElementById('spreadResult').innerHTML = `<div style="color:var(--accent);font-size:12px;font-family:'IBM Plex Mono',monospace;">⚠️ Select both teams first.</div>`; return; }
+  const tA = TEAMS.find(t => t.name === nameA);
+  const tB = TEAMS.find(t => t.name === nameB);
+  const spread = kenpomSpread(tA, tB);
+  const winProbA = kenpomWinProb(spread);
+
+  if (!vegasRaw) {
+    document.getElementById('spreadResult').innerHTML = `<div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">Model spread: <strong style="color:var(--accent3)">${tA.name} ${spread >= 0 ? '-' : '+'}${Math.abs(spread).toFixed(1)}</strong>. Enter Vegas line to find edge.</div>`;
     return;
   }
-  const modelSpread = -(pA - pB) * 0.45;
-  const winPct = Math.round(1 / (1 + Math.exp(-(pA - pB) * 0.08)) * 100);
-  const hasVegas = !isNaN(vegas);
-  const edge = hasVegas ? modelSpread - vegas : null;
-  const isEdge = hasVegas && Math.abs(edge) >= 2.5;
+
+  // Vegas convention: negative = Team A favored (e.g. -5.5 means A favored by 5.5)
+  const vegasLine = parseFloat(vegasRaw);
+  // Model spread is positive when A is favored, Vegas line is negative when A is favored
+  // So model edge from A's perspective: model_spread - (-vegasLine) = spread + vegasLine
+  const edge = spread + vegasLine; // positive = model likes A more than Vegas does
+  const threshold = 2.0;
+  const isEdge = Math.abs(edge) >= threshold;
+
+  let verdict;
+  if (isEdge) {
+    if (edge > 0) verdict = `✅ <strong>EDGE: Model favors ${tA.name} by ${Math.abs(edge).toFixed(1)} more pts than Vegas.</strong> Bet ${tA.name} ${vegasLine < 0 ? '(favorite)' : '(underdog)'}.`;
+    else verdict = `✅ <strong>EDGE: Model favors ${tB.name} by ${Math.abs(edge).toFixed(1)} more pts than Vegas.</strong> Bet ${tB.name} ${vegasLine > 0 ? '(favorite)' : '(underdog)'}.`;
+  } else {
+    verdict = `❌ No actionable edge (${Math.abs(edge).toFixed(1)} pts, need ≥${threshold}). Vegas is close to the model.`;
+  }
+
   document.getElementById('spreadResult').innerHTML = `
-    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px;">
-      <div class="stat-box" style="flex:1;min-width:100px;"><div class="val" style="font-size:24px;">${modelSpread.toFixed(1)}</div><div class="lbl">Model Spread</div></div>
-      <div class="stat-box" style="flex:1;min-width:100px;border-color:var(--accent2);"><div class="val" style="font-size:24px;color:var(--accent2);">${winPct}%</div><div class="lbl">Team A Win %</div></div>
-      ${hasVegas ? `<div class="stat-box" style="flex:1;min-width:100px;"><div class="val" style="font-size:24px;">${vegas}</div><div class="lbl">Vegas Spread</div></div>
-      <div class="stat-box" style="flex:1;min-width:100px;border-color:${isEdge?'var(--accent2)':'var(--border)'}"><div class="val" style="font-size:24px;color:${isEdge?'var(--accent2)':'var(--muted)'};">${edge>=0?'+':''}${edge.toFixed(1)}</div><div class="lbl">EDGE</div></div>` : ''}
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+      ${statBox(`${spread >= 0 ? '' : '+'}${(-spread).toFixed(1)}`, 'Model Spread', 'var(--accent3)')}
+      ${statBox(`${vegasLine}`, 'Vegas Line', 'var(--text)')}
+      ${edgeBox(edge, 'Edge (pts)', threshold)}
+      ${statBox(`${(winProbA*100).toFixed(1)}%`, `${tA.name} Win%`, 'var(--accent2)')}
     </div>
-    ${hasVegas ? `<div style="margin-top:10px;padding:10px;border-radius:4px;background:${isEdge?'rgba(0,229,160,.08)':'rgba(255,75,31,.08)'};border:1px solid ${isEdge?'rgba(0,229,160,.3)':'rgba(255,75,31,.2)'}; font-size:13px;color:${isEdge?'var(--accent2)':'var(--muted)'};">
-      ${isEdge ? `✅ <strong>EDGE DETECTED: ${Math.abs(edge).toFixed(1)} pts.</strong> Bet Team ${edge < 0 ? 'A' : 'B'}.` : `❌ No edge (need ≥2.5 pts). Vegas line is fair.`}
-    </div>` : ''}
-  `;
+    ${verdictBox(isEdge, verdict)}
+    <div style="margin-top:8px;font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">
+      Formula: (${tA.adjEM.toFixed(1)} − ${tB.adjEM.toFixed(1)}) × (${tA.adjT.toFixed(1)} + ${tB.adjT.toFixed(1)}) / 200 = ${spread.toFixed(2)} pts · σ=11
+    </div>`;
 }
 
 function calcTotal() {
-  const tA = parseFloat(document.getElementById('tempoA').value);
-  const tB = parseFloat(document.getElementById('tempoB').value);
-  const offEffA = parseFloat(document.getElementById('offEffA').value);
-  const offEffB = parseFloat(document.getElementById('offEffB').value);
-  const vegas = parseFloat(document.getElementById('vegasTotal').value);
-  if (isNaN(tA) || isNaN(tB) || isNaN(offEffA) || isNaN(offEffB)) {
-    document.getElementById('totalResult').innerHTML = `<div style="padding:10px;background:rgba(255,75,31,.08);border:1px solid rgba(255,75,31,.3);border-radius:4px;font-size:12px;color:var(--accent);">⚠️ Select both teams from the dropdown first.</div>`;
+  const nameA = document.getElementById('pickTeamA').value;
+  const nameB = document.getElementById('pickTeamB').value;
+  const vegasRaw = document.getElementById('vegasTotal').value;
+  if (!nameA || !nameB) { document.getElementById('totalResult').innerHTML = `<div style="color:var(--accent);font-size:12px;font-family:'IBM Plex Mono',monospace;">⚠️ Select both teams first.</div>`; return; }
+  const tA = TEAMS.find(t => t.name === nameA);
+  const tB = TEAMS.find(t => t.name === nameB);
+  const total = kenpomTotal(tA, tB);
+  const avgTempo = (tA.adjT + tB.adjT) / 2;
+
+  if (!vegasRaw) {
+    document.getElementById('totalResult').innerHTML = `<div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">Model total: <strong style="color:var(--accent3)">${total.toFixed(1)}</strong>. Enter Vegas O/U to find edge.</div>`;
     return;
   }
-  const avgTempo = (tA + tB) / 2;
-  const projTotal = Math.round(avgTempo * (offEffA / 100) + avgTempo * (offEffB / 100));
-  const hasVegas = !isNaN(vegas);
-  const edge = hasVegas ? projTotal - vegas : null;
-  const isEdge = hasVegas && Math.abs(edge) >= 4;
+
+  const vegasOU = parseFloat(vegasRaw);
+  const edge = total - vegasOU; // positive = model over, negative = model under
+  const threshold = 3.0;
+  const isEdge = Math.abs(edge) >= threshold;
+
+  let verdict;
+  if (isEdge) {
+    if (edge > 0) verdict = `✅ <strong>EDGE: Play the OVER.</strong> Model projects ${total.toFixed(1)}, Vegas has ${vegasOU} — ${Math.abs(edge).toFixed(1)} pts higher than the line.`;
+    else verdict = `✅ <strong>EDGE: Play the UNDER.</strong> Model projects ${total.toFixed(1)}, Vegas has ${vegasOU} — ${Math.abs(edge).toFixed(1)} pts lower than the line.`;
+  } else {
+    verdict = `❌ No actionable edge (${Math.abs(edge).toFixed(1)} pts, need ≥${threshold}). Total is close to the model.`;
+  }
+
   document.getElementById('totalResult').innerHTML = `
-    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px;">
-      <div class="stat-box" style="flex:1;min-width:100px;"><div class="val" style="font-size:24px;">${projTotal}</div><div class="lbl">Model Total</div></div>
-      ${hasVegas ? `<div class="stat-box" style="flex:1;min-width:100px;"><div class="val" style="font-size:24px;">${vegas}</div><div class="lbl">Vegas O/U</div></div>
-      <div class="stat-box" style="flex:1;min-width:100px;border-color:${isEdge?'var(--accent2)':'var(--border)'}"><div class="val" style="font-size:24px;color:${isEdge?'var(--accent2)':'var(--muted)'};">${edge>=0?'+':''}${edge.toFixed(0)}</div><div class="lbl">EDGE</div></div>` : ''}
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+      ${statBox(total.toFixed(1), 'Model Total', 'var(--accent3)')}
+      ${statBox(vegasOU, 'Vegas O/U', 'var(--text)')}
+      ${edgeBox(edge, 'Edge (pts)', threshold)}
+      ${statBox(avgTempo.toFixed(1), 'Avg Tempo', 'var(--muted)')}
     </div>
-    ${hasVegas ? `<div style="margin-top:10px;padding:10px;border-radius:4px;background:${isEdge?'rgba(0,229,160,.08)':'rgba(255,75,31,.08)'};border:1px solid ${isEdge?'rgba(0,229,160,.3)':'rgba(255,75,31,.2)'}; font-size:13px;color:${isEdge?'var(--accent2)':'var(--muted)'};">
-      ${isEdge ? `✅ <strong>TOTAL EDGE: ${Math.abs(edge).toFixed(0)} pts.</strong> Play the ${projTotal > vegas ? 'OVER' : 'UNDER'}.` : `❌ No edge on total (need ≥4 pts). Vegas is fair.`}
-    </div>` : ''}
-  `;
+    ${verdictBox(isEdge, verdict)}
+    <div style="margin-top:8px;font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">
+      Formula: (${tA.adjO.toFixed(1)} + ${tB.adjO.toFixed(1)}) × ${avgTempo.toFixed(1)} / 100 = ${total.toFixed(1)} pts · Over threshold: ${threshold} pts
+    </div>`;
 }
 
 // ==== TABS ====
