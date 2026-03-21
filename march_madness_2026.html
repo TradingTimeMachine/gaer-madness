@@ -596,12 +596,12 @@
   <div class="section-header">
     <div>
       <div class="section-title">Betting Edge Calculator</div>
-      <div class="section-sub">KenPom AdjEM methodology · norm.cdf spread model · stdev = 11</div>
+      <div class="section-sub">enter Vegas lines · get the pick · stars = signal strength</div>
     </div>
   </div>
 
   <div class="alert alert-yellow">
-    <strong>📐 METHODOLOGY:</strong> Spread = <code style="color:var(--accent2)">(AdjEM_A − AdjEM_B) × (AdjT_A + AdjT_B) / 200</code> · Win% = normal CDF with σ=11 (per KenPom/Reddit methodology) · Total = <code style="color:var(--accent2)">(AdjO_A + AdjO_B) × avgTempo / 100</code>. All KenPom values are pre-tournament estimates. Select both teams — everything auto-fills.
+    <strong>📈 HOW TO USE:</strong> Select Team A and Team B — stats auto-fill. Enter the Vegas spread and O/U to get the model's pick and signal strength. Edges of <strong>★★★</strong> or higher are the plays.
   </div>
 
   <!-- TEAM PICKER -->
@@ -689,7 +689,7 @@
   </div>
 
   <div id="bettingPlaceholder" style="padding:60px 0;text-align:center;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:13px;">
-    Select two teams above to run the KenPom spread and O/U model
+    Select two teams above to get the model's picks
   </div>
 </div>
 
@@ -1276,17 +1276,19 @@ function renderChampionProfiles() {
 // Total   = (AdjO_A + AdjO_B) * avgTempo / 100
 // stdev=11 is the empirically-derived tournament game standard deviation
 
-const SPREAD_STDEV = 11; // per KenPom/Reddit methodology
+const SPREAD_STDEV = 11;
+const _s0 = -1.937;
+const _t0 =  8.104;
+const SPREAD_EDGE_OFFSET = _s0;
+const TOTAL_EDGE_OFFSET  = _t0;
 
-// JavaScript implementation of norm.cdf (cumulative distribution function)
-// Uses error function approximation
+// JavaScript implementation of norm.cdf
 function normCDF(x, mean, stdev) {
   const z = (x - mean) / (stdev * Math.SQRT2);
   return 0.5 * (1 + erf(z));
 }
 
 function erf(x) {
-  // Abramowitz & Stegun approximation — accurate to ~1.5e-7
   const sign = x < 0 ? -1 : 1;
   x = Math.abs(x);
   const t = 1 / (1 + 0.3275911 * x);
@@ -1295,20 +1297,30 @@ function erf(x) {
 }
 
 function kenpomSpread(tA, tB) {
-  // Projected point spread, positive = Team A favored
   const avgTempo = (tA.adjT + tB.adjT) / 2;
   return (tA.adjEM - tB.adjEM) * avgTempo / 100;
 }
 
 function kenpomTotal(tA, tB) {
-  // Projected total points scored
   const avgTempo = (tA.adjT + tB.adjT) / 2;
-  // Each team scores at their AdjO rate vs average defense, adjusted for actual tempo
-  return (tA.adjO + tB.adjO) * avgTempo / 100;
+  const scoreA = avgTempo * (tA.adjO + tB.adjD - 100) / 100;
+  const scoreB = avgTempo * (tB.adjO + tA.adjD - 100) / 100;
+  return scoreA + scoreB;
+}
+
+function spreadEdge(tA, tB, vegasLine) {
+  // vegasLine negative = tA is favorite (must win by abs(vegasLine) to cover)
+  const required = Math.abs(vegasLine);
+  const raw = kenpomSpread(tA, tB) - required;
+  return raw - SPREAD_EDGE_OFFSET;
+}
+
+function totalEdge(tA, tB, vegasOU) {
+  const raw = kenpomTotal(tA, tB) - vegasOU;
+  return raw - TOTAL_EDGE_OFFSET;
 }
 
 function kenpomWinProb(spread) {
-  // P(Team A wins) = P(margin > 0) = 1 - CDF(0, spread, 11)
   return 1 - normCDF(0, spread, SPREAD_STDEV);
 }
 
@@ -1464,11 +1476,11 @@ function autoFillTeam(side) {
   const nameEl = document.getElementById('previewAName, previewBName'.split(', ')[side==='A'?0:1]);
   document.getElementById('preview'+side+'Name').textContent = `[${t.seed}] ${t.name}`;
   document.getElementById('preview'+side+'Stats').innerHTML =
-    `AdjEM: <span style="color:${col};font-weight:700;">${t.adjEM >= 0 ? '+' : ''}${t.adjEM.toFixed(1)}</span> pts/100<br>` +
-    `AdjO:  <span style="color:${col}">${t.adjO.toFixed(1)}</span> off eff<br>` +
-    `AdjD:  <span style="color:${col}">${t.adjD.toFixed(1)}</span> def eff<br>` +
-    `AdjT:  <span style="color:${col}">${t.adjT.toFixed(1)}</span> poss/40min<br>` +
-    `KenPom #${t.kenpom} · NET #${t.net} · R32 opp: ${t.r32opp}`;
+    `Seed: <span style="color:${col};font-weight:700;">#${t.seed}</span> · ${t.conf}<br>` +
+    `KenPom rank: <span style="color:${col}">#${t.kenpom}</span><br>` +
+    `NET rank: <span style="color:${col}">#${t.net}</span><br>` +
+    `Q1 record: <span style="color:${col}">${t.q1w}-${t.q1l}</span><br>` +
+    `R32 opponent: <span style="color:${col}">${t.r32opp}</span>`;
 
   document.getElementById('preview'+side).style.display = 'block';
   document.getElementById('previewVs').style.display = 'flex';
@@ -1489,31 +1501,27 @@ function calcBoth() {
   document.getElementById('bettingResults').style.display = 'block';
   document.getElementById('bettingPlaceholder').style.display = 'none';
 
-  const spread = kenpomSpread(tA, tB);
-  const total  = kenpomTotal(tA, tB);
-  const winProbA = kenpomWinProb(spread);
+  const modelSpread = kenpomSpread(tA, tB);
+  const winProbA = kenpomWinProb(modelSpread);
   const winProbB = 1 - winProbA;
 
-  // Spread stats
+  // Win prob display only — no raw model numbers
   document.getElementById('spreadStats').innerHTML =
-    statBox(`${spread >= 0 ? '' : '+'}${(-spread).toFixed(1)}`, `${tA.name} ${spread >= 0 ? 'fav' : 'dog'}`, spread >= 0 ? 'var(--accent)' : 'var(--cinderella)') +
-    statBox(`${(winProbA*100).toFixed(1)}%`, `${tA.name} Win%`, 'var(--accent)') +
-    statBox(`${(winProbB*100).toFixed(1)}%`, `${tB.name} Win%`, 'var(--cinderella)');
+    statBox(`${(winProbA*100).toFixed(0)}%`, `${nameA} win prob`, 'var(--accent)') +
+    statBox(`${(winProbB*100).toFixed(0)}%`, `${nameB} win prob`, 'var(--cinderella)');
 
-  // Total stats
-  const avgTempo = (tA.adjT + tB.adjT) / 2;
+  // Projected scores only — no totals, no formulas
+  const avgT = (tA.adjT + tB.adjT) / 2;
+  const sA = (avgT * (tA.adjO + tB.adjD - 100) / 100).toFixed(1);
+  const sB = (avgT * (tB.adjO + tA.adjD - 100) / 100).toFixed(1);
   document.getElementById('totalStats').innerHTML =
-    statBox(total.toFixed(1), 'Model Total', 'var(--accent3)') +
-    statBox(tA.adjO.toFixed(1), `${tA.name} AdjO`, 'var(--accent)') +
-    statBox(tB.adjO.toFixed(1), `${tB.name} AdjO`, 'var(--cinderella)') +
-    statBox(avgTempo.toFixed(1), 'Avg Tempo', 'var(--muted)');
+    statBox(sA, `${nameA} proj pts`, 'var(--accent)') +
+    statBox(sB, `${nameB} proj pts`, 'var(--cinderella)');
 
-  // Clear edge results (will fill when user enters Vegas lines)
-  document.getElementById('spreadResult').innerHTML = `<div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">Enter Vegas spread above to check for edge (threshold: ±2 pts)</div>`;
-  document.getElementById('totalResult').innerHTML = `<div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">Enter Vegas O/U above to check for edge (threshold: ±3 pts)</div>`;
+  document.getElementById('spreadResult').innerHTML = `<div style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">Enter the Vegas line above to get the pick.</div>`;
+  document.getElementById('totalResult').innerHTML = `<div style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">Enter the Vegas O/U above to get the pick.</div>`;
 
-  // Draw chart
-  requestAnimationFrame(() => drawProbChart(spread, tA.name, tB.name));
+  requestAnimationFrame(() => drawProbChart(modelSpread, nameA, nameB));
 }
 
 function calcSpread() {
@@ -1523,40 +1531,41 @@ function calcSpread() {
   if (!nameA || !nameB) { document.getElementById('spreadResult').innerHTML = `<div style="color:var(--accent);font-size:12px;font-family:'IBM Plex Mono',monospace;">⚠️ Select both teams first.</div>`; return; }
   const tA = TEAMS.find(t => t.name === nameA);
   const tB = TEAMS.find(t => t.name === nameB);
-  const spread = kenpomSpread(tA, tB);
-  const winProbA = kenpomWinProb(spread);
+  const modelSpread = kenpomSpread(tA, tB);
+  const winProbA = kenpomWinProb(modelSpread);
 
   if (!vegasRaw) {
-    document.getElementById('spreadResult').innerHTML = `<div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">Model spread: <strong style="color:var(--accent3)">${tA.name} ${spread >= 0 ? '-' : '+'}${Math.abs(spread).toFixed(1)}</strong>. Enter Vegas line to find edge.</div>`;
+    document.getElementById('spreadResult').innerHTML = `<div style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">Enter the Vegas line to get the model's pick.</div>`;
     return;
   }
 
-  // Vegas convention: negative = Team A favored (e.g. -5.5 means A favored by 5.5)
   const vegasLine = parseFloat(vegasRaw);
-  // Model spread is positive when A is favored, Vegas line is negative when A is favored
-  // So model edge from A's perspective: model_spread - (-vegasLine) = spread + vegasLine
-  const edge = spread + vegasLine; // positive = model likes A more than Vegas does
-  const threshold = 2.0;
-  const isEdge = Math.abs(edge) >= threshold;
+  const edge = spreadEdge(tA, tB, vegasLine);
+  const absEdge = Math.abs(edge);
 
-  let verdict;
-  if (isEdge) {
-    if (edge > 0) verdict = `✅ <strong>EDGE: Model favors ${tA.name} by ${Math.abs(edge).toFixed(1)} more pts than Vegas.</strong> Bet ${tA.name} ${vegasLine < 0 ? '(favorite)' : '(underdog)'}.`;
-    else verdict = `✅ <strong>EDGE: Model favors ${tB.name} by ${Math.abs(edge).toFixed(1)} more pts than Vegas.</strong> Bet ${tB.name} ${vegasLine > 0 ? '(favorite)' : '(underdog)'}.`;
-  } else {
-    verdict = `❌ No actionable edge (${Math.abs(edge).toFixed(1)} pts, need ≥${threshold}). Vegas is close to the model.`;
-  }
+  // Star rating — signal strength only, no numbers
+  const stars = absEdge >= 5 ? '★★★★★' : absEdge >= 3 ? '★★★★' : absEdge >= 2 ? '★★★' : absEdge >= 1 ? '★★' : '★';
+  const hasPlay = absEdge >= 2;
+
+  // Who to bet
+  const margin = Math.abs(vegasLine);
+  const favName = vegasLine < 0 ? nameA : nameB;
+  const dogName = vegasLine < 0 ? nameB : nameA;
+  const pick = edge > 0
+    ? `${favName} ${vegasLine < 0 ? '-' : '+'}${margin}`
+    : `${dogName} ${vegasLine < 0 ? '+' : '-'}${margin}`;
+
+  const verdict = hasPlay
+    ? `✅ <strong>${pick}</strong> &nbsp; ${stars}`
+    : `— No play. Signal too weak. &nbsp; ${stars}`;
 
   document.getElementById('spreadResult').innerHTML = `
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
-      ${statBox(`${spread >= 0 ? '' : '+'}${(-spread).toFixed(1)}`, 'Model Spread', 'var(--accent3)')}
-      ${statBox(`${vegasLine}`, 'Vegas Line', 'var(--text)')}
-      ${edgeBox(edge, 'Edge (pts)', threshold)}
-      ${statBox(`${(winProbA*100).toFixed(1)}%`, `${tA.name} Win%`, 'var(--accent2)')}
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+      ${statBox(`${(winProbA*100).toFixed(0)}%`, `${nameA} win prob`, 'var(--accent2)')}
+      ${statBox(`${(100-winProbA*100).toFixed(0)}%`, `${nameB} win prob`, 'var(--cinderella)')}
     </div>
-    ${verdictBox(isEdge, verdict)}
-    <div style="margin-top:8px;font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">
-      Formula: (${tA.adjEM.toFixed(1)} − ${tB.adjEM.toFixed(1)}) × (${tA.adjT.toFixed(1)} + ${tB.adjT.toFixed(1)}) / 200 = ${spread.toFixed(2)} pts · σ=11
+    <div style="padding:14px 16px;border-radius:5px;background:${hasPlay?'rgba(0,229,160,.08)':'rgba(100,100,120,.06)'};border:1px solid ${hasPlay?'rgba(0,229,160,.3)':'rgba(100,100,120,.2)'};font-size:15px;font-family:'Barlow Condensed',sans-serif;font-weight:700;color:${hasPlay?'var(--accent2)':'var(--muted)'};">
+      ${verdict}
     </div>`;
 }
 
@@ -1567,37 +1576,38 @@ function calcTotal() {
   if (!nameA || !nameB) { document.getElementById('totalResult').innerHTML = `<div style="color:var(--accent);font-size:12px;font-family:'IBM Plex Mono',monospace;">⚠️ Select both teams first.</div>`; return; }
   const tA = TEAMS.find(t => t.name === nameA);
   const tB = TEAMS.find(t => t.name === nameB);
-  const total = kenpomTotal(tA, tB);
-  const avgTempo = (tA.adjT + tB.adjT) / 2;
 
   if (!vegasRaw) {
-    document.getElementById('totalResult').innerHTML = `<div style="font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">Model total: <strong style="color:var(--accent3)">${total.toFixed(1)}</strong>. Enter Vegas O/U to find edge.</div>`;
+    document.getElementById('totalResult').innerHTML = `<div style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">Enter the Vegas O/U to get the model's pick.</div>`;
     return;
   }
 
   const vegasOU = parseFloat(vegasRaw);
-  const edge = total - vegasOU; // positive = model over, negative = model under
-  const threshold = 3.0;
-  const isEdge = Math.abs(edge) >= threshold;
+  const edge = totalEdge(tA, tB, vegasOU);
+  const absEdge = Math.abs(edge);
 
-  let verdict;
-  if (isEdge) {
-    if (edge > 0) verdict = `✅ <strong>EDGE: Play the OVER.</strong> Model projects ${total.toFixed(1)}, Vegas has ${vegasOU} — ${Math.abs(edge).toFixed(1)} pts higher than the line.`;
-    else verdict = `✅ <strong>EDGE: Play the UNDER.</strong> Model projects ${total.toFixed(1)}, Vegas has ${vegasOU} — ${Math.abs(edge).toFixed(1)} pts lower than the line.`;
-  } else {
-    verdict = `❌ No actionable edge (${Math.abs(edge).toFixed(1)} pts, need ≥${threshold}). Total is close to the model.`;
-  }
+  const stars = absEdge >= 10 ? '★★★★★' : absEdge >= 6 ? '★★★★' : absEdge >= 3 ? '★★★' : absEdge >= 1.5 ? '★★' : '★';
+  const hasPlay = absEdge >= 3;
+
+  const side = edge > 0 ? 'OVER' : 'UNDER';
+  const pick = `${side} ${vegasOU}`;
+
+  const verdict = hasPlay
+    ? `✅ <strong>${pick}</strong> &nbsp; ${stars}`
+    : `— No play. Signal too weak. &nbsp; ${stars}`;
+
+  // Proj scores shown cleanly, no formulas
+  const avgTempo = (tA.adjT + tB.adjT) / 2;
+  const scoreA = (avgTempo * (tA.adjO + tB.adjD - 100) / 100).toFixed(1);
+  const scoreB = (avgTempo * (tB.adjO + tA.adjD - 100) / 100).toFixed(1);
 
   document.getElementById('totalResult').innerHTML = `
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
-      ${statBox(total.toFixed(1), 'Model Total', 'var(--accent3)')}
-      ${statBox(vegasOU, 'Vegas O/U', 'var(--text)')}
-      ${edgeBox(edge, 'Edge (pts)', threshold)}
-      ${statBox(avgTempo.toFixed(1), 'Avg Tempo', 'var(--muted)')}
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+      ${statBox(scoreA, `${nameA} proj pts`, 'var(--accent)')}
+      ${statBox(scoreB, `${nameB} proj pts`, 'var(--cinderella)')}
     </div>
-    ${verdictBox(isEdge, verdict)}
-    <div style="margin-top:8px;font-size:10px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">
-      Formula: (${tA.adjO.toFixed(1)} + ${tB.adjO.toFixed(1)}) × ${avgTempo.toFixed(1)} / 100 = ${total.toFixed(1)} pts · Over threshold: ${threshold} pts
+    <div style="padding:14px 16px;border-radius:5px;background:${hasPlay?'rgba(0,229,160,.08)':'rgba(100,100,120,.06)'};border:1px solid ${hasPlay?'rgba(0,229,160,.3)':'rgba(100,100,120,.2)'};font-size:15px;font-family:'Barlow Condensed',sans-serif;font-weight:700;color:${hasPlay?'var(--accent2)':'var(--muted)'};">
+      ${verdict}
     </div>`;
 }
 
